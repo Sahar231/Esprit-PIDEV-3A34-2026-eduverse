@@ -12,7 +12,7 @@ class TwoFactorController extends AbstractController
     /**
      * @Route("/2fa", name="2fa_login")
      */
-    public function form(TwoFactorFormRendererInterface $formRenderer): Response
+    public function form(TwigFormRenderer $formRenderer): Response
     {
         return $formRenderer->renderForm($this->container->get('request_stack')->getCurrentRequest(), [
             'authenticationError' => null // Placeholder

@@ -16,7 +16,7 @@ class TwilioSmsProvider implements TwoFactorProviderInterface
     private $entityManager;
     private $formRenderer;
 
-    public function __construct(TwilioService $twilioService, EntityManagerInterface $entityManager, TwoFactorFormRendererInterface $formRenderer)
+    public function __construct(TwilioService $twilioService, EntityManagerInterface $entityManager, TwigFormRenderer $formRenderer)
     {
         $this->twilioService = $twilioService;
         $this->entityManager = $entityManager;
