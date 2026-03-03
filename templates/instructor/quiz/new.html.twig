@@ -1,0 +1,479 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un Quiz{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .quiz-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .quiz-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .quiz-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .quiz-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .question-item {
+        background: #f5f7fa;
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .question-item:hover {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .question-header h5 {
+        margin: 0;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .reponse-container {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .reponse-container:hover {
+        border-color: #667eea;
+        box-shadow: 0 2px 6px rgba(102, 126, 234, 0.1);
+    }
+
+    .reponse-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .btn-add {
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-add:hover {
+        background: #5568d3;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-remove {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove:hover {
+        background: #c82333;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.85rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.85rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancel:hover {
+        background: #5a6268;
+    }
+
+    .btn-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e0e0e0;
+    }
+
+    .checkbox-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #f5f7fa;
+        border-radius: 6px;
+    }
+
+    .checkbox-custom input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .checkbox-custom label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-errors {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <h1>📝 Créer un Quiz</h1>
+                </div>
+
+                <div class="quiz-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <!-- Section 1: Informations du Quiz -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-info-circle"></i> Informations du Quiz
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                {{ form_label(form.title, 'Titre du Quiz') }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Mathématiques Niveau 1'}}) }}
+                                {{ form_errors(form.title) }}
+                            </div>
+                            <div class="form-group">
+                                {{ form_label(form.level, 'Niveau de Difficulté') }}
+                                {{ form_widget(form.level, {'attr': {'class': 'form-select'}}) }}
+                                {{ form_errors(form.level) }}
+                            </div>
+                            <div class="form-group">
+                                {{ form_label(form.duration, 'Durée (minutes)') }}
+                                {{ form_widget(form.duration, {'attr': {'class': 'form-control', 'type': 'number', 'min': '1'}}) }}
+                                {{ form_errors(form.duration) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Questions -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="fas fa-question-circle"></i> Questions
+                        </div>
+
+                        {% set questionPrototype = form.questions.vars.prototype %}
+                        {% set questionPrototypeHtml = form_widget(questionPrototype)|e %}
+
+                        <div id="questions-wrapper" data-prototype="{{ questionPrototypeHtml }}">
+                            {% for questionForm in form.questions %}
+                                <div class="question-item">
+                                    <div class="question-header">
+                                        <h5>Question {{ loop.index }}</h5>
+                                        <button type="button" class="btn-remove remove-question">
+                                            <i class="fas fa-trash me-1"></i> Supprimer
+                                        </button>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        {{ form_label(questionForm.text, 'Énoncé de la Question') }}
+                                        {{ form_widget(questionForm.text, {'attr': {'class': 'form-control', 'placeholder': 'Posez votre question...', 'rows': '3'}}) }}
+                                        {% if questionForm.text.vars.errors %}
+                                            <div class="form-errors">
+                                                {% for error in questionForm.text.vars.errors %}
+                                                    {{ error.message }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label"><strong>Réponses possibles</strong></label>
+                                        <div class="reponses-list">
+                                            {% for reponseForm in questionForm.reponses %}
+                                                <div class="reponse-container">
+                                                    <div class="reponse-row">
+                                                        <div>
+                                                            {{ form_widget(reponseForm.content, {'attr': {'class': 'form-control', 'placeholder': 'Entrez la réponse...', 'rows': '2'}}) }}
+                                                            {% if reponseForm.content.vars.errors %}
+                                                                <div class="form-errors">
+                                                                    {% for error in reponseForm.content.vars.errors %}
+                                                                        {{ error.message }}
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                                                            <div class="checkbox-custom">
+                                                                {{ form_widget(reponseForm.isCorrect) }}
+                                                                {{ form_label(reponseForm.isCorrect, 'Exacte', {'label_attr': {'class': 'mb-0'}}) }}
+                                                            </div>
+                                                            <button type="button" class="btn-remove btn-sm remove-reponse">
+                                                                <i class="fas fa-times"></i> Supprimer
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <button type="button" class="btn-add add-reponse mt-2">
+                                            <i class="fas fa-plus"></i> Ajouter une Réponse
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" id="add-question-btn" class="btn-add mt-3">
+                            <i class="fas fa-plus"></i> Ajouter une Question
+                        </button>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="btn-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-check"></i> Créer le Quiz
+                        </button>
+                        <a href="{{ path('instructor_quiz_list') }}" class="btn-cancel">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionsWrapper = document.getElementById('questions-wrapper');
+    const addQuestionBtn = document.getElementById('add-question-btn');
+    let questionIndex = {{ form.questions|length }};
+    
+    let prototype = questionsWrapper.getAttribute('data-prototype');
+    
+    if (!prototype) {
+        console.error('Prototype not found!');
+        addQuestionBtn.disabled = true;
+        return;
+    }
+    
+    function decodeHtml(html) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    }
+    
+    prototype = decodeHtml(prototype);
+
+    addQuestionBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const newQuestionHtml = prototype.replace(/__name__/g, questionIndex);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newQuestionHtml;
+        const questionItem = tempDiv.firstElementChild;
+        
+        if (questionItem) {
+            if (!questionItem.classList.contains('question-item')) {
+                questionItem.className = 'question-item';
+            }
+            
+            questionsWrapper.appendChild(questionItem);
+            questionIndex++;
+            attachQuestionEvents(questionItem);
+            
+            const addReponseBtn = questionItem.querySelector('.add-reponse');
+            if (addReponseBtn) {
+                addReponseBtn.click();
+            }
+        }
+    });
+
+    document.querySelectorAll('.question-item').forEach((item) => {
+        attachQuestionEvents(item);
+    });
+
+    function attachQuestionEvents(questionItem) {
+        const removeBtn = questionItem.querySelector('.remove-question');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                questionItem.remove();
+            });
+        }
+
+        const addReponseBtn = questionItem.querySelector('.add-reponse');
+        if (addReponseBtn) {
+            addReponseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const reponsesList = questionItem.querySelector('.reponses-list');
+                const newReponse = document.createElement('div');
+                newReponse.className = 'reponse-container';
+                newReponse.innerHTML = `
+                    <div class="reponse-row">
+                        <div>
+                            <textarea class="form-control" placeholder="Entrez la réponse..." rows="2"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                            <div class="checkbox-custom">
+                                <input type="checkbox">
+                                <label class="mb-0">Exacte</label>
+                            </div>
+                            <button type="button" class="btn-remove btn-sm remove-reponse">
+                                <i class="fas fa-times"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+                reponsesList.appendChild(newReponse);
+                
+                const removeBtn = newReponse.querySelector('.remove-reponse');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        newReponse.remove();
+                    });
+                }
+            });
+        }
+
+        const existingRemoveBtns = questionItem.querySelectorAll('.remove-reponse');
+        existingRemoveBtns.forEach(btn => {
+            if (!btn.hasAttribute('data-listener-attached')) {
+                btn.setAttribute('data-listener-attached', 'true');
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.closest('.reponse-container').remove();
+                });
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

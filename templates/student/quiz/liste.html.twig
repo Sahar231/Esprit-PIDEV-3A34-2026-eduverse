@@ -1,0 +1,257 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Quiz - Student{% endblock %}
+
+{% block content %}
+<div class="student-quiz-list">
+    <div class="container mt-5">
+        <!-- Header with back button -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>🎓 Quiz Disponibles</h1>
+                <p class="text-muted">Sélectionnez un quiz pour évaluer vos connaissances</p>
+            </div>
+            <div class="col-md-4 d-flex justify-content-end align-items-start">
+                <a href="{{ path('student_quiz_statistics') }}" class="btn btn-info me-2">
+                    <i class="fas fa-chart-bar me-2"></i>Mes Résultats
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <form method="GET" action="{{ path('student_quiz_list') }}" class="d-flex gap-2">
+                    <input type="search" name="search" class="form-control" placeholder="Rechercher par titre..." value="{{ searchQuery|default('') }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Rechercher
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Statistics Summary -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card stat-summary">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2"><i class="fas fa-list me-2"></i>Quiz Disponibles</h6>
+                        <h3 class="text-primary mb-0">{{ totalItems|default(0) }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-summary">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2"><i class="fas fa-file-alt me-2"></i>Page Actuelle</h6>
+                        <h3 class="text-info mb-0">{{ currentPage|default(1) }}/{{ totalPages|default(1) }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card stat-summary">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted mb-2"><i class="fas fa-check-circle me-2"></i>Par Page</h6>
+                        <h3 class="text-success mb-0">5 Quiz</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if quizzes|length > 0 %}
+            <!-- Quiz Cards -->
+            <div class="row g-4 mb-4">
+                {% for quiz in quizzes %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card quiz-card h-100 shadow-sm" data-quiz-id="{{ quiz.id }}" data-quiz-title="{{ quiz.title|e('html_attr') }}">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">{{ quiz.title }}</h5>
+                                <!-- Status Badge -->
+                                {% if quiz.status == 'APPROVED' %}
+                                    <span class="badge bg-success"><i class="fas fa-check me-1"></i>Approuvé</span>
+                                {% elseif quiz.status == 'PENDING' %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>En attente</span>
+                                {% elseif quiz.status == 'REFUSED' %}
+                                    <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Refusé</span>
+                                {% else %}
+                                    <span class="badge bg-secondary"><i class="fas fa-file-alt me-1"></i>Brouillon</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <!-- Quiz Details -->
+                                <div class="quiz-details mb-3">
+                                    <div class="detail-row mb-2">
+                                        <span class="detail-label"><i class="fas fa-question-circle text-primary me-2"></i>Questions:</span>
+                                        <span class="badge bg-primary">{{ quiz.questions|length }}</span>
+                                    </div>
+                                    <div class="detail-row mb-2">
+                                        <span class="detail-label"><i class="fas fa-clock text-warning me-2"></i>Durée:</span>
+                                        <span class="badge bg-warning text-dark">{{ quiz.duration }} min</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label"><i class="fas fa-graduation-cap text-info me-2"></i>Niveau:</span>
+                                        <span class="badge bg-{{ quiz.level == 'facile' ? 'success' : quiz.level == 'intermediaire' ? 'info' : 'danger' }}">
+                                            {% if quiz.level == 'facile' %}
+                                                Facile
+                                            {% elseif quiz.level == 'intermediaire' %}
+                                                Intermédiaire
+                                            {% else %}
+                                                Difficile
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-light">
+                                <a href="{{ path('student_quiz_take', {id: quiz.id}) }}"
+                                   class="btn btn-primary w-100">
+                                    <i class="fas fa-play me-2"></i>Commencer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% set cp = currentPage|default(1) %}
+            {% set tp = totalPages|default(1) %}
+            {% if tp > 1 %}
+                <div class="row mt-5">
+                    <div class="col-12 d-flex justify-content-center">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <li class="page-item {{ cp <= 1 ? 'disabled' : '' }}">
+                                    <a class="page-link" href="{{ path('student_quiz_list', {page: 1, search: searchQuery}) }}" title="Première page">
+                                        <i class="fas fa-chevron-double-left me-1"></i>Première
+                                    </a>
+                                </li>
+                                <li class="page-item {{ cp <= 1 ? 'disabled' : '' }}">
+                                    <a class="page-link" href="{{ path('student_quiz_list', {page: cp - 1, search: searchQuery}) }}" title="Page précédente">
+                                        <i class="fas fa-chevron-left me-1"></i>Précédente
+                                    </a>
+                                </li>
+                                
+                                {% set start = max(1, cp - 2) %}
+                                {% set end = min(tp, cp + 2) %}
+                                
+                                {% if start > 1 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('student_quiz_list', {page: 1, search: searchQuery}) }}">1</a>
+                                    </li>
+                                    {% if start > 2 %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {% for p in start..end %}
+                                    <li class="page-item {{ p == cp ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ path('student_quiz_list', {page: p, search: searchQuery}) }}">{{ p }}</a>
+                                    </li>
+                                {% endfor %}
+                                
+                                {% if end < tp %}
+                                    {% if end < tp - 1 %}
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    {% endif %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('student_quiz_list', {page: tp, search: searchQuery}) }}">{{ tp }}</a>
+                                    </li>
+                                {% endif %}
+                                
+                                <li class="page-item {{ cp >= tp ? 'disabled' : '' }}">
+                                    <a class="page-link" href="{{ path('student_quiz_list', {page: cp + 1, search: searchQuery}) }}" title="Page suivante">
+                                        Suivante<i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item {{ cp >= tp ? 'disabled' : '' }}">
+                                    <a class="page-link" href="{{ path('student_quiz_list', {page: tp, search: searchQuery}) }}" title="Dernière page">
+                                        Dernière<i class="fas fa-chevron-double-right ms-1"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info text-center py-5">
+                <h4><i class="fas fa-info-circle me-2"></i>Aucun quiz disponible</h4>
+                <p class="mb-0">Revenez plus tard pour voir les quiz publiés par les instructeurs.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .student-quiz-list {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 0;
+    }
+
+    .quiz-card {
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .quiz-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .stat-summary {
+        background: white;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .stat-summary:hover {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .quiz-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .pagination {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        border-radius: 8px;
+        padding: 0.5rem;
+    }
+
+    .pagination .page-link {
+        border: none;
+        color: #667eea;
+        margin: 2px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover:not(.disabled) {
+        background: #667eea;
+        color: white;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #667eea;
+        border-color: #667eea;
+    }
+</style>
+{% endblock %}

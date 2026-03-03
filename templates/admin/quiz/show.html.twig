@@ -1,0 +1,153 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ quiz.title }} - Détails{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-3">
+        <a href="{{ path('admin_quiz_list') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Liste des Quiz
+        </a>
+        <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Éditer
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ quiz.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Niveau:</strong>
+                            <span class="badge bg-{{ quiz.level == 'facile' ? 'success' : quiz.level == 'intermediaire' ? 'warning' : 'danger' }}">
+                                {{ quiz.level|capitalize }}
+                            </span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Durée:</strong>
+                            <span class="text-muted">{{ quiz.duration }} minutes</span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Nombre de Questions:</strong>
+                            <span class="badge bg-info">{{ quiz.questions|length }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-lg">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Questions</h4>
+                </div>
+                <div class="card-body">
+                    {% if quiz.questions|length > 0 %}
+                        <div class="accordion" id="questionsAccordion">
+                            {% for question in quiz.questions %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button {% if loop.index != 1 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#question{{ question.id }}">
+                                            Q{{ loop.index }}: {{ question.text|slice(0, 50) }}{% if question.text|length > 50 %}...{% endif %}
+                                        </button>
+                                    </h2>
+                                    <div id="question{{ question.id }}" class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" data-bs-parent="#questionsAccordion">
+                                        <div class="accordion-body">
+                                            <p><strong>Question:</strong><br>{{ question.text }}</p>
+                                            <p>
+                                                <strong>Réponse Correcte:</strong><br>
+                                                <span class="badge bg-success">{{ question.correctAnswer }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Aucune question dans ce quiz.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg bg-light">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-edit me-2"></i>Éditer ce Quiz
+                    </a>
+                    <a href="{{ path('admin_question_new', {quizId: quiz.id}) }}" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-plus me-2"></i>Ajouter une Question
+                    </a>
+                    {% if quiz.status == 'PENDING' %}
+                        <a href="{{ path('admin_quiz_approve', {id: quiz.id}) }}" class="btn btn-success w-100 mb-2" onclick="return confirm('Approuver ce quiz ?');">
+                            <i class="fas fa-check me-2"></i>Accepter
+                        </a>
+                        <button type="button" class="btn btn-danger w-100 mb-2" onclick="openRefusalModal({{ quiz.id }})">
+                            <i class="fas fa-times me-2"></i>Refuser
+                        </button>
+                    {% elseif quiz.status == 'APPROVED' %}
+                        <div class="alert alert-success">Quiz approuvé</div>
+                    {% elseif quiz.status == 'REFUSED' %}
+                        <div class="alert alert-danger">Quiz refusé</div>
+                    {% endif %}
+                    <form method="POST" action="{{ path('admin_quiz_delete', {id: quiz.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce quiz ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="fas fa-trash me-2"></i>Supprimer ce Quiz
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+         <!-- Refusal Modal -->
+         <div id="refusalModal" class="modal" tabindex="-1">
+             <div class="modal-dialog">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h5 class="modal-title">Refuser ce Quiz</h5>
+                         <button type="button" class="btn-close" aria-label="Close" onclick="closeRefusalModal()"></button>
+                     </div>
+                     <form id="refusalForm" method="POST">
+                         <div class="modal-body">
+                             <div class="mb-3">
+                                 <label for="reason" class="form-label">Raison du refus</label>
+                                 <textarea id="reason" name="reason" class="form-control" rows="4" required></textarea>
+                             </div>
+                         </div>
+                         <div class="modal-footer">
+                             <button type="submit" class="btn btn-danger">Refuser</button>
+                             <button type="button" class="btn btn-secondary" onclick="closeRefusalModal()">Annuler</button>
+                         </div>
+                     </form>
+                 </div>
+             </div>
+         </div>
+
+         <script>
+         function openRefusalModal(quizId) {
+                 const form = document.getElementById('refusalForm');
+                 form.action = "{{ path('admin_quiz_refuse', {id: 'QUIZ_ID'}) }}".replace('QUIZ_ID', quizId);
+                 const modal = document.getElementById('refusalModal');
+                 modal.style.display = 'block';
+         }
+
+         function closeRefusalModal() {
+                 const modal = document.getElementById('refusalModal');
+                 modal.style.display = 'none';
+                 const reason = document.getElementById('reason');
+                 if (reason) reason.value = '';
+         }
+         </script>
+{% endblock %}

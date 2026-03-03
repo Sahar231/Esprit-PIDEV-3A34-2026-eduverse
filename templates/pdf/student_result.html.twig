@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultat du Quiz - {{ quiz.title }}</title>
+    <style>
+        * {
+            font-family: 'DejaVu Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .summary-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+
+        .summary-grid {
+            display: table;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            display: table-cell;
+            text-align: center;
+            padding: 15px;
+            border-right: 1px solid #ddd;
+        }
+
+        .summary-item:last-child {
+            border-right: none;
+        }
+
+        .summary-item-label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .summary-item-value {
+            display: block;
+            color: #333;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .score-value {
+            color: #667eea;
+        }
+
+        .percentage-value {
+            color: #28a745;
+        }
+
+        .percentage-value.failed {
+            color: #dc3545;
+        }
+
+        .details-section {
+            margin-top: 30px;
+        }
+
+        .details-section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .question-row {
+            page-break-inside: avoid;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .question-row.correct {
+            border-left: 4px solid #28a745;
+            background-color: #f1f9f6;
+        }
+
+        .question-row.incorrect {
+            border-left: 4px solid #dc3545;
+            background-color: #faf6f6;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .answer-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .answer-label {
+            display: table-cell;
+            width: 120px;
+            font-weight: bold;
+            color: #555;
+            padding-right: 10px;
+            vertical-align: top;
+        }
+
+        .answer-content {
+            display: table-cell;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .status-badge.correct {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-badge.incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .footer {
+            margin-top: 40px;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 11px;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1>📊 Résultat du Quiz</h1>
+        <p>{{ quiz.title }}</p>
+    </div>
+
+    <!-- Student Info -->
+    <div class="summary-section">
+        <strong>Étudiant:</strong> {{ student.firstname }} {{ student.lastname }}<br>
+        <strong>Email:</strong> {{ student.email }}<br>
+        <strong>Date de soumission:</strong> 
+        {% if submittedAt %}
+            {{ submittedAt|date('d/m/Y à H:i') }}
+        {% else %}
+            N/A
+        {% endif %}
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="summary-item-label">Score</span>
+                <span class="summary-item-value score-value">{{ score }}/{{ total }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-item-label">Pourcentage</span>
+                <span class="summary-item-value {% if percentage >= 50 %}percentage-value{% else %}percentage-value failed{% endif %}">
+                    {{ percentage }}%
+                </span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-item-label">Résultat</span>
+                <span class="summary-item-value {% if percentage >= 50 %}score-value{% else %}percentage-value failed{% endif %}">
+                    {% if percentage >= 50 %}✓ Réussi{% else %}✗ Non réussi{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Section -->
+    <div class="details-section">
+        <h2>📝 Détails des Réponses</h2>
+        
+        {% for result in resultDetails %}
+            <div class="question-row {% if result.isCorrect %}correct{% else %}incorrect{% endif %}">
+                <div class="question-number">Question {{ loop.index }}</div>
+                <div class="question-text">{{ result.question }}</div>
+                
+                <div class="answer-row">
+                    <div class="answer-label">Votre réponse:</div>
+                    <div class="answer-content">{{ result.studentAnswer }}</div>
+                </div>
+                
+                {% if not result.isCorrect %}
+                    <div class="answer-row">
+                        <div class="answer-label">Bonne réponse:</div>
+                        <div class="answer-content">{{ result.correctAnswer }}</div>
+                    </div>
+                {% endif %}
+                
+                <div class="status-badge {% if result.isCorrect %}correct{% else %}incorrect{% endif %}">
+                    {% if result.isCorrect %}✓ Correct{% else %}✗ Incorrect{% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Plateforme de Gestion d'Évaluation - Quiz en ligne</p>
+        <div class="timestamp">
+            Généré le {{ 'now'|date('d/m/Y H:i:s') }}
+        </div>
+    </div>
+</body>
+</html>

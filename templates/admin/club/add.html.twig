@@ -1,0 +1,172 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}admin-club-add{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Admin Add Club</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="/assets/images/logo.svg" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="/assets/images/logo-light.svg" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="managementMenu" data-bs-toggle="dropdown">Management</a>
+						<ul class="dropdown-menu" aria-labelledby="managementMenu">
+							<li><a class="dropdown-item" href="{{ path('admin_formation_list') }}"><i class="bi bi-book me-2"></i>Formations</a></li>
+							<li><a class="dropdown-item" href="{{ path('admin_quiz_list') }}"><i class="bi bi-question-diamond me-2"></i>Quizzes</a></li>
+							<li><a class="dropdown-item" href="{{ path('admin_club_list') }}"><i class="bi bi-people me-2"></i>Clubs</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Add Club</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("admin_club_list") }}">Clubs</a></li>
+						<li class="breadcrumb-item active">Add</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<!-- Sidebar START -->
+			<div class="col-lg-3">
+				<div class="card shadow h-100">
+					<div class="card-header bg-light border-bottom">
+						<h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Links</h5>
+					</div>
+					<div class="card-body">
+						<ul class="list-unstyled">
+							<li class="mb-2">
+								<a href="{{ path('admin_formation_add') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+									<i class="bi bi-book me-2"></i>Add Formation
+								</a>
+							</li>
+							<li class="mb-2">
+								<a href="{{ path('admin_quiz_add') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+									<i class="bi bi-question-diamond me-2"></i>Add Quiz
+								</a>
+							</li>
+							<li class="mb-0">
+								<a href="{{ path('admin_club_add') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+									<i class="bi bi-people me-2"></i>Add Club
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- Sidebar END -->
+
+			<!-- Content START -->
+			<div class="col-lg-9">
+				<div class="card card-body shadow p-5">
+					<h2 class="mb-4">Create New Club</h2>
+					<form method="POST">
+						<div class="mb-3">
+							<label class="form-label">Club Name</label>
+							<input type="text" class="form-control" name="name" required>
+						</div>
+						<div class="mb-3">
+							<label class="form-label">Description</label>
+							<textarea class="form-control" name="description" rows="4"></textarea>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label">Category</label>
+									<select class="form-select" name="category">
+										<option value="">Select Category</option>
+										<option value="sports">Sports</option>
+										<option value="academic">Academic</option>
+										<option value="cultural">Cultural</option>
+										<option value="tech">Tech</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label class="form-label">Club Leader</label>
+									<input type="text" class="form-control" name="leader">
+								</div>
+							</div>
+						</div>
+						<div class="d-flex gap-2">
+							<button type="submit" class="btn btn-primary">Create Club</button>
+							<a href="{{ path('admin_club_list') }}" class="btn btn-outline-secondary">Cancel</a>
+						</div>
+					</form>
+				</div>
+				</div>
+			</div>
+			<!-- Content END -->
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="/assets/images/logo.svg" alt="logo">
+					<img class="dark-mode-item h-40px" src="/assets/images/logo-light.svg" alt="logo">
+				</a>
+				<p class="my-3">Admin panel for managing community clubs.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights ©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>
+{% endblock %}
+

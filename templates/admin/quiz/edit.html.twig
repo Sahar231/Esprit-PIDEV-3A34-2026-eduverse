@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditer - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="mb-4">
+        <a href="{{ path('admin_quiz_list') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    {% if app.flashes %}
+        {% for type, messages in app.flashes %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Informations du Quiz</h3>
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="form-group mb-3">
+                        {{ form_label(form.title, 'Titre', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form_label(form.level, 'Niveau', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.level, {'attr': {'class': 'form-select'}}) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                {{ form_label(form.duration, 'Durée (min)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.duration, {'attr': {'class': 'form-control', 'type': 'number'}}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Mettre à jour
+                    </button>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <div class="card shadow-lg">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Questions ({{ quiz.questions|length }})</h3>
+                    <a href="{{ path('admin_question_new', {quizId: quiz.id}) }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-plus me-1"></i>Ajouter
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if quiz.questions|length > 0 %}
+                        <div class="list-group">
+                            {% for question in quiz.questions %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">{{ question.text }}</h6>
+                                            <p class="mb-0 text-muted small">
+                                                <i class="fas fa-check-circle text-success me-2"></i>
+                                                <span class="badge bg-success">{{ question.correctAnswer }}</span>
+                                            </p>
+                                        </div>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ path('admin_question_edit', {id: question.id}) }}" class="btn btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="POST" action="{{ path('admin_question_delete', {id: question.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question.id) }}">
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Aucune question. <a href="{{ path('admin_question_new', {quizId: quiz.id}) }}">Ajoutez-en une</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg bg-light">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Titre:</strong><br>
+                        <span class="text-muted">{{ quiz.title }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Niveau:</strong><br>
+                        <span class="badge bg-{{ quiz.level == 'facile' ? 'success' : quiz.level == 'intermediaire' ? 'warning' : 'danger' }}">
+                            {{ quiz.level|capitalize }}
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Durée:</strong><br>
+                        <span class="text-muted">{{ quiz.duration }} minutes</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Total Questions:</strong><br>
+                        <span class="badge bg-info">{{ quiz.questions|length }}</span>
+                    </div>
+                    <hr>
+                    <form method="POST" action="{{ path('admin_quiz_delete', {id: quiz.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce quiz ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="fas fa-trash me-2"></i>Supprimer ce Quiz
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

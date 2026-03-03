@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}admin-club-list{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Admin Club Management</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport - Admin Club Management">
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+		const getPreferredTheme = () => {
+			if (storedTheme) return storedTheme
+			return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
+		}
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+		setTheme(getPreferredTheme())
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+			showActiveTheme(getPreferredTheme())
+			document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+				toggle.addEventListener('click', () => {
+					const theme = toggle.getAttribute('data-bs-theme-value')
+					localStorage.setItem('theme', theme)
+					setTheme(theme)
+					showActiveTheme(theme)
+				})
+			})
+			}
+		})
+	</script>
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="/assets/images/logo.svg" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="/assets/images/logo-light.svg" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="managementMenu" data-bs-toggle="dropdown">Management</a>
+						<ul class="dropdown-menu" aria-labelledby="managementMenu">
+							<li><a class="dropdown-item" href="{{ path('admin_formation_list') }}"><i class="bi bi-book me-2"></i>Formations</a></li>
+							<li><a class="dropdown-item" href="{{ path('admin_quiz_list') }}"><i class="bi bi-question-diamond me-2"></i>Quizzes</a></li>
+							<li><a class="dropdown-item" href="{{ path('admin_club_list') }}"><i class="bi bi-people me-2"></i>Clubs</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Admin Club Management</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item active">Admin - Clubs</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center">
+					<h2>Club List</h2>
+					<a href="{{ path('admin_club_add') }}" class="btn btn-primary">
+						<i class="bi bi-plus-lg me-2"></i>Add Club
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12">
+				<div class="card card-body shadow">
+					<div class="alert alert-info">
+						<p><strong>Admin Club Management</strong> - List of all clubs will be displayed here. You can edit, delete, or create new clubs.</p>
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-hover mb-0">
+							<thead class="table-dark">
+								<tr>
+									<th>ID</th>
+									<th>Name</th>
+									<th>Category</th>
+									<th>Members</th>
+									<th>Status</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>1</td>
+									<td>Sample Club</td>
+									<td>Community</td>
+									<td>150</td>
+									<td><span class="badge bg-success">Active</span></td>
+									<td>
+										<a href="#" class="btn btn-sm btn-primary">Edit</a>
+										<a href="#" class="btn btn-sm btn-danger">Delete</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<nav class="mt-4 d-flex justify-content-center">
+						<ul class="pagination pagination-primary-soft">
+							<li class="page-item"><a class="page-link" href="#">1</a></li>
+							<li class="page-item active"><a class="page-link" href="#">2</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="/assets/images/logo.svg" alt="logo">
+					<img class="dark-mode-item h-40px" src="/assets/images/logo-light.svg" alt="logo">
+				</a>
+				<p class="my-3">Admin panel for managing community clubs.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights ©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>
+{% endblock %}
+

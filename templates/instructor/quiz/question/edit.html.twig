@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditer la question{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Éditer la question
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    
+                    <div class="form-group mb-3">
+                        {{ form_label(form.text, 'Énoncé de la question') }}
+                        {{ form_widget(form.text, {'attr': {'class': 'form-control', 'rows': '4'}}) }}
+                        {{ form_errors(form.text) }}
+                    </div>
+
+                    <div class="form-group mb-4">
+                        {{ form_label(form.correctAnswer, 'Réponse correcte') }}
+                        {{ form_widget(form.correctAnswer, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.correctAnswer) }}
+                    </div>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Sauvegarder les modifications
+                        </button>
+                        <a href="{{ path('instructor_quiz_edit', {id: quiz.id}) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour au quiz
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

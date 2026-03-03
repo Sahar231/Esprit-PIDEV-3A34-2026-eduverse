@@ -1,0 +1,172 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}student-formation-list{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Student Formations</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="/assets/images/logo.svg" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="/assets/images/logo-light.svg" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="learningMenu" data-bs-toggle="dropdown">Learning</a>
+						<ul class="dropdown-menu" aria-labelledby="learningMenu">
+							<li><a class="dropdown-item" href="{{ path('student_formation_list') }}"><i class="bi bi-book me-2"></i>Formations</a></li>
+					<!-- Dropdown submenu: Formation (self) -->
+					<li class="dropdown-submenu dropend">
+						<a class="dropdown-item dropdown-toggle" href="#">Formation</a>
+						<ul class="dropdown-menu dropdown-menu-start" data-bs-popper="none">
+							<li> <a class="dropdown-item" href="{{ path('formation_list') }}">All Formations</a></li>
+							<li> <hr class="dropdown-divider"></li>
+							<li> <a class="dropdown-item" href="{{ path('formation_detail', {'id': 1}) }}">Formation Detail</a></li>
+							<li> <a class="dropdown-item" href="{{ path('formation_added') }}">Formation Added</a></li>
+						</ul>
+					</li>
+
+					<!-- Dropdown submenu: Quiz -->
+					<li class="dropdown-submenu dropend">
+						<a class="dropdown-item dropdown-toggle" href="#">Quiz</a>
+						<ul class="dropdown-menu dropdown-menu-start" data-bs-popper="none">
+							<li> <a class="dropdown-item" href="{{ path('quiz_list') }}">Quiz List</a></li>
+							<li> <hr class="dropdown-divider"></li>
+							<li> <a class="dropdown-item" href="{{ path('quiz_detail', {'id': 1}) }}">Quiz Detail</a></li>
+							<li> <a class="dropdown-item" href="{{ path('quiz_added') }}">Quiz Added</a></li>
+						</ul>
+					</li>
+
+					<!-- Dropdown submenu: Club -->
+					<li class="dropdown-submenu dropend">
+						<a class="dropdown-item dropdown-toggle" href="#">Club</a>
+						<ul class="dropdown-menu dropdown-menu-start" data-bs-popper="none">
+							<li> <a class="dropdown-item" href="{{ path('club_list') }}">Club List</a></li>
+							<li> <hr class="dropdown-divider"></li>
+							<li> <a class="dropdown-item" href="{{ path('club_detail', {'id': 1}) }}">Club Detail</a></li>
+							<li> <a class="dropdown-item" href="{{ path('club_added') }}">Club Added</a></li>
+						</ul>
+					</li>
+							<li><a class="dropdown-item" href="{{ path('student_quiz_list') }}"><i class="bi bi-question-diamond me-2"></i>Quizzes</a></li>
+							<li><a class="dropdown-item" href="{{ path('student_club_list') }}"><i class="bi bi-people me-2"></i>Clubs</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">My Formations</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item active">My Formations</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center">
+						<h2>Enrolled Formations</h2>
+						<div>
+							<a href="{{ path('app_about') }}" class="btn btn-outline-secondary me-2">About</a>
+							<a href="{{ path('student_formation_enroll') }}" class="btn btn-primary">
+								<i class="bi bi-plus-lg me-2"></i>Enroll in Formation
+							</a>
+						</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row g-4">
+			<div class="col-12">
+				<div class="card card-body shadow">
+					<div class="alert alert-info">
+						<p><strong>Student Formations</strong> - Here are the formations you are enrolled in. Click on a formation to view details and progress.</p>
+					</div>
+
+					<div class="row g-4">
+						<div class="col-md-6 col-lg-4">
+							<div class="card card-hover">
+								<div class="card-body">
+									<h5 class="card-title">Sample Formation</h5>
+									<p class="card-text text-muted">Learn professional skills</p>
+									<div class="d-flex justify-content-between mb-3">
+										<small class="text-muted">Progress: 60%</small>
+										<small class="text-success">In Progress</small>
+									</div>
+									<div class="progress mb-3" style="height: 5px;">
+										<div class="progress-bar" style="width: 60%"></div>
+									</div>
+									<a href="#" class="btn btn-sm btn-primary w-100">Continue</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="/assets/images/logo.svg" alt="logo">
+					<img class="dark-mode-item h-40px" src="/assets/images/logo-light.svg" alt="logo">
+				</a>
+				<p class="my-3">Continue your learning journey with us.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights ©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>
+{% endblock %}
+

@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une question{% endblock %}
+
+{% block body %}
+<style>
+    .reponse-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .reponse-card:hover {
+        border-color: #0d6efd;
+        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.1);
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Ajouter une Question
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <!-- Champ 1: Énoncé -->
+                    <div class="form-group mb-4">
+                        {{ form_label(form.text, 'Énoncé de la Question') }}
+                        {{ form_widget(form.text, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Quel est le verbe être en anglais?', 'rows': '3'}}) }}
+                        {{ form_errors(form.text) }}
+                    </div>
+
+                    <!-- Champs 2-5: Réponses -->
+                    <div class="form-group mb-4">
+                        <label class="form-label"><strong>Réponses (4 réponses possibles)</strong></label>
+                        
+                        {% for reponseForm in form.reponses %}
+                            <div class="reponse-card">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="mb-2">
+                                            {{ form_label(reponseForm.content, 'Réponse ' ~ (loop.index)) }}
+                                            {{ form_widget(reponseForm.content, {'attr': {'class': 'form-control', 'placeholder': 'Entrez la réponse ' ~ (loop.index) ~ '...'}}) }}
+                                            {{ form_errors(reponseForm.content) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check mt-3">
+                                            {{ form_widget(reponseForm.isCorrect, {'attr': {'class': 'form-check-input'}}) }}
+                                            {{ form_label(reponseForm.isCorrect, 'Bonne réponse?', {'label_attr': {'class': 'form-check-label'}}) }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Boutons -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save me-2"></i>Ajouter la Question
+                        </button>
+                        <a href="{{ path('instructor_quiz_edit', {id: quiz.id}) }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Retour au Quiz
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

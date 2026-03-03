@@ -1,0 +1,457 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Quiz - Admin{% endblock %}
+
+{% block body %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        opacity: 0.5;
+    }
+
+    .stat-info h6 {
+        margin: 0;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .stat-info h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .search-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .search-bar input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    .quiz-table {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .quiz-table table {
+        margin: 0;
+        width: 100%;
+    }
+
+    .quiz-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        border: none;
+        padding: 1rem;
+    }
+
+    .quiz-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+
+    .quiz-table tbody tr:hover {
+        background: #f9f9f9;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-refused {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-draft {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .rejection-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .rejection-modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 50px 20px;
+        color: #999;
+    }
+
+    .pagination-custom {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 2rem 1rem;
+        background: white;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .pagination-custom a,
+    .pagination-custom span {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #0d6efd;
+    }
+
+    .pagination-custom a:hover {
+        background: #f0f0f0;
+    }
+
+    .pagination-custom .active {
+        background: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+
+    .rejection-reason {
+        background: #f8d7da;
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #721c24;
+    }
+</style>
+
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="admin-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>⚙️ Gestion des Quiz</h1>
+            <p class="mb-0">Visualisez, modifiez, approuvez ou refusez les quiz des instructeurs</p>
+        </div>
+        <a href="{{ path('admin_quiz_new') }}" class="btn btn-light btn-lg">
+            <i class="fas fa-plus me-2"></i> Créer un Quiz
+        </a>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <i class="fas fa-hourglass-half text-warning"></i>
+            <div class="stat-info">
+                <h6>En Attente</h6>
+                <h3 class="text-warning">{{ pendingQuizzes|length }}</h3>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle text-success"></i>
+            <div class="stat-info">
+                <h6>Approuvés</h6>
+                <h3 class="text-success">{{ approvedQuizzes|length }}</h3>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-times-circle text-danger"></i>
+            <div class="stat-info">
+                <h6>Refusés</h6>
+                <h3 class="text-danger">{{ refusedQuizzes|length }}</h3>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-circle-notch" style="color: #6c757d;"></i>
+            <div class="stat-info">
+                <h6>Brouillon</h6>
+                <h3>{{ draftQuizzes|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-section">
+        <form method="GET" action="{{ path('admin_quiz_list') }}" class="search-bar">
+            <input 
+                type="text" 
+                name="search" 
+                class="form-control" 
+                placeholder="🔍 Rechercher par titre ou description..."
+                value="{{ searchQuery }}"
+            >
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+            {% if searchQuery %}
+                <a href="{{ path('admin_quiz_list') }}" class="btn btn-secondary">Réinitialiser</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Quiz Table -->
+    <div class="quiz-table">
+        {% if pagination.items|length > 0 %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 20%">Titre</th>
+                        <th style="width: 10%">Questions</th>
+                        <th style="width: 12%">Statut</th>
+                        <th style="width: 10%">Créé</th>
+                        <th style="width: 10%">Soumis</th>
+                        <th style="width: 28%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in pagination.items %}
+                        <tr data-quiz-id="{{ quiz.id }}" data-quiz-title="{{ quiz.title }}">
+                            <td>
+                                <strong>{{ quiz.title }}</strong>
+                                {% if quiz.description %}
+                                    <br><small class="text-muted">{{ quiz.description|slice(0, 50) }}...</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ quiz.questions|length }}</span>
+                            </td>
+                            <td>
+                                {% if quiz.status == 'APPROVED' %}
+                                    <span class="status-badge status-approved">✓ Approuvé</span>
+                                {% elseif quiz.status == 'PENDING' %}
+                                    <span class="status-badge status-pending">⏱ En attente</span>
+                                {% elseif quiz.status == 'REFUSED' %}
+                                    <span class="status-badge status-refused">✗ Refusé</span>
+                                    {% if quiz.rejectionReason %}
+                                        <div class="rejection-reason mt-2">
+                                            <strong>Raison:</strong> {{ quiz.rejectionReason|slice(0, 80) }}{% if quiz.rejectionReason|length > 80 %}...{% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="status-badge status-draft">Brouillon</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ quiz.createdAt|date('d/m/Y') }}</small>
+                            </td>
+                            <td>
+                                <small>
+                                    {% if quiz.submittedAt %}
+                                        {{ quiz.submittedAt|date('d/m/Y') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ path('admin_quiz_show', {id: quiz.id}) }}" class="btn btn-sm btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if quiz.status == 'PENDING' %}
+                                        <a href="{{ path('admin_quiz_approve', {id: quiz.id}) }}" 
+                                           class="btn btn-sm btn-success" 
+                                           title="Approuver"
+                                           onclick="return confirm('Approuver ce quiz ?');">
+                                            <i class="fas fa-check"></i> Approuver
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-danger" 
+                                                onclick="openRefusalModal({{ quiz.id }})"
+                                                title="Refuser">
+                                            <i class="fas fa-times"></i> Refuser
+                                        </button>
+                                    {% endif %}
+                                    <form method="POST" action="{{ path('admin_quiz_delete', {id: quiz.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            {% if pagination.pageCount > 1 %}
+                <div class="pagination-custom">
+                    {% if pagination.currentPageNumber > 1 %}
+                        <a href="{{ path('admin_quiz_list', {page: 1, search: searchQuery}) }}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                        <a href="{{ path('admin_quiz_list', {page: pagination.currentPageNumber - 1, search: searchQuery}) }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    {% endif %}
+
+                    {% for p in 1..pagination.pageCount %}
+                        {% if p == pagination.currentPageNumber %}
+                            <span class="active">{{ p }}</span>
+                        {% elseif p <= pagination.currentPageNumber + 2 and p >= pagination.currentPageNumber - 2 %}
+                            <a href="{{ path('admin_quiz_list', {page: p, search: searchQuery}) }}">{{ p }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pagination.currentPageNumber < pagination.pageCount %}
+                        <a href="{{ path('admin_quiz_list', {page: pagination.currentPageNumber + 1, search: searchQuery}) }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="{{ path('admin_quiz_list', {page: pagination.pageCount, search: searchQuery}) }}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="no-data">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <p class="text-muted">Aucun quiz trouvé</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Refusal Modal -->
+<div id="refusalModal" class="rejection-modal">
+    <div class="modal-content">
+        <h5 class="mb-3">Refuser ce Quiz</h5>
+        <form id="refusalForm" method="POST">
+            <div class="mb-3">
+                <label for="reason" class="form-label">Raison du refus</label>
+                <textarea 
+                    id="reason" 
+                    name="reason" 
+                    class="form-control" 
+                    rows="4" 
+                    placeholder="Expliquez pourquoi ce quiz est refusé..."
+                    required
+                ></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger flex-grow-1">
+                    <i class="fas fa-times me-1"></i> Refuser
+                </button>
+                <button type="button" class="btn btn-secondary flex-grow-1" onclick="closeRefusalModal()">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRefusalModal(quizId) {
+        const form = document.getElementById('refusalForm');
+        form.action = "{{ path('admin_quiz_refuse', {id: 'QUIZ_ID'}) }}".replace('QUIZ_ID', quizId);
+        document.getElementById('refusalModal').classList.add('show');
+    }
+
+    function closeRefusalModal() {
+        document.getElementById('refusalModal').classList.remove('show');
+        document.getElementById('reason').value = '';
+    }
+
+    document.getElementById('refusalModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeRefusalModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeRefusalModal();
+        }
+    });
+</script>
+
+{% endblock %}

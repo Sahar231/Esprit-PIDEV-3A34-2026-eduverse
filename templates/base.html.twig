@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Education Platform">
+    <meta name="description" content="Education Platform - LMS, Courses, and Learning">
+    <title>{% block title %}Education Platform{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('images/favicon.ico') }}">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+
+    <!-- Bootstrap CSS - from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Global Chatbot FAB Button -->
+    <style>
+        .chatbot-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .chatbot-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .chatbot-fab:active {
+            transform: scale(0.95);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
+
+    <!-- Dark mode script -->
+    <script>
+        const storedTheme = localStorage.getItem('theme');
+        const getPreferredTheme = () => {
+            if (storedTheme) return storedTheme;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        };
+        const setTheme = function(theme) {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+            }
+        };
+        setTheme(getPreferredTheme());
+    </script>
+
+    {% block stylesheets %}{% endblock %}
+    {% block javascripts %}{% endblock %}
+</head>
+<body>
+    {% block body %}
+        {% block content %}{% endblock %}
+    {% endblock %}
+
+    <!-- Bootstrap Bundle JS - from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- App Scripts -->
+    <script src="{{ asset('js/functions.js') }}"></script>
+
+    <!-- Global Chatbot FAB Button -->
+    <button type="button" id="chatbotFab" class="chatbot-fab" title="Assistant">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    {# ================== MODAL CHATBOT GLOBAL ================== #}
+    <div class="modal fade" id="aiModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h5 class="modal-title text-white" id="aiModalTitle">
+              <i class="fas fa-robot me-2"></i>Assistant Quiz
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <div id="aiChatBox" class="border rounded p-3 mb-3" style="height: 350px; overflow-y: auto; background:#f8f9fa;"></div>
+
+            <div class="d-flex gap-2">
+              <input id="aiInput" type="text" class="form-control" placeholder="Pose ta question...">
+              <button id="aiSend" type="button" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+
+            <small id="aiStatus" class="text-muted d-block mt-2 text-center"></small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Variables du modal et chat
+        const modalEl = document.getElementById('aiModal');
+        const aiModal = new bootstrap.Modal(modalEl);
+
+        const titleEl = document.getElementById('aiModalTitle');
+        const boxEl = document.getElementById('aiChatBox');
+        const inputEl = document.getElementById('aiInput');
+        const sendEl = document.getElementById('aiSend');
+        const statusEl = document.getElementById('aiStatus');
+        const fabBtn = document.getElementById('chatbotFab');
+
+        let currentQuizId = null;
+        let currentQuizTitle = null;
+
+        function addMsg(who, text) {
+          const div = document.createElement('div');
+          div.className = 'mb-2 p-2 rounded';
+          if (who === 'Bot') {
+            div.className += ' bg-primary text-white';
+          } else {
+            div.className += ' bg-light text-dark ms-3';
+          }
+          div.innerHTML = `<strong>${who}:</strong> ${text}`;
+          boxEl.appendChild(div);
+          boxEl.scrollTop = boxEl.scrollHeight;
+        }
+
+        function openAi(quizId, quizTitle) {
+          if (!quizId || !quizTitle) {
+            alert('Erreur: Quiz non trouvé');
+            return;
+          }
+          currentQuizId = quizId;
+          currentQuizTitle = quizTitle;
+
+          titleEl.textContent = `Assistant - ${quizTitle}`;
+          boxEl.innerHTML = '';
+          addMsg('Bot', `Bonjour! Posez vos questions sur le quiz "${quizTitle}".`);
+          inputEl.value = '';
+          statusEl.textContent = '';
+          inputEl.focus();
+          aiModal.show();
+        }
+
+        async function sendAi() {
+          if (!currentQuizId) {
+            addMsg('Erreur', 'Aucun quiz sélectionné');
+            return;
+          }
+
+          const msg = inputEl.value.trim();
+          if (!msg) return;
+
+          addMsg('Vous', msg);
+          inputEl.value = '';
+          statusEl.textContent = '⏳ Envoi...';
+
+          const fullPrompt = `Quiz: "${currentQuizTitle}"\n\nQuestion: ${msg}\n\nRéponds de façon brève et utile pour aider sur ce quiz.`;
+
+          try {
+            const res = await fetch('/api/chat', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                message: fullPrompt,
+                quizId: currentQuizId
+              })
+            });
+
+            console.log('Response status:', res.status);
+
+            if (!res.ok) {
+              // Pour les erreurs, essayer de lire comme JSON
+              const data = await res.json().catch(() => ({ error: 'Erreur serveur ' + res.status }));
+              addMsg('Erreur', data.error || 'Erreur serveur (' + res.status + ')');
+            } else {
+              // Pour les succès, lire comme JSON
+              const data = await res.json();
+              if (data.answer) {
+                addMsg('Bot', data.answer);
+              } else {
+                addMsg('Erreur', 'Pas de réponse du serveur');
+              }
+            }
+          } catch (e) {
+            console.error('Fetch error:', e);
+            addMsg('Erreur', 'Erreur: ' + e.message);
+          } finally {
+            statusEl.textContent = '';
+            inputEl.focus();
+          }
+        }
+
+        // Écouteurs d'événements
+        sendEl.addEventListener('click', sendAi);
+        inputEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendAi();
+          }
+        });
+
+        // Bouton FAB (Floating Action Button)
+        fabBtn.addEventListener('click', () => {
+          if (currentQuizId && currentQuizTitle) {
+            openAi(currentQuizId, currentQuizTitle);
+          } else {
+            alert('Sélectionnez un quiz d\'abord!');
+          }
+        });
+
+        // Détecter les quizzes - Cartes (Student)
+        document.querySelectorAll('.quiz-card').forEach(card => {
+          card.addEventListener('mouseenter', () => {
+            const quizId = card.getAttribute('data-quiz-id');
+            const quizTitle = card.getAttribute('data-quiz-title');
+            if (quizId && quizTitle) {
+              currentQuizId = quizId;
+              currentQuizTitle = quizTitle;
+              console.log('Quiz sélectionné (carte):', quizTitle, '(ID: ' + quizId + ')');
+            }
+          });
+        });
+
+        // Détecter les quizzes - Lignes de tableau (Admin/Instructor)
+        document.querySelectorAll('tr[data-quiz-id]').forEach(row => {
+          row.addEventListener('mouseenter', () => {
+            const quizId = row.getAttribute('data-quiz-id');
+            const quizTitle = row.getAttribute('data-quiz-title');
+            if (quizId && quizTitle) {
+              currentQuizId = quizId;
+              currentQuizTitle = quizTitle;
+              console.log('Quiz sélectionné (tableau):', quizTitle, '(ID: ' + quizId + ')');
+            }
+          });
+        });
+
+        // Par défaut, sélectionner le premier quiz (cartes ou tableau)
+        let firstQuiz = document.querySelector('.quiz-card') || document.querySelector('tr[data-quiz-id]');
+        if (firstQuiz) {
+          const quizId = firstQuiz.getAttribute('data-quiz-id');
+          const quizTitle = firstQuiz.getAttribute('data-quiz-title');
+          if (quizId && quizTitle) {
+            currentQuizId = quizId;
+            currentQuizTitle = quizTitle;
+            console.log('Premier quiz initialisé:', quizTitle);
+          }
+        }
+      });
+    </script>
+
+    <!-- Dark mode toggle handler -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const el = document.querySelector('.theme-icon-active');
+            if (el !== undefined && el !== null) {
+                const showActiveTheme = theme => {
+                    const activeThemeIcon = document.querySelector('.theme-icon-active use');
+                    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+                    const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href');
+                    document.querySelectorAll('[data-bs-theme-value]').forEach(element => element.classList.remove('active'));
+                    btnToActive.classList.add('active');
+                    activeThemeIcon.setAttribute('href', svgOfActiveBtn);
+                };
+
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                        setTheme(getPreferredTheme());
+                    }
+                });
+
+                showActiveTheme(getPreferredTheme());
+
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value');
+                        localStorage.setItem('theme', theme);
+                        setTheme(theme);
+                        showActiveTheme(theme);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

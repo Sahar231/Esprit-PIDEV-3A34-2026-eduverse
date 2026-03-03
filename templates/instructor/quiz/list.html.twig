@@ -1,0 +1,537 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Évaluations - Instructeur{% endblock %}
+
+{% block body %}
+<style>
+    .stats-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .search-box {
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+    }
+    .quiz-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .badge-custom {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+    .pagination-custom {
+        margin-top: 30px;
+    }
+    .no-data {
+        text-align: center;
+        padding: 50px 20px;
+        color: #999;
+    }
+    .action-buttons .btn {
+        margin: 0 3px;
+    }
+</style>
+
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <h1>📊 Gestion des Évaluations (Quizzes)</h1>
+            <p class="text-muted">Créez, modifiez et analysez vos quiz d'apprentissage</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ path('instructor_quiz_new') }}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus me-2"></i>Créer une Évaluation
+            </a>
+            <button class="btn btn-primary btn-lg ms-2" data-bs-toggle="modal" data-bs-target="#aiQuizModal">
+                <i class="fas fa-magic me-2"></i>Quiz Auto (IA)
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card border-0 shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">Total Évaluations</p>
+                            <h3 class="mb-0">{{ stats.totalQuizzes }}</h3>
+                        </div>
+                        <i class="fas fa-clipboard-list fa-2x text-primary opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card border-0 shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">Questions Totales</p>
+                            <h3 class="mb-0">{{ stats.totalQuestions }}</h3>
+                        </div>
+                        <i class="fas fa-question-circle fa-2x text-info opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card border-0 shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">Tentatives Totales</p>
+                            <h3 class="mb-0">{{ stats.totalAttempts }}</h3>
+                        </div>
+                        <i class="fas fa-user-check fa-2x text-success opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card border-0 shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">Score Moyen</p>
+                            <h3 class="mb-0">{{ stats.averageScore }}%</h3>
+                        </div>
+                        <i class="fas fa-chart-pie fa-2x text-warning opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="GET" action="{{ path('instructor_quiz_list') }}" class="d-flex gap-2">
+                <div class="flex-grow-1">
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="form-control search-box" 
+                        placeholder="🔍 Rechercher une évaluation..."
+                        value="{{ searchQuery }}"
+                    >
+                </div>
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+                {% if searchQuery %}
+                    <a href="{{ path('instructor_quiz_list') }}" class="btn btn-secondary">Réinitialiser</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Quiz List -->
+    <div class="card border-0 shadow">
+        <div class="card-header bg-light border-bottom">
+            <h5 class="mb-0">
+                {% if searchQuery %}
+                    Résultats de recherche pour "{{ searchQuery }}"
+                {% else %}
+                    Toutes les Évaluations
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if pagination.items|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 quiz-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 20%">Titre</th>
+                                <th style="width: 10%">Questions</th>
+                                <th style="width: 12%">Statut</th>
+                                <th style="width: 10%">Créé</th>
+                                <th style="width: 28%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for quiz in pagination.items %}
+                                <tr data-quiz-id="{{ quiz.id }}" data-quiz-title="{{ quiz.title }}">
+                                    <td>
+                                        <strong>{{ quiz.title }}</strong>
+                                        {% if quiz.description %}
+                                            <br><small class="text-muted">{{ quiz.description|slice(0, 60) }}...</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-custom bg-info">
+                                            {{ quiz.questions|length }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if quiz.status == 'APPROVED' %}
+                                            <span class="badge badge-custom bg-success">
+                                                <i class="fas fa-check-circle me-1"></i> Approuvé
+                                            </span>
+                                        {% elseif quiz.status == 'PENDING' %}
+                                            <span class="badge badge-custom bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i> En attente
+                                            </span>
+                                        {% elseif quiz.status == 'REFUSED' %}
+                                            <span class="badge badge-custom bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i> Refusé
+                                            </span>
+                                            {% if quiz.rejectionReason %}
+                                                <div class="mt-2">
+                                                    <small class="text-danger d-block">
+                                                        <strong>Raison:</strong> {{ quiz.rejectionReason }}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge badge-custom bg-secondary">
+                                                <i class="fas fa-circle-notch me-1"></i> Sans Statut
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ quiz.createdAt|date('d/m/Y') }}</small>
+                                    </td>
+                                    <td class="action-buttons">
+                                        <a 
+                                            href="{{ path('instructor_quiz_show', {id: quiz.id}) }}" 
+                                            class="btn btn-sm btn-outline-primary" 
+                                            title="Voir les détails"
+                                        >
+                                            <i class="fas fa-eye"></i> Voir
+                                        </a>
+                                        <a 
+                                            href="{{ path('instructor_quiz_edit', {id: quiz.id}) }}" 
+                                            class="btn btn-sm btn-outline-warning" 
+                                            title="Modifier"
+                                        >
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                        <form 
+                                            method="POST" 
+                                            action="{{ path('instructor_quiz_delete', {id: quiz.id}) }}" 
+                                            style="display: inline;"
+                                            onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?');"
+                                        >
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                                            <button 
+                                                type="submit" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                title="Supprimer"
+                                            >
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if pagination.pageCount > 1 %}
+                    <nav class="pagination-custom" aria-label="Pagination">
+                        <ul class="pagination justify-content-center">
+                            <!-- Première page -->
+                            {% if pagination.currentPageNumber > 1 %}
+                                <li class="page-item">
+                                    <a 
+                                        class="page-link" 
+                                        href="{{ path('instructor_quiz_list', {page: 1, search: searchQuery}) }}"
+                                    >
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-angle-double-left"></i></span>
+                                </li>
+                            {% endif %}
+
+                            <!-- Page précédente -->
+                            {% if pagination.currentPageNumber > 1 %}
+                                <li class="page-item">
+                                    <a 
+                                        class="page-link" 
+                                        href="{{ path('instructor_quiz_list', {page: pagination.currentPageNumber - 1, search: searchQuery}) }}"
+                                    >
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-angle-left"></i></span>
+                                </li>
+                            {% endif %}
+
+                            <!-- Pages numérotées -->
+                            {% set pagesInRange = range(1, pagination.pageCount) %}
+                            {% for page in pagesInRange %}
+                                {% if page >= pagination.currentPageNumber - 2 and page <= pagination.currentPageNumber + 2 %}
+                                    {% if page == pagination.currentPageNumber %}
+                                        <li class="page-item active">
+                                            <span class="page-link">
+                                                {{ page }}
+                                                <span class="visually-hidden">(current)</span>
+                                            </span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a 
+                                                class="page-link" 
+                                                href="{{ path('instructor_quiz_list', {page: page, search: searchQuery}) }}"
+                                            >
+                                                {{ page }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- Page suivante -->
+                            {% if pagination.currentPageNumber < pagination.pageCount %}
+                                <li class="page-item">
+                                    <a 
+                                        class="page-link" 
+                                        href="{{ path('instructor_quiz_list', {page: pagination.currentPageNumber + 1, search: searchQuery}) }}"
+                                    >
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-angle-right"></i></span>
+                                </li>
+                            {% endif %}
+
+                            <!-- Dernière page -->
+                            {% if pagination.currentPageNumber < pagination.pageCount %}
+                                <li class="page-item">
+                                    <a 
+                                        class="page-link" 
+                                        href="{{ path('instructor_quiz_list', {page: pagination.pageCount, search: searchQuery}) }}"
+                                    >
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="fas fa-angle-double-right"></i></span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    <div class="text-center text-muted mb-3">
+                        <small>Page {{ pagination.currentPageNumber }} sur {{ pagination.pageCount }} 
+                        ({{ totalCount }} évaluations au total)</small>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="no-data">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    {% if searchQuery %}
+                        <p>Aucune évaluation ne correspond à votre recherche.</p>
+                        <a href="{{ path('instructor_quiz_list') }}" class="btn btn-sm btn-outline-primary">
+                            Voir toutes les évaluations
+                        </a>
+                    {% else %}
+                        <p>Vous n'avez pas encore créé d'évaluation.</p>
+                        <a href="{{ path('instructor_quiz_new') }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus me-2"></i>Créer votre première évaluation
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+    }
+    
+    /* AI Quiz Modal Styles */
+    .modal-dialog-centered .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .spinner-loading {
+        display: none;
+    }
+</style>
+
+<!-- Modal for AI Quiz Generation -->
+<div class="modal fade" id="aiQuizModal" tabindex="-1" aria-labelledby="aiQuizModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="aiQuizModalLabel">
+                    <i class="fas fa-robot me-2"></i>Créer un Quiz Automatiquement
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="aiQuizForm">
+                    <div class="form-group mb-3">
+                        <label for="aiTitle">Titre du Quiz</label>
+                        <input type="text" class="form-control" id="aiTitle" name="title" 
+                               placeholder="Ex: Quiz Symfony Routing" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="aiTopic">Sujet / Thème</label>
+                        <input type="text" class="form-control" id="aiTopic" name="topic" 
+                               placeholder="Ex: Routing Symfony, REST API, OOP..." required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="aiLevel">Niveau de Difficulté</label>
+                        <select class="form-select" id="aiLevel" name="level" required>
+                            <option value="">-- Sélectionnez un niveau --</option>
+                            <option value="facile">🟢 Facile</option>
+                            <option value="intermediaire">🟡 Intermédiaire</option>
+                            <option value="difficile">🔴 Difficile</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="aiCount">Nombre de Questions</label>
+                                <input type="number" class="form-control" id="aiCount" name="count" 
+                                       min="1" max="50" value="10" required>
+                                <small class="text-muted">Entre 1 et 50</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="aiDuration">Durée (en minutes)</label>
+                                <input type="number" class="form-control" id="aiDuration" name="duration" 
+                                       min="1" max="300" value="30" required>
+                                <small class="text-muted">Entre 1 et 300</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="aiErrorMessage" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="aiSuccessMessage" class="alert alert-success d-none" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="aiSubmitBtn">
+                    <span id="aiButtonText">
+                        <i class="fas fa-magic me-2"></i>Générer le Quiz
+                    </span>
+                    <span id="aiLoadingSpinner" class="spinner-loading ms-2">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('aiQuizForm');
+    const submitBtn = document.getElementById('aiSubmitBtn');
+    const loadingSpinner = document.getElementById('aiLoadingSpinner');
+    const buttonText = document.getElementById('aiButtonText');
+    const errorMsg = document.getElementById('aiErrorMessage');
+    const successMsg = document.getElementById('aiSuccessMessage');
+    const modal = new bootstrap.Modal(document.getElementById('aiQuizModal'));
+
+    submitBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+
+        // Hide previous messages
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+
+        // Validate form
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Disable button and show spinner
+        submitBtn.disabled = true;
+        loadingSpinner.classList.remove('spinner-loading');
+        buttonText.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération en cours...';
+
+        try {
+            const formData = new FormData(form);
+            const body = {
+                title: formData.get('title'),
+                topic: formData.get('topic'),
+                level: formData.get('level'),
+                count: parseInt(formData.get('count')),
+                duration: parseInt(formData.get('duration'))
+            };
+
+            const response = await fetch('{{ path('teacher_quiz_ai_create') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(body)
+            });
+
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseErr) {
+                // Received HTML or other non-JSON (likely login redirect)
+                throw new Error('Le serveur a renvoyé une réponse non-JSON. Vérifiez que vous êtes connecté.');
+            }
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Une erreur est survenue');
+            }
+
+            // Success
+            successMsg.classList.remove('d-none');
+            successMsg.innerHTML = '<strong>✓ Succès!</strong> ' + data.message;
+
+            // Redirect to edit after 1.5 seconds
+            setTimeout(() => {
+                window.location.href = '{{ path('instructor_quiz_edit', {'id': 'QUIZ_ID'}) }}'.replace('QUIZ_ID', data.quizId);
+            }, 1500);
+
+        } catch (error) {
+            errorMsg.classList.remove('d-none');
+            errorMsg.innerHTML = '<strong>⚠ Erreur:</strong> ' + error.message;
+        } finally {
+            // Re-enable button
+            submitBtn.disabled = false;
+            loadingSpinner.classList.add('spinner-loading');
+            buttonText.innerHTML = '<i class="fas fa-magic me-2"></i>Générer le Quiz';
+        }
+    });
+
+    // Reset form when modal is closed
+    document.getElementById('aiQuizModal').addEventListener('hidden.bs.modal', function() {
+        form.reset();
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+    });
+});
+</script>
+
+{% endblock %}
+

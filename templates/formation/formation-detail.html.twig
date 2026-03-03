@@ -1,0 +1,216 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}formation-detail{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Formation Detail</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport - Professional Training Programs">
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+		const getPreferredTheme = () => {
+			if (storedTheme) return storedTheme
+			return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
+		}
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+		setTheme(getPreferredTheme())
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+			showActiveTheme(getPreferredTheme())
+			document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+				toggle.addEventListener('click', () => {
+					const theme = toggle.getAttribute('data-bs-theme-value')
+					localStorage.setItem('theme', theme)
+					setTheme(theme)
+					showActiveTheme(theme)
+				})
+			})
+			}
+		})
+	</script>
+	<link rel="shortcut icon" href="/assets/images/favicon.ico">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/assets/vendor/choices/css/choices.min.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="/assets/images/logo.svg" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="/assets/images/logo-light.svg" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="pagesMenu" data-bs-toggle="dropdown">Pages</a>
+						<ul class="dropdown-menu" aria-labelledby="pagesMenu">
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Formation</a>
+								<ul class="dropdown-menu dropdown-menu-start" data-bs-popper="none">
+									<li><a class="dropdown-item" href="{{ path('formation_list') }}">Formation List</a></li>
+									<li><a class="dropdown-item" href="{{ path('formation_detail', {'id': 1}) }}">Formation Detail</a></li>
+									<li><a class="dropdown-item" href="{{ path('formation_added') }}">Formation Added</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="dropdown ms-1 ms-lg-0">
+				<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<img class="avatar-img rounded-circle" src="/assets/images/avatar/01.jpg" alt="avatar">
+				</a>
+				<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+					<li class="px-3 mb-3">
+						<div class="d-flex align-items-center">
+							<div class="avatar me-3">
+								<img class="avatar-img rounded-circle shadow" src="/assets/images/avatar/01.jpg" alt="avatar">
+							</div>
+							<div>
+								<a class="h6" href="#">User</a>
+								<p class="small m-0">user@example.com</p>
+							</div>
+						</div>
+					</li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Settings</a></li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("formation_list") }}">Formations</a></li>
+						<li class="breadcrumb-item active">Formation Detail</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-4">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8">
+				<div class="card card-body shadow p-4 mb-4">
+					<h2 class="mb-3">Formation Title</h2>
+					<p class="text-muted">Formation ID: {{ id | default('1') }}</p>
+					<p>This is the detailed view for a formation program. The content will be populated from the database with the following information:</p>
+					<ul class="list-unstyled">
+						<li class="mb-2"><strong>Duration:</strong> [Duration will be shown here]</li>
+						<li class="mb-2"><strong>Level:</strong> [Level will be shown here]</li>
+						<li class="mb-2"><strong>Instructor:</strong> [Instructor name will be shown here]</li>
+						<li class="mb-2"><strong>Modules:</strong> [Number of modules will be shown here]</li>
+					</ul>
+					<button class="btn btn-primary mt-3">Enroll Now</button>
+				</div>
+			</div>
+
+			<div class="col-lg-4">
+				<div class="card card-body shadow p-4 mb-4">
+					<h4>Formation Information</h4>
+					<hr>
+					<div class="d-flex justify-content-between mb-2">
+						<span>Category:</span>
+						<strong>Professional Development</strong>
+					</div>
+					<div class="d-flex justify-content-between mb-2">
+						<span>Level:</span>
+						<strong>Intermediate</strong>
+					</div>
+					<div class="d-flex justify-content-between mb-2">
+						<span>Modules:</span>
+						<strong>6</strong>
+					</div>
+					<div class="d-flex justify-content-between mb-2">
+						<span>Duration:</span>
+						<strong>40 hours</strong>
+					</div>
+					<hr>
+					<a href="{{ path('formation_list') }}" class="btn btn-outline-primary btn-block">Back to List</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="/assets/images/logo.svg" alt="logo">
+					<img class="dark-mode-item h-40px" src="/assets/images/logo-light.svg" alt="logo">
+				</a>
+				<p class="my-3">Professional training programs for career development.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights ©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/vendor/choices/js/choices.min.js"></script>
+<script src="/assets/js/functions.js"></script>
+
+</body>
+</html>
+{% endblock %}
+

@@ -1,0 +1,292 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ quiz.title }} - Passer le Quiz{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <div class="container mt-4">
+        <!-- Navigation bar -->
+        <div class="quiz-navbar mb-4">
+            <a href="{{ path('student_dashboard') }}" class="btn btn-sm btn-light">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+            <a href="{{ path('student_quiz_statistics') }}" class="btn btn-sm btn-light">
+                <i class="fas fa-chart-bar me-1"></i>Statistiques
+            </a>
+        </div>
+
+        <div class="quiz-header mb-4">
+            <h2>{{ quiz.title }}</h2>
+            <div class="quiz-info">
+                <span class="badge bg-{{ quiz.level == 'facile' ? 'success' : quiz.level == 'intermediaire' ? 'warning' : 'danger' }}">
+                    {{ quiz.level|capitalize }}
+                </span>
+                <span class="badge bg-info">
+                    <i class="fas fa-clock me-1"></i>{{ quiz.duration }} minutes
+                </span>
+                <span class="badge bg-secondary">
+                    {{ questions|length }} questions
+                </span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ path('student_quiz_submit', {id: quiz.id}) }}" id="quizForm">
+            <div class="row">
+                <div class="col-md-8">
+                    {% for question in questions %}
+                        <div class="card mb-3 question-card">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">Question {{ loop.index }}/{{ questions|length }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="question-text mb-4">{{ question.text }}</p>
+
+                                <div class="form-group">
+                                    <label for="answer_{{ question.id }}" class="form-label">Votre réponse :</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control answer-input" 
+                                        id="answer_{{ question.id }}"
+                                        name="answer_{{ question.id }}"
+                                        placeholder="Entrez votre réponse"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success btn-lg flex-grow-1">
+                            <i class="fas fa-check me-2"></i>Soumettre le Quiz
+                        </button>
+                        <a href="{{ path('student_quiz_list') }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-reply me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Timer Card -->
+                    <div class="card timer-card sticky-top" style="top: 20px; mb-3;">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-hourglass-start me-2"></i>Temps Restant
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="timer-display" id="timerDisplay">
+                                <span id="timerMinutes">{{ quiz.duration }}</span>:
+                                <span id="timerSeconds">00</span>
+                            </div>
+                            <div class="timer-progress mt-3">
+                                <div class="progress" style="height: 8px;">
+                                    <div 
+                                        id="timerBar"
+                                        class="progress-bar bg-success" 
+                                        role="progressbar" 
+                                        style="width: 100%"
+                                        aria-valuenow="100" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2" id="timerWarning"></small>
+                        </div>
+                    </div>
+
+                    <!-- Summary Card -->
+                    <div class="card bg-light sticky-top" style="top: 380px;">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">Résumé du Quiz</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Titre:</strong><br>
+                                <span class="text-muted">{{ quiz.title }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Total Questions:</strong><br>
+                                <span class="badge bg-info">{{ questions|length }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Niveau:</strong><br>
+                                <span class="badge bg-{{ quiz.level == 'facile' ? 'success' : quiz.level == 'intermediaire' ? 'warning' : 'danger' }}">
+                                    {{ quiz.level|capitalize }}
+                                </span>
+                            </div>
+                            <hr>
+                            <p class="text-muted small">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Assurez-vous de répondre à toutes les questions avant de soumettre.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .quiz-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .quiz-navbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .quiz-header {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .quiz-header h2 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .question-card {
+        border: none;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .question-text {
+        font-size: 16px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .answer-input {
+        border: 2px solid #e9ecef;
+        transition: border-color 0.3s ease;
+    }
+    
+    .answer-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    /* Timer Styles */
+    .timer-card {
+        border: 2px solid #dc3545;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(220, 53, 69, 0.2);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 4px 20px rgba(220, 53, 69, 0.2);
+        }
+        50% {
+            box-shadow: 0 4px 30px rgba(220, 53, 69, 0.4);
+        }
+    }
+
+    #timerDisplay {
+        font-size: 3.5rem;
+        font-weight: bold;
+        color: #dc3545;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .timer-progress {
+        margin-top: 15px;
+    }
+
+    #timerDisplay.time-warning {
+        color: #ff6b6b;
+        animation: blink 0.5s infinite;
+    }
+
+    #timerDisplay.time-critical {
+        color: #dc3545;
+        animation: blink 0.3s infinite;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.5; }
+    }
+</style>
+
+<script>
+// Initialize Timer
+document.addEventListener('DOMContentLoaded', function() {
+    const quizDuration = {{ quiz.duration }}; // en minutes
+    let timeRemaining = quizDuration * 60; // convertir en secondes
+    const totalTime = timeRemaining;
+    
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerMinutes = document.getElementById('timerMinutes');
+    const timerSeconds = document.getElementById('timerSeconds');
+    const timerBar = document.getElementById('timerBar');
+    const timerWarning = document.getElementById('timerWarning');
+    const quizForm = document.getElementById('quizForm');
+
+    function updateTimer() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+
+        // Format display
+        timerMinutes.textContent = minutes.toString().padStart(2, '0');
+        timerSeconds.textContent = seconds.toString().padStart(2, '0');
+
+        // Update progress bar
+        const percentage = (timeRemaining / totalTime) * 100;
+        timerBar.style.width = percentage + '%';
+
+        // Change colors based on time remaining
+        timerDisplay.classList.remove('time-warning', 'time-critical');
+        
+        if (timeRemaining <= 60 && timeRemaining > 30) {
+            timerBar.className = 'progress-bar bg-warning';
+            timerDisplay.classList.add('time-warning');
+            timerWarning.textContent = '⏰ Attention: Moins d\'une minute!';
+        } else if (timeRemaining <= 30) {
+            timerBar.className = 'progress-bar bg-danger';
+            timerDisplay.classList.add('time-critical');
+            timerWarning.textContent = '🚨 TEMPS LIMITE!';
+        } else {
+            timerBar.className = 'progress-bar bg-success';
+            timerWarning.textContent = '';
+        }
+
+        // Auto-submit when time is up
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            timerWarning.textContent = '⏰ Temps écoulé! Soumission automatique...';
+            timerDisplay.textContent = '00:00';
+            setTimeout(() => {
+                quizForm.submit();
+            }, 1500);
+            return;
+        }
+
+        timeRemaining--;
+    }
+
+    // Update immediately
+    updateTimer();
+    
+    // Start the interval
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        clearInterval(timerInterval);
+    });
+});
+</script>
+{% endblock %}

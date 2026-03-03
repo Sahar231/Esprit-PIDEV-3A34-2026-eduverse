@@ -1,0 +1,317 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {% if form.vars.data.id %}Éditer{% else %}Créer{% endif %} un Quiz
+{% endblock %}
+
+{% block content %}
+<style>
+    .question-item {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .question-item h5 {
+        color: #495057;
+        border-bottom: 2px solid #0d6efd;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .reponse-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    .questions-wrapper {
+        margin-top: 2rem;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="fas fa-plus me-2"></i>{% if form.vars.data.id %}Éditer le Quiz{% else %}Créer un Quiz{% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-light border mb-4">
+                        La page de création d’un quiz permet à l’enseignant et à l'administrateur de concevoir une évaluation de manière simple et structurée. Utilisez les champs ci‑dessous pour saisir le titre du quiz, la durée, le niveau de difficulté, puis ajoutez les questions et les réponses associées. Les boutons en bas du formulaire permettent de créer le quiz, d'annuler ou de supprimer les données saisies.
+                    </div>
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <!-- Quiz Details -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.title, 'Titre du Quiz') }}
+                            {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre du quiz'}}) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            {{ form_label(form.level, 'Niveau') }}
+                            {{ form_widget(form.level, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.level) }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            {{ form_label(form.duration, 'Durée (min)') }}
+                            {{ form_widget(form.duration, {'attr': {'class': 'form-control', 'type': 'number'}}) }}
+                            {{ form_errors(form.duration) }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Questions Section -->
+                    <h4 class="mb-3">
+                        <i class="fas fa-question-circle me-2"></i>Questions
+                    </h4>
+
+                    {% set questionPrototype = form.questions.vars.prototype %}
+                    {% set questionPrototypeHtml = form_widget(questionPrototype)|e %}
+
+                    <div id="questions-wrapper" class="questions-wrapper" data-prototype="{{ questionPrototypeHtml }}">
+                        {% for questionForm in form.questions %}
+                            <div class="question-item" data-question-index="{{ loop.index0 }}">
+                                <h5>
+                                    Question {{ loop.index }}
+                                    <button type="button" class="btn btn-sm btn-danger float-end remove-question" data-index="{{ loop.index0 }}">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </h5>
+
+                                <div class="mb-3">
+                                    {{ form_label(questionForm.text, 'Énoncé') }}
+                                    {{ form_widget(questionForm.text, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_errors(questionForm.text) }}
+                                </div>
+
+                                <!-- Reponses -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Réponses possibles:</strong></label>
+                                    <div class="reponses-list" {% if questionForm.reponses.vars.prototype is defined %}data-prototype="{{ form_widget(questionForm.reponses.vars.prototype)|e }}"{% endif %}>
+                                                        {% for reponseForm in questionForm.reponses %}
+                                                            <div class="reponse-item">
+                                                <div class="mb-2">
+                                                    {{ form_label(reponseForm.content, 'Texte de réponse') }}
+                                                    {{ form_widget(reponseForm.content, {'attr': {'class': 'form-control', 'placeholder': 'Entrez une réponse...', 'rows': '3'}}) }}
+                                                    {{ form_errors(reponseForm.content) }}
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="form-check">
+                                                        {{ form_widget(reponseForm.isCorrect, {'attr': {'class': 'form-check-input'}}) }}
+                                                        {{ form_label(reponseForm.isCorrect, 'Bonne réponse?', {'label_attr': {'class': 'form-check-label'}}) }}
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-reponse">
+                                                        <i class="fas fa-times"></i> Supprimer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-reponse">
+                                        <i class="fas fa-plus"></i> Ajouter une réponse
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button" id="add-question-btn" class="btn btn-sm btn-outline-primary mb-4">
+                        <i class="fas fa-plus"></i> Ajouter une Question
+                    </button>
+
+                    <hr class="my-4">
+
+                    <!-- Submit Buttons -->
+                    <div>
+                        <button type="submit" class="btn btn-primary btn-lg me-2">
+                            <i class="fas fa-check me-2"></i>{% if form.vars.data.id %}Mettre à jour{% else %}Créer{% endif %}
+                        </button>
+                        <a href="{{ path('admin_quiz_list') }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionsWrapper = document.getElementById('questions-wrapper');
+    const addQuestionBtn = document.getElementById('add-question-btn');
+    let questionIndex = {{ form.questions|length }};
+    
+    // Get the prototype from the data attribute and decode HTML entities
+    let prototype = questionsWrapper.getAttribute('data-prototype');
+    
+    if (!prototype) {
+        console.error('Prototype not found!');
+        addQuestionBtn.disabled = true;
+        return;
+    }
+    
+    // Function to decode HTML entities
+    function decodeHtml(html) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    }
+    
+    prototype = decodeHtml(prototype);
+    console.log('Prototype loaded successfully');
+
+    // Add question handler
+    addQuestionBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        console.log('Add button clicked, questionIndex:', questionIndex);
+        
+        // Replace __name__ with the actual index
+        const newQuestionHtml = prototype.replace(/__name__/g, questionIndex);
+        
+        // Create a temporary container and add the HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newQuestionHtml;
+        const questionItem = tempDiv.firstElementChild;
+        
+        // Ensure it has the question-item class
+        if (questionItem) {
+            if (!questionItem.classList.contains('question-item')) {
+                questionItem.className = 'question-item';
+            }
+            
+            // Append to the wrapper
+            questionsWrapper.appendChild(questionItem);
+            questionIndex++;
+            
+            // Attach events to the new question
+            attachQuestionEvents(questionItem);
+            
+            // Add a default empty response to the new question
+            const addReponseBtn = questionItem.querySelector('.add-reponse');
+            if (addReponseBtn) {
+                // Simulate clicking the add response button to add one default response
+                addReponseBtn.click();
+            }
+            
+            console.log('Question added successfully with default response, new index:', questionIndex);
+        } else {
+            console.error('Failed to create question item');
+        }
+    });
+
+    // Attach initial events
+    document.querySelectorAll('.question-item').forEach((item) => {
+        attachQuestionEvents(item);
+    });
+
+    function attachQuestionEvents(questionItem) {
+        // Remove question
+        const removeBtn = questionItem.querySelector('.remove-question');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                questionItem.remove();
+                console.log('Question removed');
+            });
+        }
+
+        // Add reponse
+        const addReponseBtn = questionItem.querySelector('.add-reponse');
+        if (addReponseBtn) {
+            addReponseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const reponsesList = questionItem.querySelector('.reponses-list');
+                const rIndex = reponsesList.querySelectorAll('.reponse-item').length;
+
+                // Prefer Symfony data-prototype if available
+                let proto = reponsesList ? reponsesList.getAttribute('data-prototype') : null;
+                if (!proto) {
+                    // try to find nested prototype anywhere inside the question item
+                    const nested = questionItem.querySelector('[data-prototype]');
+                    proto = nested ? nested.getAttribute('data-prototype') : null;
+                }
+
+                if (proto) {
+                    // decode and replace __name__ with index
+                    const decoded = decodeHtml(proto);
+                    const itemHtml = decoded.replace(/__name__/g, rIndex);
+                    const temp = document.createElement('div');
+                    temp.innerHTML = itemHtml;
+                    const newReponse = temp.firstElementChild;
+                    if (!newReponse) {
+                        console.error('Failed to build response from prototype');
+                        return;
+                    }
+                    newReponse.classList.add('reponse-item');
+                    reponsesList.appendChild(newReponse);
+
+                    // Attach remove event on the newly created response
+                    const removeBtn = newReponse.querySelector('.remove-reponse');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            newReponse.remove();
+                        });
+                    }
+                } else {
+                    // fallback: basic fields (less reliable for Symfony forms)
+                    const newReponse = document.createElement('div');
+                    newReponse.className = 'reponse-item';
+                    newReponse.innerHTML = `
+                        <div class="mb-2">
+                            <label class="form-label">Texte de réponse</label>
+                            <input type="text" class="form-control" placeholder="Entrez une réponse...">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" value="1">
+                                <label class="form-check-label">Bonne réponse?</label>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-reponse">
+                                <i class="fas fa-times"></i> Supprimer
+                            </button>
+                        </div>
+                    `;
+                    reponsesList.appendChild(newReponse);
+
+                    const removeBtn = newReponse.querySelector('.remove-reponse');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            newReponse.remove();
+                        });
+                    }
+                }
+            });
+        }
+
+        // Attach remove event to existing reponse buttons (only once)
+        const existingRemoveBtns = questionItem.querySelectorAll('.remove-reponse');
+        existingRemoveBtns.forEach(btn => {
+            // Check if already has event listener to avoid duplicates
+            const clone = btn.cloneNode(true);
+            if (!btn.hasAttribute('data-listener-attached')) {
+                btn.setAttribute('data-listener-attached', 'true');
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.closest('.reponse-item').remove();
+                    console.log('Response removed');
+                });
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

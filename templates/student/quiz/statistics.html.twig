@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques des Quiz{% endblock %}
+
+{% block content %}
+<div class="student-quiz-statistics">
+    <div class="container mt-5">
+        <!-- Header with navigation -->
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>📊 Mes Statistiques des Quiz</h1>
+                    <p class="text-muted">Consultez votre progression et vos résultats</p>
+                </div>
+                <a href="{{ path('student_dashboard') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-home me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+
+        {% if quizStats|length > 0 %}
+            <!-- Summary Cards -->
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <div class="card stat-card h-100">
+                        <div class="card-body text-center">
+                            <h6 class="text-muted mb-2">Quiz Complétés</h6>
+                            <h2 class="text-primary mb-0">{{ quizStats|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card h-100">
+                        <div class="card-body text-center">
+                            <h6 class="text-muted mb-2">Score Moyen</h6>
+                            <h2 class="text-success mb-0">{{ averagePercentage }}%</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card h-100">
+                        <div class="card-body text-center">
+                            <h6 class="text-muted mb-2">Total Réponses Correctes</h6>
+                            <h2 class="text-warning mb-0">{{ totalCorrect }}/{{ totalQuestions }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Results -->
+            <div class="row g-4">
+                {% for stat in quizStats %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card result-card h-100">
+                            <!-- Quiz Title -->
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">{{ stat.quiz.title }}</h5>
+                            </div>
+
+                            <!-- Score Display -->
+                            <div class="card-body">
+                                <!-- Progress Bar -->
+                                <div class="mb-3">
+                                    <div class="score-value text-center mb-3">
+                                        <span class="badge bg-{{ stat.score_percentage >= 80 ? 'success' : stat.score_percentage >= 60 ? 'info' : stat.score_percentage >= 40 ? 'warning' : 'danger' }} p-3 fs-5">
+                                            {{ stat.score_percentage }}%
+                                        </span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div 
+                                            class="progress-bar bg-{{ stat.score_percentage >= 80 ? 'success' : stat.score_percentage >= 60 ? 'info' : stat.score_percentage >= 40 ? 'warning' : 'danger' }}" 
+                                            role="progressbar" 
+                                            style="width: {{ stat.score_percentage }}%"
+                                            aria-valuenow="{{ stat.score_percentage }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stats -->
+                                <div class="mb-3">
+                                    <p class="mb-2">
+                                        <strong>Score:</strong> 
+                                        <span class="text-success">{{ stat.score }}/{{ stat.total }}</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Niveau:</strong> 
+                                        <span class="badge bg-secondary">{{ stat.quiz.level|capitalize }}</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Durée:</strong> 
+                                        <span>{{ stat.quiz.duration }} minutes</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Tentatives:</strong> 
+                                        <span class="badge bg-info">{{ stat.submissions|length }}</span>
+                                    </p>
+                                </div>
+
+                                <!-- Date -->
+                                <small class="text-muted d-block mb-3">
+                                    <i class="fas fa-check-double me-1"></i>
+                                    Complété
+                                </small>
+
+                                <!-- Status Message -->
+                                <div class="alert mb-0 p-2" role="alert"
+                                     class="alert alert-{{ stat.score_percentage >= 80 ? 'success' : stat.score_percentage >= 60 ? 'info' : stat.score_percentage >= 40 ? 'warning' : 'danger' }} p-2">
+                                    {% if stat.score_percentage >= 80 %}
+                                        <i class="fas fa-check-circle me-1"></i>Excellent! ✅
+                                    {% elseif stat.score_percentage >= 60 %}
+                                        <i class="fas fa-star me-1"></i>Bien! 👍
+                                    {% elseif stat.score_percentage >= 40 %}
+                                        <i class="fas fa-exclamation-triangle me-1"></i>À améliorer
+                                    {% else %}
+                                        <i class="fas fa-times-circle me-1"></i>Besoin d'étude
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="card-footer bg-light">
+                                <a href="{{ path('student_quiz_take', {id: stat.quiz.id}) }}" 
+                                   class="btn btn-sm btn-primary w-100">
+                                    <i class="fas fa-redo me-1"></i>Refaire le Quiz
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <div class="alert alert-info text-center py-5">
+                <h5><i class="fas fa-info-circle me-2"></i>Aucune statistique disponible</h5>
+                <p class="mb-0">Complétez des quiz pour voir vos statistiques</p>
+                <a href="{{ path('student_quiz_list') }}" class="btn btn-primary mt-3">
+                    Commencer un Quiz
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .student-quiz-statistics {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 0;
+    }
+
+    .stat-card {
+        background: white;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .result-card {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .result-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .score-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .result-card .card-header {
+        border-top: 5px solid #667eea;
+    }
+
+    .result-card .alert {
+        border-radius: 8px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

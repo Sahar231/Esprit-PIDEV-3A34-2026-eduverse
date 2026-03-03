@@ -1,0 +1,336 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Résultats - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="results-wrapper">
+    <div class="container-fluid">
+        <!-- Score Header -->
+        <div class="score-header">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center text-white">
+                        <h1 class="mb-4">{{ quiz.title }}</h1>
+                        
+                        <!-- Big Score Display -->
+                        <div class="score-circle mb-4">
+                            <div class="score-value">{{ score }}/{{ total }}</div>
+                            <div class="score-percentage">{{ ((score / total) * 100)|round(0) }}%</div>
+                        </div>
+
+                        <!-- Status Message -->
+                        {% set percentage = ((score / total) * 100) %}
+                        {% if percentage >= 80 %}
+                            <h3 class="alert alert-success d-inline-block px-4 py-2">
+                                <i class="fas fa-check-circle me-2"></i>Excellent! Vous avez réussi! 👏
+                            </h3>
+                        {% elseif percentage >= 60 %}
+                            <h3 class="alert alert-info d-inline-block px-4 py-2">
+                                <i class="fas fa-star me-2"></i>Bien! Bonne compréhension 👍
+                            </h3>
+                        {% elseif percentage >= 40 %}
+                            <h3 class="alert alert-warning d-inline-block px-4 py-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>À améliorer - Révisez et réessayez
+                            </h3>
+                        {% else %}
+                            <h3 class="alert alert-danger d-inline-block px-4 py-2">
+                                <i class="fas fa-times-circle me-2"></i>Besoin d'étude - Continuez vos efforts 💪
+                            </h3>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="container mt-5">
+            <div class="row mb-5">
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-icon bg-success">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                        <h5 class="mt-3">Correctes</h5>
+                        <h2 class="text-success">{{ score }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-icon bg-danger">
+                            <i class="fas fa-times-circle fa-2x"></i>
+                        </div>
+                        <h5 class="mt-3">Incorrectes</h5>
+                        <h2 class="text-danger">{{ total - score }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-icon bg-info">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                        <h5 class="mt-3">Score</h5>
+                        <h2 class="text-info">{{ ((score / total) * 100)|round(1) }}%</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <div class="stat-icon bg-warning">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                        <h5 class="mt-3">Niveau</h5>
+                        <h2 class="text-warning text-capitalize">{{ quiz.level }}</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Results -->
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-check me-2"></i>Détail des Réponses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if results %}
+                        {% for questionId, result in results %}
+                            <div class="answer-item mb-4 pb-4 {% if not loop.last %}border-bottom{% endif %}">
+                                <!-- Question Header -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <span class="badge bg-secondary">Question {{ loop.index }}/{{ total }}</span>
+                                        </h6>
+                                    </div>
+                                    {% if result.correct %}
+                                        <span class="badge bg-success fs-6">
+                                            <i class="fas fa-check me-1"></i>Correcte
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger fs-6">
+                                            <i class="fas fa-times me-1"></i>Incorrecte
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Question Text -->
+                                <p class="question-text mb-3 p-3 bg-light rounded">
+                                    <strong>Question:</strong> {{ result.question.text }}
+                                </p>
+
+                                <!-- Answers Comparison -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="answer-box p-3 rounded {% if result.correct %}bg-success-light{% else %}bg-warning-light{% endif %}">
+                                            <strong class="d-block mb-2">Votre réponse:</strong>
+                                            {% if result.studentAnswer %}
+                                                <span class="badge bg-secondary fs-6">{{ result.studentAnswer }}</span>
+                                            {% else %}
+                                                <span class="text-muted italic">Pas de réponse ❌</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="answer-box p-3 rounded bg-success-light">
+                                            <strong class="d-block mb-2">Bonne réponse:</strong>
+                                            <span class="badge bg-success fs-6">{{ result.question.correctAnswer }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quiz Info -->
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Informations du Quiz
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p><strong>Titre:</strong></p>
+                            <p class="text-muted">{{ quiz.title }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Niveau:</strong></p>
+                            <span class="badge bg-{{ quiz.level == 'facile' ? 'success' : quiz.level == 'intermediaire' ? 'warning' : 'danger' }} fs-6">
+                                {{ quiz.level|capitalize }}
+                            </span>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Durée:</strong></p>
+                            <p class="text-muted">{{ quiz.duration }} minutes</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Questions:</strong></p>
+                            <p class="text-muted">{{ total }} questions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 mb-5">
+                {% if submission %}
+                    <a href="{{ path('student_attempt_result_pdf', {submissionId: submission.id}) }}" class="btn btn-success btn-lg" target="_blank">
+                        <i class="fas fa-file-pdf me-2"></i>Télécharger Résultat en PDF
+                    </a>
+                {% endif %}
+                <a href="{{ path('student_quiz_take', {id: quiz.id}) }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-redo me-2"></i>Réessayer ce Quiz
+                </a>
+                <a href="{{ path('student_quiz_list') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la Liste des Quiz
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .results-wrapper {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding-top: 20px;
+    }
+
+    .score-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 0;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 3px solid white;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .score-value {
+        font-size: 60px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .score-percentage {
+        font-size: 24px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+
+    .stat-icon.bg-success {
+        background: #28a745;
+    }
+
+    .stat-icon.bg-danger {
+        background: #dc3545;
+    }
+
+    .stat-icon.bg-info {
+        background: #17a2b8;
+    }
+
+    .stat-icon.bg-warning {
+        background: #ffc107;
+    }
+
+    .answer-item {
+        padding: 15px;
+        background: #ffffff;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .answer-item:hover {
+        background: #f0f0f0;
+    }
+
+    .question-text {
+        border-left: 4px solid #667eea !important;
+        font-size: 15px;
+    }
+
+    .answer-box {
+        font-size: 14px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .bg-success-light {
+        background-color: #d4edda !important;
+        border-left: 4px solid #28a745;
+    }
+
+    .bg-warning-light {
+        background-color: #fff3cd !important;
+        border-left: 4px solid #ffc107;
+    }
+
+    .badge {
+        word-break: break-word;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+        min-width: 150px;
+    }
+</style>
+
+<!-- Action Buttons -->
+<div class="container mt-5 mb-5">
+    <div class="action-buttons">
+        <a href="{{ path('student_quiz_list') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-th-list me-2"></i>Tous les Quiz
+        </a>
+        <a href="{{ path('student_quiz_statistics') }}" class="btn btn-info btn-lg">
+            <i class="fas fa-chart-bar me-2"></i>Statistiques
+        </a>
+        <a href="{{ path('student_dashboard') }}" class="btn btn-success btn-lg">
+            <i class="fas fa-home me-2"></i>Dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}

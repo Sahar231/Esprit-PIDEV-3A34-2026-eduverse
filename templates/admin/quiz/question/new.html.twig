@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Question au Quiz {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="mb-3">
+                <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au Quiz
+                </a>
+            </div>
+
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Ajouter une Question</h3>
+                    <p class="mb-0 small">Quiz: <strong>{{ quiz.title }}</strong></p>
+                </div>
+
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <div class="form-group mb-3">
+                        {{ form_label(form.text, 'Énoncé de la Question', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.text, {'attr': {'class': 'form-control', 'rows': '3', 'placeholder': 'Entrez l\'énoncé de la question'}}) }}
+                        {% if form.text.vars.errors %}
+                            <small class="text-danger">
+                                {% for error in form.text.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group mb-3">
+                        {{ form_label(form.correctAnswer, 'Réponse Correcte', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.correctAnswer, {'attr': {'class': 'form-control', 'placeholder': 'Entrez la réponse correcte'}}) }}
+                        {% if form.correctAnswer.vars.errors %}
+                            <small class="text-danger">
+                                {% for error in form.correctAnswer.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Astuce:</strong> Vous pourrez ajouter d'autres réponses possibles après création de la question.
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Ajouter la Question
+                        </button>
+                        <a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

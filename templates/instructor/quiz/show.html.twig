@@ -1,0 +1,197 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Quiz - Instructeur{% endblock %}
+
+{% block body %}
+<style>
+    .quiz-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    .quiz-info-box {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .question-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .answer-option {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        border-radius: 4px;
+        border-left: 3px solid #ddd;
+    }
+    .answer-option.correct {
+        background: #d4edda;
+        border-left-color: #28a745;
+    }
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="quiz-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>{{ quiz.title }}</h1>
+                <p class="lead mb-0">
+                    {% if quiz.status == 'APPROVED' %}
+                        <span class="badge bg-success">Approuvé</span>
+                    {% elseif quiz.status == 'PENDING' %}
+                        <span class="badge bg-warning text-dark">En attente</span>
+                    {% elseif quiz.status == 'REFUSED' %}
+                        <span class="badge bg-danger">Refusé</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Brouillon</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ path('instructor_quiz_edit', {id: quiz.id}) }}" class="btn btn-light">
+                    <i class="fas fa-edit me-2"></i>Modifier
+                </a>
+                <a href="{{ path('instructor_quiz_list') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Quiz Information -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="quiz-info-box">
+                <h5 class="mb-3">Informations du Quiz</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <p class="text-muted small mb-1">Description</p>
+                        <p>{{ quiz.description|default('Aucune description') }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="text-muted small mb-1">Niveau de Difficulté</p>
+                        <p><strong>{{ quiz.level|capitalize }}</strong></p>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="text-muted small mb-1">Durée</p>
+                        <p><strong>{{ quiz.duration }} minutes</strong></p>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="text-muted small mb-1">Questions</p>
+                        <p><strong>{{ quiz.questions|length }}</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Information -->
+    {% if quiz.status == 'REFUSED' and quiz.rejectionReason %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading">Raison du Refus</h5>
+                    <p class="mb-0">{{ quiz.rejectionReason }}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    {% elseif quiz.status == 'PENDING' %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Ce quiz est en attente d'approbation par un administrateur. Il ne sera pas accessible aux étudiants tant qu'il n'aura pas été approuvé.
+                </div>
+            </div>
+        </div>
+    {% elseif quiz.status == 'APPROVED' %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Ce quiz a été approuvé et est maintenant accessible aux étudiants.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Questions List -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="mb-4">Questions ({{ quiz.questions|length }})</h3>
+            
+            {% if quiz.questions|length > 0 %}
+                {% for question in quiz.questions %}
+                    <div class="question-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h6 class="mb-0">
+                                <span class="badge bg-info me-2">Q{{ loop.index }}</span>
+                                {{ question.text }}
+                            </h6>
+                            <a href="{{ path('instructor_question_edit', {id: question.id}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+
+                        <!-- Responses/Options -->
+                        {% if question.reponses %}
+                            <div class="mt-3">
+                                <p class="text-muted small mb-2">Réponses possibles :</p>
+                                {% for response in question.reponses %}
+                                    <div class="answer-option {% if response.isCorrect %}correct{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <p class="mb-0">{{ response.content }}</p>
+                                            </div>
+                                            {% if response.isCorrect %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Correcte
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Ce quiz ne contient pas encore de questions.
+                    <a href="{{ path('instructor_quiz_edit', {id: quiz.id}) }}" class="alert-link">Ajouter des questions</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-5">
+        <div class="col-md-12 text-center">
+            <a href="{{ path('instructor_quiz_edit', {id: quiz.id}) }}" class="btn btn-primary me-2">
+                <i class="fas fa-edit me-2"></i>Modifier le Quiz
+            </a>
+            <a href="{{ path('instructor_quiz_list') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour à la Liste
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
