@@ -1,0 +1,302 @@
+<!-- Course Form Template -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'needs-validation'}}) }}
+
+        <!-- Title Field -->
+        <div class="mb-4">
+            <label for="{{ form.title.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-heading"></i> {{ form.title.vars.label }}
+            </label>
+            {{ form_widget(form.title, {attr: {class: 'form-control'}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Must start with uppercase letter (A-Z), 3-255 characters
+            </small>
+            {% if form.title.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.title.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Description Field -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label for="{{ form.description.vars.id }}" class="form-label fw-bold mb-0">
+                    <i class="fas fa-file-alt"></i> {{ form.description.vars.label }}
+                </label>
+                <button type="button" class="btn btn-sm btn-purple mb-0" id="btn-gen-ai-course">
+                    <i class="fas fa-magic me-2"></i>✨ Générer une description
+                </button>
+            </div>
+            {{ form_widget(form.description, {attr: {class: 'form-control', rows: 6}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Must start with uppercase letter (A-Z), 10-5000 characters
+            </small>
+            {% if form.description.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.description.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const genBtn = document.getElementById('btn-gen-ai-course');
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const titleInput = document.querySelector('input[name*="[title]"]');
+            const descTextarea = document.querySelector('textarea[name*="[description]"]');
+            
+            if (!titleInput || !titleInput.value.trim()) {
+                alert('Veuillez d\'abord saisir un titre.');
+                return;
+            }
+
+            genBtn.disabled = true;
+            genBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération...';
+
+            try {
+                const response = await fetch('{{ path("api_generate_description") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: titleInput.value, entityType: 'course' })
+                });
+
+                const data = await response.json();
+                if (data.description) {
+                    descTextarea.value = data.description;
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de générer la description.'));
+                }
+            } catch (error) {
+                console.error('AI Error:', error);
+                alert('Une erreur est survenue lors de la communication avec l\'AI.');
+            } finally {
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<i class="fas fa-magic me-2"></i>✨ Générer une description';
+            }
+        });
+    }
+});
+</script>
+
+        <!-- Category Field -->
+        <div class="mb-4">
+            <label for="{{ form.category.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-tag"></i> {{ form.category.vars.label }}
+            </label>
+            {{ form_widget(form.category, {attr: {class: 'form-control'}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Select or enter a course category (e.g., Programming, Design)
+            </small>
+            {% if form.category.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.category.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Content Field -->
+        <div class="mb-4">
+            <label for="{{ form.content.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-align-left"></i> {{ form.content.vars.label }}
+            </label>
+            {{ form_widget(form.content, {attr: {class: 'form-control', rows: 8}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Must start with uppercase letter (A-Z), 50-10000 characters
+            </small>
+            {% if form.content.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.content.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Level Field -->
+        <div class="mb-4">
+            <label for="{{ form.level.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-graduation-cap"></i> {{ form.level.vars.label }}
+            </label>
+            {{ form_widget(form.level, {attr: {class: 'form-control'}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Select the appropriate difficulty level for this course
+            </small>
+            {% if form.level.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.level.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Course Image Upload -->
+        <div class="mb-4">
+            <label for="{{ form.courseImage.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-image"></i> {{ form.courseImage.vars.label }}
+            </label>
+            {{ form_widget(form.courseImage, {attr: {class: 'form-control'}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Upload a course image (JPG or PNG format, optional)
+            </small>
+            {% if form.courseImage.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.courseImage.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Course PDF Upload -->
+        <div class="mb-4">
+            <label for="{{ form.courseFile.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-file-pdf"></i> {{ form.courseFile.vars.label }}
+            </label>
+            {{ form_widget(form.courseFile, {attr: {class: 'form-control'}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Upload a PDF document for this course (optional)
+            </small>
+            {% if form.courseFile.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.courseFile.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Course Video Upload -->
+        <div class="mb-4">
+            <label for="{{ form.courseVideo.vars.id }}" class="form-label fw-bold">
+                <i class="fas fa-video"></i> {{ form.courseVideo.vars.label }}
+            </label>
+            {{ form_widget(form.courseVideo, {attr: {class: 'form-control'}}) }}
+            <small class="text-muted d-block mt-2">
+                <i class="fas fa-info-circle"></i> Upload a video file for this course (MP4 or WebM format, optional)
+            </small>
+            {% if form.courseVideo.vars.errors|length > 0 %}
+                <div class="alert alert-danger alert-sm mt-2 py-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% for error in form.courseVideo.vars.errors %}
+                        <div class="fw-bold">{{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Chapters Collection -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">
+                <i class="fas fa-book"></i> Chapters
+            </label>
+            <div id="chapters-list" data-prototype='{{ form_widget(form.chapitres.vars.prototype)|e('html_attr') }}'>
+                {% for chapitre_form in form.chapitres %}
+                    <div class="chapter-item card mb-3">
+                        <div class="card-body">
+                            <!-- Chapter Title -->
+                            <div class="mb-3">
+                                <label for="{{ chapitre_form.title.vars.id }}" class="form-label">
+                                    Chapter Title
+                                </label>
+                                {{ form_widget(chapitre_form.title, {attr: {class: 'form-control'}}) }}
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle"></i> Must start with uppercase letter (A-Z), 3-255 characters
+                                </small>
+                                {% if chapitre_form.title.vars.errors|length > 0 %}
+                                    <div class="alert alert-danger alert-sm mt-2 py-2">
+                                        {% for error in chapitre_form.title.vars.errors %}
+                                            <div class="fw-bold">{{ error.message }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Chapter Content -->
+                            <div class="mb-3">
+                                <label for="{{ chapitre_form.content.vars.id }}" class="form-label">
+                                    Chapter Content
+                                </label>
+                                {{ form_widget(chapitre_form.content, {attr: {class: 'form-control', rows: 6}}) }}
+                                <small class="text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle"></i> Must contain at least 10 characters
+                                </small>
+                                {% if chapitre_form.content.vars.errors|length > 0 %}
+                                    <div class="alert alert-danger alert-sm mt-2 py-2">
+                                        {% for error in chapitre_form.content.vars.errors %}
+                                            <div class="fw-bold">{{ error.message }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <button type="button" class="btn btn-sm btn-danger remove-chapter" onclick="removeChapter(this); return false;">
+                                <i class="fas fa-times"></i> Remove Chapter
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="add-chapter" onclick="addChapter(); return false;">
+                <i class="fas fa-plus"></i> Add Chapter
+            </button>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex gap-2">
+            {{ form_widget(form.submit, {attr: {class: 'btn btn-primary'}}) }}
+            <a href="{{ path('instructor_course_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+function addChapter() {
+    const collectionHolder = document.getElementById('chapters-list');
+    const prototype = collectionHolder.dataset.prototype;
+    const index = collectionHolder.querySelectorAll('.chapter-item').length;
+    
+    if (!prototype) {
+        console.error('No prototype found');
+        return false;
+    }
+    
+    // Replace __name__ with actual index
+    const newForm = prototype.replace(/__name__/g, index);
+    
+    // Create temporary container
+    const temp = document.createElement('div');
+    temp.innerHTML = newForm;
+    
+    // Get the first element child
+    const newElement = temp.firstElementChild;
+    if (newElement) {
+        collectionHolder.appendChild(newElement);
+    }
+    
+    return false;
+}
+
+function removeChapter(button) {
+    button.closest('.chapter-item').remove();
+    return false;
+}
+</script>

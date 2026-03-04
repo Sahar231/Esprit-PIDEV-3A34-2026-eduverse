@@ -1,0 +1,150 @@
+{% extends 'admin/dashboard.html.twig' %}
+
+{% block title %}Add Event - Admin{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .form-error-messages ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        color: #dc3545;
+        font-size: 0.875em;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="navbar-brand-static h-100">
+					<a href="{{ path('app_home') }}" class="btn btn-sm btn-light mb-0">
+						<i class="fas fa-home me-2"></i>Back to Home
+					</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<!-- Title -->
+		<div class="row">
+			<div class="col-12 mb-3">
+				<h1 class="h3 mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Event</h1>
+			</div>
+		</div>
+
+		<div class="card shadow">
+			<div class="card-body p-4">
+				{{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+					<div class="col-md-6">
+						{{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+						<div class="form-error-messages">
+							{{ form_errors(form.title) }}
+						</div>
+						{{ form_widget(form.title) }}
+					</div>
+
+					<div class="col-md-6">
+						{{ form_label(form.club, null, {'label_attr': {'class': 'form-label'}}) }}
+						<div class="form-error-messages">
+							{{ form_errors(form.club) }}
+						</div>
+						{{ form_widget(form.club) }}
+					</div>
+
+					<div class="col-md-6">
+						{{ form_label(form.eventDate, null, {'label_attr': {'class': 'form-label'}}) }}
+						<div class="form-error-messages">
+							{{ form_errors(form.eventDate) }}
+						</div>
+						{{ form_widget(form.eventDate) }}
+					</div>
+
+					<div class="col-md-6">
+						{{ form_label(form.location, null, {'label_attr': {'class': 'form-label'}}) }}
+						<div class="form-error-messages">
+							{{ form_errors(form.location) }}
+						</div>
+						{{ form_widget(form.location) }}
+					</div>
+
+					<div class="col-12">
+						<div class="d-flex justify-content-between align-items-center mb-2">
+							{{ form_label(form.description, null, {'label_attr': {'class': 'form-label mb-0'}}) }}
+							<button type="button" class="btn btn-sm btn-purple mb-0" id="btn-gen-ai-event-adm">
+								<i class="fas fa-magic me-2"></i>✨ Générer une description
+							</button>
+						</div>
+						<div class="form-error-messages">
+							{{ form_errors(form.description) }}
+						</div>
+						{{ form_widget(form.description) }}
+					</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const genBtn = document.getElementById('btn-gen-ai-event-adm');
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const titleInput = document.querySelector('input[name*="[title]"]');
+            const descTextarea = document.querySelector('textarea[name*="[description]"]');
+            
+            if (!titleInput || !titleInput.value.trim()) {
+                alert('Veuillez d\'abord saisir un titre.');
+                return;
+            }
+
+            genBtn.disabled = true;
+            genBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération...';
+
+            try {
+                const response = await fetch('{{ path("api_generate_description") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: titleInput.value, entityType: 'event' })
+                });
+
+                const data = await response.json();
+                if (data.description) {
+                    descTextarea.value = data.description;
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de générer la description.'));
+                }
+            } catch (error) {
+                console.error('AI Error:', error);
+                alert('Une erreur est survenue.');
+            } finally {
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<i class="fas fa-magic me-2"></i>✨ Générer une description';
+            }
+        });
+    }
+});
+</script>
+
+					<div class="col-12">
+						<div class="d-grid gap-2 d-sm-flex justify-content-sm-end">
+							<button type="submit" class="btn btn-primary">
+								<i class="fas fa-check me-2"></i>Create Event
+							</button>
+							<a href="{{ path('admin_event_list') }}" class="btn btn-secondary">
+								<i class="fas fa-times me-2"></i>Cancel
+							</a>
+						</div>
+					</div>
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+{% endblock %}

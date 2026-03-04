@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #007bff;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #007bff;
+            font-size: 28px;
+        }
+        .section-title {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            font-weight: bold;
+            color: #495057;
+            border-left: 4px solid #007bff;
+            margin: 20px 0 10px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .badge-approved {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .badge-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Clubs List Report</h1>
+        <p style="margin: 5px 0; color: #666;">Complete list of all clubs in the system</p>
+    </div>
+
+    <div class="section-title">Clubs ({{ clubs|length }})</div>
+    
+    {% if clubs|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Club Name</th>
+                    <th>Creator</th>
+                    <th>Members</th>
+                    <th>Events</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for club in clubs %}
+                    <tr>
+                        <td>
+                            <strong>{{ club.name }}</strong><br>
+                            <small style="color: #666;">{{ club.description|slice(0, 50) }}{% if club.description|length > 50 %}...{% endif %}</small>
+                        </td>
+                        <td>{{ club.creator.fullName }}</td>
+                        <td>{{ club.members|length }}</td>
+                        <td>{{ club.events|length }}</td>
+                        <td>
+                            {% if club.status == 'PENDING' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elseif club.status == 'APPROVED' %}
+                                <span class="badge badge-approved">Approved</span>
+                            {% elseif club.status == 'REJECTED' %}
+                                <span class="badge badge-rejected">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ club.createdAt|date('d/m/Y') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: #666; font-style: italic;">No clubs found</p>
+    {% endif %}
+
+    <div class="footer">
+        <p>Generated on {{ "now"|date('d F Y, H:i:s') }}</p>
+        <p>Total Clubs: {{ clubs|length }}</p>
+        <p>This is an automatically generated report from the Club Management System</p>
+    </div>
+</body>
+</html>

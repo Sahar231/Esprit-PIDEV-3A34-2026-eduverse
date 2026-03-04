@@ -1,0 +1,220 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ club.name }}{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background: url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size: cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">{{ club.name }}</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_list") }}">Clubs</a></li>
+						<li class="breadcrumb-item active">{{ club.name }}</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<!-- Club Details -->
+			<div class="col-lg-8">
+				<div class="card shadow-sm mb-4">
+					<div class="card-body">
+						<h4 class="card-title mb-3">About This Club</h4>
+						<p class="card-text text-dark">{{ club.description }}</p>
+						<hr>
+						<div class="row">
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2">Creator</h6>
+								<p class="mb-0">{{ club.creator.fullName }}</p>
+								<small class="text-muted">{{ club.creator.email }}</small>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2">Created</h6>
+								<p class="mb-0">{{ club.createdAt|date('d/m/Y H:i') }}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Members Section -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-light">
+						<h5 class="card-title mb-0"><i class="fas fa-users me-2"></i>Members ({{ club.members|length }})</h5>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-sm mb-0">
+							<thead class="border-top">
+								<tr>
+									<th>Name</th>
+									<th>Role</th>
+									<th>Email</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% if club.members|length > 0 %}
+									{% for member in club.members %}
+										<tr>
+											<td>{{ member.fullName }}</td>
+											<td>
+												{% if member.id == club.creator.id %}
+													<span class="badge bg-primary">Creator</span>
+												{% else %}
+													<span class="badge bg-secondary">Member</span>
+												{% endif %}
+											</td>
+											<td><small>{{ member.email }}</small></td>
+										</tr>
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="3" class="text-center text-muted py-3">
+											No members yet
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Events Section -->
+				<div class="card shadow-sm">
+					<div class="card-header bg-light d-flex justify-content-between align-items-center">
+						<h5 class="card-title mb-0"><i class="fas fa-calendar me-2"></i>Events</h5>
+						{% if app.user and (app.user.id == club.creator.id) %}
+							<a href="{{ path('event_create', {'clubId': club.id}) }}" class="btn btn-sm btn-primary">
+								<i class="fas fa-plus me-1"></i>Create Event
+							</a>
+						{% endif %}
+					</div>
+					<div class="table-responsive">
+						<table class="table table-sm mb-0">
+							<thead class="border-top">
+								<tr>
+									<th>Title</th>
+									<th>Date</th>
+									<th>Location</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% if club.events|length > 0 %}
+									{% for event in club.events %}
+										{% if event.isApproved %}
+											<tr>
+												<td>{{ event.title }}</td>
+												<td><small>{{ event.eventDate|date('d/m/Y H:i') }}</small></td>
+												<td><small>{{ event.location }}</small></td>
+												<td>
+													<a href="{{ path('event_detail', {'clubId': club.id, 'id': event.id}) }}" class="btn btn-sm btn-outline-primary">
+														View
+													</a>
+												</td>
+											</tr>
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="4" class="text-center text-muted py-3">
+											No events yet
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sidebar -->
+			<div class="col-lg-4">
+				<!-- Actions Card -->
+				<div class="card shadow-sm sticky-top">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Actions</h5>
+					</div>
+					<div class="card-body">
+						<div class="d-grid gap-2">
+							{% if is_granted('ROLE_STUDENT') or is_granted('ROLE_INSTRUCTOR') %}
+								{% if app.user and club.isMember(app.user) %}
+									<button class="btn btn-success" disabled>
+										<i class="fas fa-check me-2"></i>You're a Member
+									</button>
+
+									{% if app.user.id == club.creator.id %}
+										<a href="{{ path('club_edit', {'id': club.id}) }}" class="btn btn-warning">
+											<i class="fas fa-edit me-2"></i>Edit Club
+										</a>
+										<form method="POST" action="{{ path('club_delete', {'id': club.id}) }}" onsubmit="return confirm('Delete this club?')">
+											<button type="submit" class="btn btn-danger w-100">
+												<i class="fas fa-trash me-2"></i>Delete Club
+											</button>
+										</form>
+									{% endif %}
+								{% else %}
+									<a href="{{ path('club_join', {'id': club.id}) }}" class="btn btn-success btn-lg" onclick="return confirm('Request to join this club?')">
+										<i class="fas fa-handshake me-2"></i>Request to Join
+									</a>
+								{% endif %}
+							{% else %}
+								<div class="alert alert-info mb-0">
+									<i class="fas fa-info-circle me-2"></i>
+									<small>Log in to join this club</small>
+								</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+				<!-- Statistics Card -->
+				<div class="card shadow-sm mt-3">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Statistics</h5>
+					</div>
+					<div class="card-body">
+						<div class="mb-3">
+							<h6 class="text-muted mb-2">Total Members</h6>
+							<p class="h4 text-primary mb-0">{{ club.members|length }}</p>
+						</div>
+						<div class="mb-3">
+							<h6 class="text-muted mb-2">Total Events</h6>
+							<p class="h4 text-success mb-0">
+								{% set approvedEvents = 0 %}
+								{% for event in club.events %}
+									{% if event.isApproved %}
+										{% set approvedEvents = approvedEvents + 1 %}
+									{% endif %}
+								{% endfor %}
+								{{ approvedEvents }}
+							</p>
+						</div>
+						<div>
+							<h6 class="text-muted mb-2">Created</h6>
+							<p class="small text-dark mb-0">{{ club.createdAt|date('d F Y') }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Back Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('club_list') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left me-2"></i>Back to Clubs
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}

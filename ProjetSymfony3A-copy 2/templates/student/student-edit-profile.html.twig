@@ -1,0 +1,129 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile - Eduport{% endblock %}
+
+{% block body %}
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<section class="pt-0">
+	<div class="container-fluid px-0">
+		<div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+		</div>
+	</div>
+	<div class="container mt-n4">
+		<div class="row">
+			<div class="col-12">
+				<div class="card bg-transparent card-body pb-0 px-0 mt-2 mt-sm-0">
+					<div class="row d-sm-flex justify-sm-content-between mt-2 mt-md-0">
+						<!-- Avatar -->
+						<div class="col-auto">
+							<div class="avatar avatar-xxl mt-n3">
+								<img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ app.user.picture ? app.user.picture : '/assets/images/avatar/09.svg' }}" alt="">
+							</div>
+						</div>
+						<!-- Profile info -->
+						<div class="col d-sm-flex justify-content-between align-items-center">
+							<div>
+								<h1 class="my-1 fs-4">{{ app.user.fullName }}</h1>
+							</div>
+						</div>
+					</div>
+				</div>
+                <hr class="d-xl-none">
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="pt-0">
+	<div class="container">
+		<div class="row">
+			<!-- Left sidebar START -->
+			<div class="col-xl-3">
+				<div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar">
+					<div class="offcanvas-header bg-light">
+						<h5 class="offcanvas-title" id="offcanvasNavbarLabel">My profile</h5>
+						<button  type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body p-3 p-xl-0">
+						<div class="bg-dark border rounded-3 p-3 w-100">
+							<div class="list-group list-group-dark list-group-borderless collapse-list">
+								<a class="list-group-item" href="{{ path('student_dashboard') }}"><i class="bi bi-ui-checks-grid fa-fw me-2"></i>Dashboard</a>
+								<a class="list-group-item active" href="{{ path('student_profile_edit') }}"><i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile</a>
+								<a class="list-group-item text-danger bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Left sidebar END -->
+
+			<!-- Main content START -->
+			<div class="col-xl-9">
+				<div class="card bg-transparent border rounded-3">
+					<div class="card-header bg-transparent border-bottom">
+						<h3 class="card-header-title mb-0">Edit Profile</h3>
+					</div>
+					<div class="card-body">
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success">{{ message }}</div>
+                        {% endfor %}
+
+						{{ form_start(profileForm, {'attr': {'class': 'row g-4'}}) }}
+							<div class="col-12">
+								<label class="form-label">Full Name</label>
+								<div class="input-group">
+									{{ form_widget(profileForm.fullName, {'attr': {'class': 'form-control border-end-0'}}) }}
+									<button class="btn voice-typing-btn" type="button" title="Saisie vocale">ðŸŽ¤</button>
+								</div>
+                                {{ form_errors(profileForm.fullName) }}
+							</div>
+							<div class="col-md-6">
+								<label class="form-label">Email Address</label>
+								<div class="input-group">
+									{{ form_widget(profileForm.email, {'attr': {'class': 'form-control border-end-0'}}) }}
+									<button class="btn voice-typing-btn" type="button" title="Saisie vocale">ðŸŽ¤</button>
+								</div>
+							</div>
+                            <div class="col-md-6">
+                                <label class="form-label">Job Title</label>
+                                {{ form_widget(profileForm.jobTitle, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Profile Picture URL</label>
+                                {{ form_widget(profileForm.picture, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Bio</label>
+                                {{ form_widget(profileForm.bio, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                            </div>
+
+                            <div class="col-12 pt-3 border-top">
+                                <h5>SÃ©curitÃ© du compte (2FA SMS)</h5>
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_widget(profileForm.isTwoFactorEnabled, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(profileForm.isTwoFactorEnabled) }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">NumÃ©ro de tÃ©lÃ©phone (Format international)</label>
+                                {{ form_widget(profileForm.phoneNumber, {'attr': {'class': 'form-control', 'placeholder': '+216...'}}) }}
+                                <small class="text-muted">NÃ©cessaire uniquement si le 2FA est activÃ©.</small>
+                            </div>
+
+							<div class="d-sm-flex justify-content-end">
+								<button type="submit" class="btn btn-primary mb-0">Save changes</button>
+							</div>
+						{{ form_end(profileForm) }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<script src="{{ asset('assets/js/voice-typing.js') }}"></script>
+{% endblock %}
+

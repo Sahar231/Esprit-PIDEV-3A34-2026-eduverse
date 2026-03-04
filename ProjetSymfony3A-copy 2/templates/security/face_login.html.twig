@@ -1,0 +1,170 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}FaceID Login{% endblock %}
+
+{% block body %}
+<main>
+	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+		<div class="container-fluid">
+			<div class="row">
+				<!-- left -->
+				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+					<div class="p-3 p-lg-5">
+						<div class="text-center">
+							<h2 class="fw-bold">Connexion Biométrique</h2>
+							<p class="mb-0 h6 fw-light">Sourire, c'est se connecter !</p>
+						</div>
+						<img src="{{ asset('assets/images/element/02.svg') }}" class="mt-5" alt="">
+					</div>
+				</div>
+
+				<!-- Right -->
+				<div class="col-12 col-lg-6 m-auto">
+					<div class="row my-5">
+						<div class="col-sm-10 col-xl-8 m-auto">
+							<h1 class="fs-2 text-center">Face ID <i class="bi bi-person-bounding-box text-primary"></i></h1>
+							<p class="lead mb-4 text-center">Placez votre visage au centre du cadre pour vous identifier.</p>
+
+                            <div id="flashMessageContainer"></div>
+
+                            <div class="mb-4 border p-4 rounded bg-light text-center">
+                                <div class="position-relative d-inline-block">
+                                    <video id="loginVideo" width="320" height="240" autoplay muted class="border rounded bg-dark" style="object-fit:cover;"></video>
+                                    <canvas id="loginCanvas" class="position-absolute top-0 start-50 translate-middle-x"></canvas>
+                                </div>
+                                <div class="mt-3">
+                                    <button id="startFaceLogin" class="btn btn-primary btn-lg w-100"><i class="bi bi-camera"></i>Scanner mon visage</button>
+                                </div>
+                                <h5 id="loginStatus" class="mt-3 text-secondary">Attente d'activation...</h5>
+                            </div>
+
+							<div class="mt-4 text-center">
+								<span>Retourner à la <a href="{{ path('app_login') }}">connexion classique</a> ou <a href="{{ path('app_register') }}">s'inscrire</a></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+
+<script src="{{ asset('js/face-api/face-api.min.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const video = document.getElementById('loginVideo');
+    const canvas = document.getElementById('loginCanvas');
+    const startBtn = document.getElementById('startFaceLogin');
+    const statusText = document.getElementById('loginStatus');
+    const flashContainer = document.getElementById('flashMessageContainer');
+
+    let stream = null;
+    let modelsLoaded = false;
+
+    async function initFaceAPI() {
+        try {
+            statusText.textContent = "Initialisation de l'IA (veuillez patienter)...";
+            statusText.className = "mt-3 text-warning";
+            startBtn.disabled = true;
+
+            await faceapi.nets.ssdMobilenetv1.loadFromUri('/js/face-api/weights');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('/js/face-api/weights');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('/js/face-api/weights');
+
+            modelsLoaded = true;
+            statusText.textContent = "Modèles d'IA prêts. Plaçez-vous face l'objectif.";
+            statusText.className = "mt-3 text-info";
+            startBtn.disabled = false;
+        } catch (e) {
+            console.error(e);
+            statusText.textContent = "Erreur de chargement de l'IA.";
+            statusText.className = "mt-3 text-danger";
+        }
+    }
+
+    initFaceAPI();
+
+    startBtn.addEventListener('click', async () => {
+        if (!modelsLoaded) return;
+
+        try {
+            if (!stream) {
+                stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                video.srcObject = stream;
+            }
+
+            statusText.textContent = "Analyse faciale en cours...";
+            statusText.className = "mt-3 text-primary";
+            startBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Traitement...';
+            startBtn.disabled = true;
+
+            // Laisser un peu de temps à la vidéo de démarrer et de faire le point, puis capturer
+            setTimeout(async () => {
+                const displaySize = { width: video.width || 320, height: video.height || 240 };
+                faceapi.matchDimensions(canvas, displaySize);
+                
+                const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+
+                if (detection) {
+                    const resizedDetections = faceapi.resizeResults(detection, displaySize);
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    faceapi.draw.drawDetections(canvas, resizedDetections);
+
+                    statusText.textContent = "Identification du visage transmise au serveur...";
+                    statusText.className = "mt-3 text-warning";
+
+                    // Envoyer le descripteur au backend pour vérification
+                    const descriptorArray = Array.from(detection.descriptor);
+                    
+                    fetch("{{ path('app_face_login_check') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ descriptor: descriptorArray })
+                    })
+                    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+                    .then(result => {
+                        if (result.status === 200 && result.body.success) {
+                            statusText.textContent = result.body.message;
+                            statusText.className = "mt-3 text-success";
+                            flashContainer.innerHTML = `<div class="alert alert-success">${result.body.message}</div>`;
+                            
+                            // Arrêt caméra et redirection
+                            stream.getTracks().forEach(t => t.stop());
+                            setTimeout(() => {
+                                window.location.href = result.body.redirect;
+                            }, 1500);
+                        } else {
+                            statusText.textContent = "Accès refusé.";
+                            statusText.className = "mt-3 text-danger";
+                            flashContainer.innerHTML = `<div class="alert alert-danger">${result.body.error || 'Visage inconnu.'}</div>`;
+                            startBtn.innerHTML = '<i class="bi bi-camera"></i> Réessayer';
+                            startBtn.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        statusText.textContent = "Erreur serveur.";
+                        statusText.className = "mt-3 text-danger";
+                        startBtn.innerHTML = '<i class="bi bi-camera"></i> Réessayer';
+                        startBtn.disabled = false;
+                    });
+                } else {
+                    statusText.textContent = "Aucun visage détecté. Veuillez réessayer.";
+                    statusText.className = "mt-3 text-danger";
+                    startBtn.innerHTML = '<i class="bi bi-camera"></i> Scanner mon visage';
+                    startBtn.disabled = false;
+                }
+            }, 1000); // 1 sec pour auto-focus webcam
+
+        } catch (err) {
+            console.error(err);
+            statusText.textContent = "Erreur accès caméra.";
+            statusText.className = "mt-3 text-danger";
+            startBtn.disabled = false;
+        }
+    });
+});
+</script>
+{% endblock %}

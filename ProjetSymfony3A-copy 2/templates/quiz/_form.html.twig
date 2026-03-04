@@ -1,0 +1,387 @@
+{{ form_start(form) }}
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Quiz Information</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title, { 'attr': { 'class': 'form-control', 'placeholder': 'Enter quiz title' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Must start with uppercase letter (A-Z), 3-255 characters
+                    </small>
+                    {% if form.title.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.title.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.level) }}
+                    {{ form_widget(form.level, { 'attr': { 'class': 'form-control' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Required - Select difficulty level: Beginner, Intermediate, or Advanced
+                    </small>
+                    {% if form.level.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.level.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label class="form-label">Duration</label>
+                    <div class="input-group">
+                        <input type="number" id="minutes" class="form-control" placeholder="00" aria-label="Minutes" min="0" max="999" value="0">
+                        <span class="input-group-text">min</span>
+                        <input type="number" id="seconds" class="form-control" placeholder="00" aria-label="Seconds" min="0" max="59" style="max-width: 100px;" value="0">
+                        <span class="input-group-text">sec</span>
+                    </div>
+                    {{ form_widget(form.duration, { 'attr': { 'type': 'hidden', 'id': 'duration_seconds' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Optional - Must be 0 or positive number. Leave as 00:00 for unlimited time
+                    </small>
+                    {% if form.duration.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.duration.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Questions (QCM Format)</h5>
+        <button type="button" class="btn btn-sm btn-light" id="add-question-btn">
+            <i class="fas fa-plus"></i> Add Question
+        </button>
+    </div>
+    <div class="card-body">
+        {% if form.questions.vars.errors|length > 0 %}
+            <div class="alert alert-danger mb-3 fw-bold">
+                {% for error in form.questions.vars.errors %}
+                    <i class="fas fa-exclamation-triangle"></i> {{ error.message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div id="questions-collection" class="questions-container">
+            {% if form.questions|length > 0 %}
+                {% for question in form.questions %}
+                    <div class="question-item card border-secondary mb-3" data-question-index="{{ loop.index0 }}">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-question-circle"></i> Question {{ loop.index }}
+                            </h6>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-question" data-index="{{ loop.index0 }}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                {{ form_label(question.question) }}
+                                {{ form_widget(question.question, { 'attr': { 'class': 'form-control', 'rows': '3', 'placeholder': 'Enter your question here...' } }) }}
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Must start with uppercase letter (A-Z), 5-2000 characters
+                                </small>
+                                {% if question.question.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-2 fw-bold">
+                                        {% for error in question.question.vars.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(question.correctAnswer) }}
+                                        {{ form_widget(question.correctAnswer, { 'attr': { 'class': 'form-control', 'placeholder': 'e.g., A or The correct answer' } }) }}
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Must start with uppercase letter (A-Z), 1-500 characters
+                                        </small>
+                                        {% if question.correctAnswer.vars.errors|length > 0 %}
+                                            <div class="text-danger small mt-2 fw-bold">
+                                                {% for error in question.correctAnswer.vars.errors %}
+                                                    <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(question.score) }}
+                                        {{ form_widget(question.score, { 'attr': { 'class': 'form-control', 'type': 'number', 'step': '0.01', 'min': '0' } }) }}
+                                        <small class="text-muted d-block mt-2">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Required - Must be 0 or positive number. Decimal values allowed (e.g., 2.50)
+                                        </small>
+                                        {% if question.score.vars.errors|length > 0 %}
+                                            <div class="text-danger small mt-2 fw-bold">
+                                                {% for error in question.score.vars.errors %}
+                                                    <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                {{ form_label(question.type) }}
+                                {{ form_widget(question.type, { 'attr': { 'class': 'form-control' } }) }}
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Required - Select question format (currently only Multiple Choice/QCM is supported)
+                                </small>
+                                {% if question.type.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-2 fw-bold">
+                                        {% for error in question.type.vars.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-chess"></i> Answer Choices
+                                </label>
+                                <ul class="choices-list list-unstyled" data-question-index="{{ loop.index0 }}">
+                                    {% for choice in question.choices %}
+                                        <li class="choice-item mb-2">
+                                            <div class="input-group">
+                                                {{ form_widget(choice, { 'attr': { 'class': 'form-control', 'placeholder': 'Enter choice (start with uppercase)...' } }) }}
+                                                <button type="button" class="btn btn-outline-danger remove-choice">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="fas fa-info-circle"></i> 
+                                                Must start with uppercase letter (A-Z), 1-500 characters
+                                            </small>
+                                            {% if choice.vars.errors|length > 0 %}
+                                                <div class="text-danger small mt-1 fw-bold">
+                                                    {% for error in choice.vars.errors %}
+                                                        <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <button type="button" class="btn btn-sm btn-outline-secondary add-choice mt-2" data-question-index="{{ loop.index0 }}">
+                                    <i class="fas fa-plus"></i> Add Choice
+                                </button>
+                                {% if question.choices.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-2 fw-bold">
+                                        {% for error in question.choices.vars.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No questions yet. Click "Add Question" to create your first question.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="form-group mt-4">
+    <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fas fa-save"></i> {{ button_label | default('Save Quiz') }}
+    </button>
+    <a href="{{ cancel_url | default(path('instructor_dashboard')) }}" class="btn btn-secondary btn-lg">
+        <i class="fas fa-times"></i> Cancel
+    </a>
+</div>
+
+{{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addQuestionBtn = document.getElementById('add-question-btn');
+    const questionsContainer = document.getElementById('questions-collection');
+    
+    // Get the prototype from the form widget
+    const questionPrefix = 'quiz_questions';
+    let questionIndex = document.querySelectorAll('.question-item').length;
+
+    if (addQuestionBtn) {
+        addQuestionBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Create a new question structure
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item card border-secondary mb-3';
+            questionDiv.setAttribute('data-question-index', questionIndex);
+            
+            questionDiv.innerHTML = `
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-question-circle"></i> Question ${questionIndex + 1}
+                    </h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-question" data-index="${questionIndex}">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+                
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label required" for="quiz_questions_${questionIndex}_question">Question</label>
+                        <textarea id="quiz_questions_${questionIndex}_question" name="quiz[questions][${questionIndex}][question]" class="form-control" rows="3" placeholder="Enter your question here..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label required" for="quiz_questions_${questionIndex}_correctAnswer">Correct Answer</label>
+                                <input type="text" id="quiz_questions_${questionIndex}_correctAnswer" name="quiz[questions][${questionIndex}][correctAnswer]" class="form-control" placeholder="e.g., A or The correct answer">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label required" for="quiz_questions_${questionIndex}_score">Score</label>
+                                <input type="number" id="quiz_questions_${questionIndex}_score" name="quiz[questions][${questionIndex}][score]" class="form-control" step="0.01" min="0" value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label required" for="quiz_questions_${questionIndex}_type">Question Type</label>
+                        <select id="quiz_questions_${questionIndex}_type" name="quiz[questions][${questionIndex}][type]" class="form-control">
+                            <option value="qcm">Multiple Choice (QCM)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-chess"></i> Answer Choices
+                        </label>
+                        <ul class="choices-list list-unstyled" data-question-index="${questionIndex}">
+                            <li class="choice-item mb-2">
+                                <div class="input-group">
+                                    <input type="text" name="quiz[questions][${questionIndex}][choices][0]" class="form-control" placeholder="Enter choice...">
+                                    <button type="button" class="btn btn-outline-danger remove-choice">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                        <button type="button" class="btn btn-sm btn-outline-secondary add-choice mt-2" data-question-index="${questionIndex}">
+                            <i class="fas fa-plus"></i> Add Choice
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            questionsContainer.appendChild(questionDiv);
+            
+            // Attach event listeners
+            attachQuestionHandlers(questionDiv);
+            
+            questionIndex++;
+        });
+    }
+
+    // Handle time input conversion
+    const minutesInput = document.getElementById('minutes');
+    const secondsInput = document.getElementById('seconds');
+    const durationInput = document.getElementById('duration_seconds');
+
+    function convertTimeToSeconds() {
+        const minutes = parseInt(minutesInput.value) || 0;
+        const seconds = parseInt(secondsInput.value) || 0;
+        const totalSeconds = minutes * 60 + seconds;
+        durationInput.value = totalSeconds > 0 ? totalSeconds : '';
+    }
+
+    if (minutesInput && secondsInput && durationInput) {
+        minutesInput.addEventListener('change', convertTimeToSeconds);
+        minutesInput.addEventListener('blur', convertTimeToSeconds);
+        secondsInput.addEventListener('change', convertTimeToSeconds);
+        secondsInput.addEventListener('blur', convertTimeToSeconds);
+    }
+
+    // Attach handlers to existing questions
+    document.querySelectorAll('.question-item').forEach(function(item) {
+        attachQuestionHandlers(item);
+    });
+});
+
+function attachQuestionHandlers(questionElement) {
+    const removeBtn = questionElement.querySelector('.remove-question');
+    const addChoiceBtn = questionElement.querySelector('.add-choice');
+    const choicesList = questionElement.querySelector('.choices-list');
+    const questionIndex = parseInt(questionElement.getAttribute('data-question-index'));
+
+    // Remove question
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            questionElement.remove();
+        });
+    }
+
+    // Add choice
+    if (addChoiceBtn) {
+        addChoiceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const choiceIndex = choicesList.children.length;
+            const choiceLi = document.createElement('li');
+            choiceLi.className = 'choice-item mb-2';
+            choiceLi.innerHTML = `
+                <div class="input-group">
+                    <input type="text" name="quiz[questions][${questionIndex}][choices][${choiceIndex}]" class="form-control" placeholder="Enter choice...">
+                    <button type="button" class="btn btn-outline-danger remove-choice">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            choicesList.appendChild(choiceLi);
+            choiceLi.querySelector('.remove-choice').addEventListener('click', function(e) {
+                e.preventDefault();
+                choiceLi.remove();
+            });
+        });
+    }
+
+    // Remove choices
+    questionElement.querySelectorAll('.remove-choice').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.closest('.choice-item').remove();
+        });
+    });
+}
+</script>

@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Event - Instructor{% endblock %}
+
+{% block body %}
+<main>
+<section class="pt-0">
+	<div class="container-fluid px-0">
+		<div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+		</div>
+	</div>
+	<div class="container mt-n4">
+		<div class="row">
+			<div class="col-12">
+				<div class="card bg-transparent card-body pb-0 px-0 mt-2 mt-sm-0">
+					<div class="row d-sm-flex justify-sm-content-between mt-2 mt-md-0">
+						<div class="col d-sm-flex justify-content-between align-items-center">
+							<div>
+								<h1 class="my-1 fs-4">Create New Event</h1>
+								<p class="text-muted mb-0">Add a new event to your club</p>
+							</div>
+							<div class="mt-2 mt-sm-0">
+								<a href="{{ path('instructor_event_list') }}" class="btn btn-secondary mb-0"><i class="bi bi-arrow-left me-2"></i>Back</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr class="d-xl-none">
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="pt-0">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-8 offset-lg-2">
+				<div class="card">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Event Details</h5>
+					</div>
+					<div class="card-body">
+						<form method="POST" action="{{ path('instructor_event_create') }}">
+							<div class="mb-3">
+								<label for="title" class="form-label">Event Title <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" id="title" name="title" placeholder="Enter event title" required>
+							</div>
+
+							<div class="mb-3">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									<label for="description" class="form-label mb-0">Description</label>
+									<button type="button" class="btn btn-sm btn-purple mb-0" id="btn-gen-ai-event-inst">
+										<i class="fas fa-magic me-2"></i>✨ Générer une description
+									</button>
+								</div>
+								<textarea class="form-control" id="description" name="description" rows="4" placeholder="Describe your event..."></textarea>
+							</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const genBtn = document.getElementById('btn-gen-ai-event-inst');
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const titleInput = document.getElementById('title');
+            const descTextarea = document.getElementById('description');
+            
+            if (!titleInput || !titleInput.value.trim()) {
+                alert('Veuillez d\'abord saisir un titre.');
+                return;
+            }
+
+            genBtn.disabled = true;
+            genBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération...';
+
+            try {
+                const response = await fetch('{{ path("api_generate_description") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: titleInput.value, entityType: 'event' })
+                });
+
+                const data = await response.json();
+                if (data.description) {
+                    descTextarea.value = data.description;
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de générer la description.'));
+                }
+            } catch (error) {
+                console.error('AI Error:', error);
+                alert('Une erreur est survenue.');
+            } finally {
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<i class="fas fa-magic me-2"></i>✨ Générer une description';
+            }
+        });
+    }
+});
+</script>
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="mb-3">
+										<label for="eventDate" class="form-label">Date & Time <span class="text-danger">*</span></label>
+										<input type="datetime-local" class="form-control" id="eventDate" name="eventDate" required>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="mb-3">
+										<label for="location" class="form-label">Location</label>
+										<input type="text" class="form-control" id="location" name="location" placeholder="Event location">
+									</div>
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<label for="club" class="form-label">Club <span class="text-danger">*</span></label>
+								<select class="form-select" id="club" name="club" required>
+									<option value="">Select a club</option>
+									{% if clubs is defined %}
+										{% for club in clubs %}
+											<option value="{{ club.id }}">{{ club.name }}</option>
+										{% endfor %}
+									{% endif %}
+								</select>
+								<small class="text-muted">Select the club this event belongs to</small>
+							</div>
+
+							<hr>
+
+							<div class="d-grid gap-2">
+								<button type="submit" class="btn btn-primary">
+									<i class="bi bi-check-circle me-2"></i>Create Event
+								</button>
+								<a href="{{ path('instructor_event_list') }}" class="btn btn-secondary">
+									<i class="bi bi-x-circle me-2"></i>Cancel
+								</a>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+</main>
+{% endblock %}

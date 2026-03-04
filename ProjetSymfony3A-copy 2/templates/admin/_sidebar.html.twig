@@ -1,0 +1,184 @@
+<!-- Sidebar START -->
+<div class="col-lg-3">
+	<div class="card card-body shadow">
+		<h6 class="mb-3"><i class="fas fa-chart-line me-2"></i>Analytics & Reports</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_analytics_dashboard') }}" class="btn btn-sm btn-outline-success w-100 text-start">
+					<i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+				</a>
+			</li>
+		</ul>
+
+		<hr class="my-3">
+
+		<h6 class="mb-3"><i class="bi bi-bookmark-plus me-2"></i>Quick Actions</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_formation_list') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+					<i class="bi bi-list me-2"></i>All Formations
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_formation_create') }}" class="btn btn-sm btn-outline-success w-100 text-start">
+					<i class="bi bi-plus-circle me-2"></i>Create Formation
+				</a>
+			</li>
+			<li class="mb-2 pt-2 border-top">
+				<a href="{{ path('admin_quiz_list') }}" class="btn btn-sm btn-outline-info w-100 text-start">
+					<i class="bi bi-question-diamond me-2"></i>All Quizzes
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_quiz_add') }}" class="btn btn-sm btn-outline-info w-100 text-start">
+					<i class="bi bi-plus-circle me-2"></i>Create Quiz
+				</a>
+			</li>
+			<li class="mb-2 pt-2 border-top">
+				<a href="{{ path('admin_course_list') }}" class="btn btn-sm btn-outline-secondary w-100 text-start">
+					<i class="bi bi-book me-2"></i>All Courses
+				</a>
+			</li>
+			<li class="mb-0">
+				<a href="{{ path('admin_course_add') }}" class="btn btn-sm btn-outline-secondary w-100 text-start">
+					<i class="bi bi-plus-circle me-2"></i>Create Course
+				</a>
+			</li>
+			<li class="mb-2 pt-2 border-top">
+				<a href="{{ path('admin_club_list') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+					<i class="fas fa-users me-2"></i>All Clubs
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_event_list') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+					<i class="fas fa-calendar me-2"></i>All Events
+				</a>
+			</li>
+			<li class="mb-2 pt-2 border-top">
+				<a href="{{ path('admin_students') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+					<i class="fas fa-user-graduate me-2"></i>All Students
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_instructors') }}" class="btn btn-sm btn-outline-purple w-100 text-start">
+					<i class="fas fa-user-tie me-2"></i>All Instructors
+				</a>
+			</li>
+		</ul>
+
+		<hr class="my-3">
+
+		<h6 class="mb-3"><i class="bi bi-people me-2"></i>User Approval</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_student_requests') }}" class="btn btn-sm btn-outline-warning w-100 text-start">
+					<i class="bi bi-person-check me-2"></i>Student Requests
+					<span class="badge bg-warning float-end">{{ pendingStudentsCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-0">
+				<a href="{{ path('admin_instructor_requests') }}" class="btn btn-sm btn-outline-warning w-100 text-start">
+					<i class="bi bi-person-badge me-2"></i>Instructor Requests
+					<span class="badge bg-warning float-end">{{ pendingInstructorsCount|default(0) }}</span>
+				</a>
+			</li>
+		</ul>
+
+		<hr class="my-3">
+
+		<h6 class="mb-3"><i class="bi bi-check-circle me-2"></i>Formations Approval</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_formations_approval', {status: 'pending'}) }}" class="btn btn-sm btn-outline-warning w-100 text-start">
+					<i class="bi bi-hourglass-split me-2"></i>Pending
+						<span class="badge bg-warning float-end">{{ pendingCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_formations_approval', {status: 'approved'}) }}" class="btn btn-sm btn-outline-success w-100 text-start">
+					<i class="bi bi-check-circle me-2"></i>Approved
+					<span class="badge bg-success float-end">{{ approvedCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-0">
+				<a href="{{ path('admin_formations_approval', {status: 'archived'}) }}" class="btn btn-sm btn-outline-secondary w-100 text-start">
+					<i class="bi bi-archive me-2"></i>Archived
+					<span class="badge bg-secondary float-end">{{ archivedCount|default(0) }}</span>
+				</a>
+			</li>
+		</ul>
+
+		<hr class="my-3">
+
+		<h6 class="mb-3"><i class="bi bi-check-circle me-2"></i>Quizzes Approval</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_quizzes_approval', {status: 'pending'}) }}" class="btn btn-sm btn-outline-warning w-100 text-start">
+					<i class="bi bi-hourglass-split me-2"></i>Pending
+						<span class="badge bg-warning float-end">{{ pendingQuizzesCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_quizzes_approval', {status: 'approved'}) }}" class="btn btn-sm btn-outline-success w-100 text-start">
+					<i class="bi bi-check-circle me-2"></i>Approved
+					<span class="badge bg-success float-end">{{ approvedQuizzesCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-0">
+				<a href="{{ path('admin_quizzes_approval', {status: 'archived'}) }}" class="btn btn-sm btn-outline-secondary w-100 text-start">
+					<i class="bi bi-archive me-2"></i>Archived
+					<span class="badge bg-secondary float-end">{{ archivedQuizzesCount|default(0) }}</span>
+				</a>
+			</li>
+		</ul>
+
+		<hr class="my-3">
+
+		<h6 class="mb-3"><i class="bi bi-check-circle me-2"></i>Courses Approval</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_course_approvals', {status: 'pending'}) }}" class="btn btn-sm btn-outline-warning w-100 text-start">
+					<i class="bi bi-hourglass-split me-2"></i>Pending
+						<span class="badge bg-warning float-end">{{ pendingCoursesCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_course_approvals', {status: 'approved'}) }}" class="btn btn-sm btn-outline-success w-100 text-start">
+					<i class="bi bi-check-circle me-2"></i>Approved
+					<span class="badge bg-success float-end">{{ approvedCoursesCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-0">
+				<a href="{{ path('admin_course_approvals', {status: 'refused'}) }}" class="btn btn-sm btn-outline-danger w-100 text-start">
+					<i class="bi bi-x-circle me-2"></i>Refused
+					<span class="badge bg-danger float-end">{{ refusedCoursesCount|default(0) }}</span>
+				</a>
+			</li>
+		</ul>
+
+		<hr class="my-3">
+
+		<h6 class="mb-3"><i class="fas fa-users me-2"></i>Clubs Approval</h6>
+		<ul class="list-unstyled">
+			<li class="mb-2">
+				<a href="{{ path('admin_club_list', {status: 'PENDING'}) }}" class="btn btn-sm btn-outline-warning w-100 text-start">
+					<i class="bi bi-hourglass-split me-2"></i>Pending
+						<span class="badge bg-warning float-end">{{ pendingClubsCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-2">
+				<a href="{{ path('admin_club_list', {status: 'APPROVED'}) }}" class="btn btn-sm btn-outline-success w-100 text-start">
+					<i class="bi bi-check-circle me-2"></i>Approved
+					<span class="badge bg-success float-end">{{ approvedClubsCount|default(0) }}</span>
+				</a>
+			</li>
+			<li class="mb-0">
+				<a href="{{ path('admin_club_list', {status: 'REJECTED'}) }}" class="btn btn-sm btn-outline-danger w-100 text-start">
+					<i class="bi bi-x-circle me-2"></i>Rejected
+					<span class="badge bg-danger float-end">{{ rejectedClubsCount|default(0) }}</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<!-- Sidebar END -->

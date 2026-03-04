@@ -1,0 +1,167 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}sign-up{% endblock %}
+
+{% block body %}
+<main>
+	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
+	
+		<div class="container-fluid">
+			<div class="row">
+				<!-- left -->
+				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
+					<div class="p-3 p-lg-5">
+						<!-- Title -->
+						<div class="text-center">
+							<h2 class="fw-bold">Welcome to our largest community</h2>
+							<p class="mb-0 h6 fw-light">Let's learn something new today!</p>
+						</div>
+						<!-- SVG Image -->
+						<img src="{{ asset('assets/images/element/02.svg') }}" class="mt-5" alt="">
+						<!-- Info -->
+						<div class="d-sm-flex mt-5 align-items-center justify-content-center">
+							<ul class="avatar-group mb-2 mb-sm-0">
+								<li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar"></li>
+								<li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/02.svg') }}" alt="avatar"></li>
+								<li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/03.svg') }}" alt="avatar"></li>
+								<li class="avatar avatar-sm"><img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/04.svg') }}" alt="avatar"></li>
+							</ul>
+							<!-- Content -->
+							<p class="mb-0 h6 fw-light ms-0 ms-sm-3">4k+ Students joined us, now it's your turn.</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Right -->
+				<div class="col-12 col-lg-6 m-auto">
+					<div class="row my-5">
+						<div class="col-sm-10 col-xl-8 m-auto">
+							<!-- Title -->
+							<img src="{{ asset('assets/images/element/03.svg') }}" class="h-40px mb-2" alt="">
+							<h2>Sign up for your account!</h2>
+							<p class="lead mb-4">Nice to see you! Please Sign up with your account.</p>
+						
+							<!-- Form START -->
+							{{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+								<!-- Email -->
+								<div class="mb-4">
+									{{ form_label(registrationForm.email, 'Email address *', {'label_attr': {'class': 'form-label'}}) }}
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-envelope-fill"></i></span>
+										{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control border-0 bg-light ps-1', 'placeholder': 'E-mail'}}) }}
+										<button class="btn voice-typing-btn rounded-end" type="button" title="Saisie vocale">ðŸŽ¤</button>
+									</div>
+									{{ form_errors(registrationForm.email) }}
+								</div>
+
+								<!-- Full Name -->
+								<div class="mb-4">
+									{{ form_label(registrationForm.fullName, 'Full Name *', {'label_attr': {'class': 'form-label'}}) }}
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person-fill"></i></span>
+										{{ form_widget(registrationForm.fullName, {'attr': {'class': 'form-control border-0 bg-light ps-1', 'placeholder': 'Full Name'}}) }}
+										<button class="btn voice-typing-btn rounded-end" type="button" title="Saisie vocale">ðŸŽ¤</button>
+									</div>
+									{{ form_errors(registrationForm.fullName) }}
+								</div>
+
+								<!-- Password -->
+								<div class="mb-4">
+									{{ form_label(registrationForm.plainPassword, 'Password *', {'label_attr': {'class': 'form-label'}}) }}
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
+										{{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control border-0 bg-light rounded-end ps-1', 'placeholder': '*********'}}) }}
+									</div>
+									{{ form_errors(registrationForm.plainPassword) }}
+								</div>
+
+								<!-- Role Selection -->
+								<div class="mb-4">
+									<label class="form-label">I am a *</label>
+									<div class="d-flex gap-3">
+										{% for child in registrationForm.role %}
+											<div class="form-check">
+												{{ form_widget(child, {'attr': {'class': 'form-check-input'}}) }}
+												{{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+											</div>
+										{% endfor %}
+									</div>
+									{{ form_errors(registrationForm.role) }}
+								</div>
+
+								<!-- Face Recognition -->
+								<div class="mb-4 border p-3 rounded bg-light">
+									<label class="form-label text-dark fw-bold"><i class="bi bi-camera-video"></i> Identifiant Facial (RecommandÃ©)</label>
+									<p class="small text-muted mb-2">Renforcez la sÃ©curitÃ© de votre compte avec la reconnaissance faciale.</p>
+									
+									<div class="position-relative text-center mb-3">
+										<video id="videoElement" width="320" height="240" autoplay muted class="border rounded bg-dark d-none w-100" style="max-width:320px; object-fit:cover;"></video>
+										<canvas id="canvasElement" class="position-absolute top-0 start-50 translate-middle-x d-none"></canvas>
+									</div>
+									
+									<div class="d-flex justify-content-between align-items-center">
+										<button type="button" id="startCameraBtn" class="btn btn-sm btn-outline-primary"><i class="bi bi-camera"></i> Activer la camÃ©ra</button>
+										<button type="button" id="captureFaceBtn" class="btn btn-sm btn-success d-none"><i class="bi bi-person-bounding-box"></i> Scanner mon visage</button>
+										<span id="faceStatus" class="badge bg-secondary">Non configurÃ©</span>
+									</div>
+									
+									<input type="hidden" name="faceDescriptor" id="faceDescriptorField" value="">
+								</div>
+
+								<!-- Check box -->
+								<div class="mb-4">
+									<div class="form-check">
+										{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+										<label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">By signing up, you agree to the<a href="#"> terms of service</a></label>
+									</div>
+									{{ form_errors(registrationForm.agreeTerms) }}
+								</div>
+
+								<!-- Button -->
+								<div class="align-items-center mt-0">
+									<div class="d-grid">
+										<button class="btn btn-primary mb-0" type="submit">Sign Up</button>
+									</div>
+								</div>
+							{{ form_end(registrationForm) }}
+							<!-- Form END -->
+
+							<!-- Social buttons -->
+							<div class="row">
+								<!-- Divider with text -->
+								<div class="position-relative my-4">
+									<hr>
+									<p class="small position-absolute top-50 start-50 translate-middle bg-body px-5">Or</p>
+								</div>
+								<!-- Social btn -->
+								<div class="col-xxl-6 d-grid">
+									<a href="{{ path('connect_google', {role: 'student'}) }}" class="btn btn-primary-soft mb-2 mb-xxl-0"><i class="fab fa-fw fa-google me-2"></i>Signup Student with Google</a>
+								</div>
+								<!-- Social btn -->
+								<div class="col-xxl-6 d-grid">
+									<a href="{{ path('connect_google', {role: 'instructor'}) }}" class="btn btn-danger-soft mb-0"><i class="fab fa-fw fa-google me-2"></i>Signup Instructor with Google</a>
+								</div>
+								<!-- Social btn -->
+								<div class="col-xxl-6 d-grid">
+									<a href="#" class="btn bg-facebook mb-0"><i class="fab fa-fw fa-facebook-f me-2"></i>Signup with Facebook</a>
+								</div>
+							</div>
+
+							<!-- Sign up link -->
+							<div class="mt-4 text-center">
+								<span>Already have an account?<a href="{{ path("app_login") }}"> Sign in here</a></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+
+<script src="{{ asset('js/face-api/face-api.min.js') }}"></script>
+<script src="{{ asset('assets/js/face-registration.js') }}"></script>
+<script src="{{ asset('assets/js/password-strength.js') }}"></script>
+<script src="{{ asset('assets/js/voice-typing.js') }}"></script>
+{% endblock %}
+

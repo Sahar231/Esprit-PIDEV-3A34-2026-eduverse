@@ -1,0 +1,288 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Formation Details{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Formation Details</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport - Formation Details">
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/text-colors.css') }}">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">{{ formation.title }}</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item active">Formation Details</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-8">
+				<!-- Formation Content -->
+				<div class="card mb-4">
+					<div class="card-header bg-light">
+						<h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Formation Overview</h5>
+					</div>
+					<div class="card-body">
+						<div class="row mb-4">
+							<div class="col-md-6">
+								<h6 class="text-muted">Creator</h6>
+								<p class="mb-0">{{ formation.creator.fullName ?? 'Unknown' }}</p>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted">Status</h6>
+								<p class="mb-0">
+									{% if formation.isArchived %}
+										<span class="badge bg-secondary">Archived</span>
+									{% elseif formation.isApproved %}
+										<span class="badge bg-success">Approved</span>
+									{% else %}
+										<span class="badge bg-warning">Pending Approval</span>
+									{% endif %}
+								</p>
+							</div>
+						</div>
+						<div class="row mb-4">
+							<div class="col-md-6">
+								<h6 class="text-muted">Duration</h6>
+								<p class="mb-0">{{ formation.duration }} weeks</p>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted">Created On</h6>
+								<p class="mb-0">{{ formation.createdAt|date('d/m/Y') }}</p>
+							</div>
+						</div>
+						<hr>
+						<h6 class="mb-3">Description</h6>
+						<p>{{ formation.description }}</p>
+
+						{% if formation.supportFile %}
+						<hr>
+						<h6 class="mb-3">Support Materials</h6>
+						<a href="{{ formation.supportFile }}" target="_blank" class="btn btn-outline-primary">
+							<i class="bi bi-download me-1"></i>Download Support File
+						</a>
+						{% endif %}
+					</div>
+				</div>
+
+				<!-- Quizzes Section -->
+				{% if formation.quizzes.count > 0 %}
+				<div class="card">
+					<div class="card-header bg-light">
+						<h5 class="mb-0"><i class="bi bi-question-diamond me-2"></i>Quizzes ({{ formation.quizzes.count }})</h5>
+					</div>
+					<div class="card-body">
+						{% for quiz in formation.quizzes %}
+						<div class="card mb-3">
+							<div class="card-header">
+								<div class="row align-items-center">
+									<div class="col">
+										<h6 class="mb-0">{{ quiz.title }}</h6>
+										<small class="text-muted">{{ quiz.description }}</small>
+									</div>
+									<div class="col-auto">
+										<span class="badge bg-primary">{{ quiz.totalQuestions }} Questions</span>
+										<span class="badge bg-info">{{ quiz.totalScore }} Points</span>
+									</div>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="row mb-3">
+									<div class="col-md-4">
+										<small class="text-muted">Category</small>
+										<p class="mb-0">{{ quiz.category }}</p>
+									</div>
+									<div class="col-md-4">
+										<small class="text-muted">Pass Score</small>
+										<p class="mb-0">{{ quiz.passScore }} / {{ quiz.totalScore }}</p>
+									</div>
+									<div class="col-md-4">
+										<small class="text-muted">Difficulty</small>
+										<p class="mb-0">
+											<span class="badge 
+												{% if quiz.difficulty == 'easy' %}bg-success
+												{% elseif quiz.difficulty == 'medium' %}bg-warning
+												{% else %}bg-danger
+												{% endif %}">
+												{{ quiz.difficulty|capitalize }}
+											</span>
+										</p>
+									</div>
+								</div>
+
+								<!-- Questions -->
+								{% if quiz.questions.count > 0 %}
+								<hr>
+								<h6 class="mb-3">Questions</h6>
+								<div class="accordion" id="accord-{{ quiz.id }}">
+									{% for i, question in quiz.questions %}
+									<div class="accordion-item">
+										<h2 class="accordion-header">
+											<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#question-{{ quiz.id }}-{{ question.id }}">
+												<strong>Q{{ i + 1 }}:</strong> {{ question.question|slice(0, 80) }}{% if question.question|length > 80 %}...{% endif %}
+											</button>
+										</h2>
+										<div id="question-{{ quiz.id }}-{{ question.id }}" class="accordion-collapse collapse" data-bs-parent="#accord-{{ quiz.id }}">
+											<div class="accordion-body">
+												<p class="mb-3"><strong>{{ question.question }}</strong></p>
+												
+												<h6 class="mb-2">Answer Options:</h6>
+												<ul class="list-unstyled mb-3">
+													{% for choice in question.choices %}
+													<li class="mb-2">
+														<i class="bi {% if choice == question.reply %}bi-check-circle text-success{% else %}bi-circle{% endif %} me-2"></i>
+														{{ choice }}
+														{% if choice == question.reply %}
+														<span class="badge bg-success ms-2">Correct Answer</span>
+														{% endif %}
+													</li>
+													{% endfor %}
+												</ul>
+												
+												<div class="alert alert-info">
+													<strong>Score:</strong> {{ question.score }} points
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+								{% endif %}
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				{% else %}
+				<div class="alert alert-info">
+					<i class="bi bi-info-circle me-2"></i>No quizzes have been added to this formation yet.
+				</div>
+				{% endif %}
+			</div>
+
+			<!-- Sidebar -->
+			<div class="col-lg-4">
+				<div class="card">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Actions</h5>
+					</div>
+					<div class="card-body d-grid gap-2">
+						<a href="{{ path('instructor_formation_list') }}" class="btn btn-secondary">
+							<i class="bi bi-arrow-left me-1"></i>Back to List
+						</a>
+					</div>
+				</div>
+
+				<!-- Formation Stats -->
+				<div class="card mt-4">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Statistics</h5>
+					</div>
+					<div class="card-body">
+						<div class="mb-3">
+							<small class="text-muted d-block">Total Quizzes</small>
+							<h4 class="mb-0">{{ formation.quizzes.count }}</h4>
+						</div>
+						<div class="mb-3">
+							<small class="text-muted d-block">Total Questions</small>
+							<h4 class="mb-0">
+								{% set total_q = 0 %}
+								{% for quiz in formation.quizzes %}
+									{% set total_q = total_q + quiz.totalQuestions %}
+								{% endfor %}
+								{{ total_q }}
+							</h4>
+						</div>
+						<div class="mb-3">
+							<small class="text-muted d-block">Total Points</small>
+							<h4 class="mb-0">
+								{% set total_p = 0 %}
+								{% for quiz in formation.quizzes %}
+									{% set total_p = total_p + quiz.totalScore %}
+								{% endfor %}
+								{{ total_p }}
+							</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+					<img class="dark-mode-item h-40px" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+				</a>
+				<p class="my-3">Continue your learning journey with us.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights ©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
+{% endblock %}
+

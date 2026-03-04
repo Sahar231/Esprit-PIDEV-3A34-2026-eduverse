@@ -1,0 +1,167 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background: url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size: cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">{{ event.title }}</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_list") }}">Clubs</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_detail", {"id": club.id}) }}">{{ club.name }}</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("event_list", {"clubId": club.id}) }}">Events</a></li>
+						<li class="breadcrumb-item active">{{ event.title }}</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<!-- Event Details -->
+			<div class="col-lg-8">
+				<div class="card shadow-sm mb-4">
+					<div class="card-body">
+						<h4 class="card-title mb-3">About This Event</h4>
+						<p class="card-text text-dark">{{ event.description }}</p>
+						<hr>
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2"><i class="fas fa-calendar me-2"></i>Date & Time</h6>
+								<p class="h5 mb-0">{{ event.eventDate|date('d F Y, H:i') }}</p>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>Location</h6>
+								<p class="h5 mb-0">{{ event.location }}</p>
+							</div>
+						</div>
+						<hr>
+						<div class="row">
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2">Organized by</h6>
+								<p class="mb-0">{{ event.creator.fullName }}</p>
+								<small class="text-muted">{{ event.creator.email }}</small>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2">Club</h6>
+								<p class="mb-0">
+									<a href="{{ path('club_detail', {'id': club.id}) }}">{{ club.name }}</a>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Event Information Card -->
+				<div class="card shadow-sm">
+					<div class="card-header bg-light">
+						<h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>Event Information</h5>
+					</div>
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2">Created</h6>
+								<p class="text-dark mb-0">{{ event.createdAt|date('d/m/Y H:i') }}</p>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted mb-2">Last Updated</h6>
+								<p class="text-dark mb-0">{{ event.updatedAt|date('d/m/Y H:i') }}</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-12">
+								<h6 class="text-muted mb-2">Status</h6>
+								<p>
+									{% if event.status == 'PENDING' %}
+										<span class="badge bg-warning">Pending Approval</span>
+									{% elseif event.status == 'APPROVED' %}
+										<span class="badge bg-success">Approved</span>
+									{% elseif event.status == 'REJECTED' %}
+										<span class="badge bg-danger">Rejected</span>
+									{% endif %}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sidebar -->
+			<div class="col-lg-4">
+				<!-- Actions Card -->
+				<div class="card shadow-sm sticky-top">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Actions</h5>
+					</div>
+					<div class="card-body">
+						<div class="d-grid gap-2">
+							{% if app.user and app.user.id == event.creator.id %}
+								<a href="{{ path('event_edit', {'clubId': club.id, 'id': event.id}) }}" class="btn btn-warning">
+									<i class="fas fa-edit me-2"></i>Edit Event
+								</a>
+								<form method="POST" action="{{ path('event_delete', {'clubId': club.id, 'id': event.id}) }}" onsubmit="return confirm('Delete this event?')">
+									<button type="submit" class="btn btn-danger w-100">
+										<i class="fas fa-trash me-2"></i>Delete Event
+									</button>
+								</form>
+							{% endif %}
+
+							<a href="{{ path('event_list', {'clubId': club.id}) }}" class="btn btn-secondary">
+								<i class="fas fa-arrow-left me-2"></i>Back to Events
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Event Details Card -->
+				<div class="card shadow-sm mt-3">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Quick Details</h5>
+					</div>
+					<div class="card-body">
+						<div class="mb-3">
+							<h6 class="text-muted mb-2">Club</h6>
+							<p class="small mb-0">
+								<a href="{{ path('club_detail', {'id': club.id}) }}">{{ club.name }}</a>
+							</p>
+						</div>
+						<div class="mb-3">
+							<h6 class="text-muted mb-2">Attendees</h6>
+							<p class="h5 mb-0 text-primary">TBA</p>
+						</div>
+						<div>
+							<h6 class="text-muted mb-2">Share this Event</h6>
+							<div class="d-flex gap-2">
+								<a href="https://facebook.com/share.php?u={{ url(path('event_detail', {'clubId': club.id, 'id': event.id})) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+									<i class="fab fa-facebook"></i>
+								</a>
+								<a href="https://twitter.com/intent/tweet?text={{ event.title }}&url={{ url(path('event_detail', {'clubId': club.id, 'id': event.id})) }}" class="btn btn-sm btn-outline-info" target="_blank">
+									<i class="fab fa-twitter"></i>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Back Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('event_list', {'clubId': club.id}) }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left me-2"></i>Back to Events
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}

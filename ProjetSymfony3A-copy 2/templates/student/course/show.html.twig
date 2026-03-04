@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ cours.title }} - Course Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-light p-3 rounded">
+            <li class="breadcrumb-item"><a href="{{ path('app_student') }}">Student Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('student_course_list') }}">Available Courses</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ cours.title }}</li>
+        </ol>
+    </nav>
+
+    <!-- Course Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="card-title mb-3">{{ cours.title }}</h1>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-user"></i> <strong>Instructor:</strong> {{ cours.creator.fullName }}
+                    </p>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-tag"></i> <strong>Category:</strong> {{ cours.category ?? 'Uncategorized' }}
+                    </p>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar"></i> <strong>Published:</strong> {{ cours.createdAt|date('Y-m-d') }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success fs-6">Available</span>
+                </div>
+            </div>
+
+            <!-- Course Description -->
+            <hr>
+            <div class="mb-4">
+                <h5 class="fw-bold">Course Description</h5>
+                <p class="text-justify">{{ cours.description }}</p>
+            </div>
+
+            <!-- Course Statistics -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-book"></i> <strong>Total Chapters:</strong> {{ chapters|length }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chapters Section -->
+    <h2 class="mb-4">Course Chapters ({{ chapters|length }})</h2>
+    
+    {% if chapters %}
+        <div class="row">
+            {% for chapter in chapters %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-book-open"></i> Chapter {{ loop.index }}: {{ chapter.title }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                <i class="fas fa-calendar"></i> {{ chapter.createdAt|date('Y-m-d') }}
+                            </p>
+                            <p class="card-text">
+                                {{ chapter.content[:300] }}{% if chapter.content|length > 300 %}...{% endif %}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <small class="text-muted">
+                                <strong>By:</strong> {{ chapter.creator.fullName }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Expand Content Section (Optional - Click to Read Full Chapter) -->
+        <div class="mt-5">
+            <h3 class="mb-3">Chapter Contents</h3>
+            <div class="accordion" id="chaptersAccordion">
+                {% for chapter in chapters %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button {% if loop.index != 1 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#chapter{{ chapter.id }}" aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}" aria-controls="chapter{{ chapter.id }}">
+                                <strong>{{ loop.index }}. {{ chapter.title }}</strong>
+                            </button>
+                        </h2>
+                        <div id="chapter{{ chapter.id }}" class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" data-bs-parent="#chaptersAccordion">
+                            <div class="accordion-body">
+                                {{ chapter.content|nl2br }}
+                                <hr>
+                                <small class="text-muted">By {{ chapter.creator.fullName }} on {{ chapter.createdAt|date('Y-m-d H:i') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> This course doesn't have any chapters yet. Please check back later!
+        </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="mt-4">
+        <a href="{{ path('student_course_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Available Courses
+        </a>
+    </div>
+</div>
+{% endblock %}

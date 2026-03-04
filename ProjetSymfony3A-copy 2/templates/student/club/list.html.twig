@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Clubs - Eduport{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 text-center text-sm-start">
+				<h1 class="text-white">Mes Clubs</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0 justify-content-center justify-content-sm-start">
+						<li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('student_dashboard') }}">Tableau de bord</a></li>
+						<li class="breadcrumb-item active">Mes Clubs</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-12 d-flex justify-content-between align-items-center mb-4">
+				<h2 class="mb-0">Mes adhésions aux clubs</h2>
+				<a href="{{ path('club_list') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Rejoindre un nouveau club</a>
+			</div>
+
+			{% for club in myClubs %}
+				<div class="col-md-6 col-lg-4">
+					<div class="card shadow h-100">
+						<div class="card-body">
+							<h5 class="card-title">{{ club.name }}</h5>
+							<p class="text-muted small mb-3">{{ club.members|length }} Membres | Créé le {{ club.createdAt|date('d/m/Y') }}</p>
+							<p class="card-text text-truncate-2">{{ club.description|striptags|slice(0, 100) }}...</p>
+							<div class="d-flex justify-content-between align-items-center mt-3">
+								<span class="badge bg-success bg-opacity-10 text-success">Membre actif</span>
+								<a href="{{ path('club_detail', {id: club.id}) }}" class="btn btn-sm btn-outline-primary">Voir le club</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% else %}
+				<div class="col-12 text-center py-5">
+					<div class="mb-4">
+						<i class="fas fa-users fa-4x text-muted opacity-25"></i>
+					</div>
+					<h3>Vous n'avez rejoint aucun club pour le moment</h3>
+					<p class="text-muted mb-4">Découvrez nos communautés et commencez à échanger avec d'autres apprenants.</p>
+					<a href="{{ path('club_list') }}" class="btn btn-primary">Parcourir les clubs disponibles</a>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}
+

@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Quiz{% endblock %}
+
+{% block body %}
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+            <div class="mb-4">
+                <h1 class="mb-2">
+                    <i class="fas fa-edit"></i> Edit Quiz
+                </h1>
+                <p class="text-muted">
+                    <i class="fas fa-info-circle"></i> Update your quiz details and questions.
+                </p>
+            </div>
+
+            {{ include('quiz/_form.html.twig', {
+                form: form,
+                button_label: 'Update Quiz',
+                cancel_url: path('instructor_dashboard')
+            }) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

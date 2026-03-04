@@ -1,0 +1,77 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Payment Success - Wallet{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4 py-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card border-0 shadow">
+                <div class="card-body text-center py-5">
+                    <!-- Success Icon -->
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+
+                    <!-- Title -->
+                    <h3 class="mb-3">Payment Processing</h3>
+
+                    <!-- Message -->
+                    <p class="text-muted mb-4">
+                        Your payment has been received and is being processed. Your credits will be added to your wallet shortly.
+                    </p>
+
+                    <!-- Session Details -->
+                    {% if session %}
+                    <div class="alert alert-info" role="alert">
+                        <small>
+                            <strong>Session ID:</strong> {{ session.id }}<br>
+                            <strong>Status:</strong> {{ session.payment_status|capitalize }}
+                        </small>
+                    </div>
+                    {% endif %}
+
+                    <!-- Note -->
+                    <div class="alert alert-light border-warning" role="alert">
+                        <small>
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong> Credits are usually added within a few minutes. If you don't see them in your wallet after 10 minutes, please contact support.
+                        </small>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <a href="{{ path('student_wallet_index') }}" class="btn btn-primary">
+                            <i class="bi bi-wallet2 me-2"></i>Back to Wallet
+                        </a>
+                        <a href="{{ path('student_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-house me-2"></i>Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="card border-0 shadow mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Frequently Asked Questions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="small"><i class="bi bi-question-circle me-2 text-primary"></i>When will my credits appear?</h6>
+                        <p class="small text-muted mb-0">Credits are typically added within 2-5 minutes of payment. In rare cases, it may take up to 10 minutes.</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="small"><i class="bi bi-question-circle me-2 text-primary"></i>What if my payment fails?</h6>
+                        <p class="small text-muted mb-0">If payment fails, you will be notified immediately. You have not been charged. Please try again or contact support.</p>
+                    </div>
+                    <div>
+                        <h6 class="small"><i class="bi bi-question-circle me-2 text-primary"></i>Can I get a refund?</h6>
+                        <p class="small text-muted mb-0">Yes! Unused credits can be refunded within 30 days of purchase. Contact our support team for assistance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

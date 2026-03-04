@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Formation Approval - {{ formation.title }}{% endblock %}
+
+{% block body %}
+<main>
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+
+			<!-- Sidebar START -->
+			<div class="col-lg-3">
+				{{ include('admin/_sidebar.html.twig') }}
+			</div>
+			<!-- Sidebar END -->
+
+			<!-- Main content START -->
+			<div class="col-lg-9">
+				<div class="card card-body shadow">
+
+			<div class="d-flex justify-content-between align-items-center mb-4">
+					<div>
+						<h1 class="h3 mb-2">{{ formation.title }}</h1>
+						<p class="text-muted mb-0">
+							<span class="badge bg-warning">Pending Approval</span>
+						</p>
+					</div>
+					<a href="{{ path('admin_approvals', {type: 'formations'}) }}" class="btn btn-outline-secondary">
+						<i class="bi bi-arrow-left me-2"></i>Back to Approvals
+					</a>
+				</div>
+
+				<!-- Formation Details Card -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-light">
+						<h5 class="card-header-title mb-0">Formation Details</h5>
+					</div>
+					<div class="card-body">
+						<div class="row mb-4">
+							<div class="col-md-6">
+								<h6 class="text-muted">Instructor</h6>
+								<p class="mb-0">
+									{% if formation.users|length > 0 %}
+										{% set instructor = formation.users|first %}
+										<strong>{{ instructor.fullName ?? instructor.email }}</strong>
+										<br>
+										<small class="text-muted">{{ instructor.email }}</small>
+									{% else %}
+										<span class="text-muted">No instructor assigned</span>
+									{% endif %}
+								</p>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted">Created Date</h6>
+								<p class="mb-0"><strong>{{ formation.createdAt|date('d/m/Y H:i') }}</strong></p>
+							</div>
+						</div>
+
+						<hr>
+
+						<div class="row">
+							<div class="col-md-6">
+								<h6 class="text-muted">Formation ID</h6>
+								<p class="mb-0"><strong>#{{ formation.id }}</strong></p>
+							</div>
+							<div class="col-md-6">
+								<h6 class="text-muted">Status</h6>
+								<p class="mb-0">
+									{% if formation.isApproved %}
+										<span class="badge bg-success">Approved</span>
+									{% else %}
+										<span class="badge bg-warning">Pending</span>
+									{% endif %}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Description Card -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-light">
+						<h5 class="card-header-title mb-0">Description</h5>
+					</div>
+					<div class="card-body">
+						<p class="mb-0">{{ formation.description }}</p>
+					</div>
+				</div>
+
+				<!-- Content Card -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-light">
+						<h5 class="card-header-title mb-0">Content</h5>
+					</div>
+					<div class="card-body">
+						<div class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+							{{ formation.content|nl2br }}
+						</div>
+					</div>
+				</div>
+
+				<!-- Support Materials Card -->
+				{% if formation.supportFile %}
+					<div class="card shadow-sm mb-4">
+						<div class="card-header bg-light">
+							<h5 class="card-header-title mb-0">Support Course File</h5>
+						</div>
+						<div class="card-body">
+							<a href="{{ formation.supportFile }}" target="_blank" class="btn btn-outline-primary">
+								<i class="bi bi-download me-2"></i>Download Support File
+							</a>
+							<p class="text-muted mt-2 mb-0">
+								<small>File: {{ formation.supportFile|split('/')|last }}</small>
+							</p>
+						</div>
+					</div>
+				{% endif %}
+
+				<!-- Approval Actions Card -->
+				<div class="card shadow-sm border-success mb-4">
+					<div class="card-header bg-light border-bottom-success">
+						<h5 class="card-header-title mb-0">Approval Actions</h5>
+					</div>
+					<div class="card-body">
+						<div class="alert alert-info mb-4">
+							<i class="bi bi-info-circle me-2"></i>
+							Review all formation details above before taking action. This formation is currently pending approval.
+						</div>
+
+						<div class="d-flex gap-3">
+							<!-- Approve Button -->
+							<form method="POST" action="{{ path('admin_item_approve', {type: 'formations', id: formation.id}) }}" style="display:inline;">
+								<button type="submit" class="btn btn-success btn-lg">
+									<i class="bi bi-check-circle me-2"></i>Approve Formation
+								</button>
+							</form>
+
+							<!-- Reject Button -->
+							<form method="POST" action="{{ path('admin_item_reject', {type: 'formations', id: formation.id}) }}" style="display:inline;">
+								<button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('Are you sure you want to reject this formation? This action cannot be undone.');">
+									<i class="bi bi-x-circle me-2"></i>Reject Formation
+								</button>
+							</form>
+
+							<!-- Back Button -->
+							<a href="{{ path('admin_approvals', {type: 'formations'}) }}" class="btn btn-outline-secondary btn-lg ms-auto">
+								<i class="bi bi-arrow-left me-2"></i>Back
+							</a>
+						</div>
+					</div>
+				</div>
+				</div>
+				<!-- Main content END -->
+		
+		</div> <!-- Row END -->
+	</div> <!-- Container END -->
+</section>
+</main>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ club.name }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .form-error-messages ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        color: #dc3545;
+        font-size: 0.875em;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background: url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size: cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Edit Club</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_list") }}">Clubs</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_detail", {"id": club.id}) }}">{{ club.name }}</a></li>
+						<li class="breadcrumb-item active">Edit</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8 mx-auto">
+				<div class="card shadow">
+					<div class="card-body p-5">
+						<h3 class="mb-4"><i class="fas fa-edit me-2"></i>Edit Club</h3>
+
+						{{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+							<div class="col-12">
+								{{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+								<div class="form-error-messages">
+									{{ form_errors(form.name) }}
+								</div>
+								{{ form_widget(form.name) }}
+								<small class="form-text text-muted">Minimum 3 caractères</small>
+							</div>
+
+							<div class="col-12">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									{{ form_label(form.description, null, {'label_attr': {'class': 'form-label mb-0'}}) }}
+									<button type="button" class="btn btn-sm btn-purple mb-0" id="btn-gen-ai-club-inst">
+										<i class="fas fa-magic me-2"></i>✨ Générer une description
+									</button>
+								</div>
+								<div class="form-error-messages">
+									{{ form_errors(form.description) }}
+								</div>
+								{{ form_widget(form.description) }}
+								<small class="form-text text-muted">Donnez une description détaillée de votre club</small>
+							</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const genBtn = document.getElementById('btn-gen-ai-club-inst');
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const nameInput = document.querySelector('input[name*="[name]"]');
+            const descTextarea = document.querySelector('textarea[name*="[description]"]');
+            
+            if (!nameInput || !nameInput.value.trim()) {
+                alert('Veuillez d\'abord saisir un nom.');
+                return;
+            }
+
+            genBtn.disabled = true;
+            genBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération...';
+
+            try {
+                const response = await fetch('{{ path("api_generate_description") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: nameInput.value, entityType: 'club' })
+                });
+
+                const data = await response.json();
+                if (data.description) {
+                    descTextarea.value = data.description;
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de générer la description.'));
+                }
+            } catch (error) {
+                console.error('AI Error:', error);
+                alert('Une erreur est survenue.');
+            } finally {
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<i class="fas fa-magic me-2"></i>✨ Générer une description';
+            }
+        });
+    }
+});
+</script>
+
+							<div class="col-12">
+								<label class="form-label">Statut</label>
+								<div class="alert alert-info">
+									<strong>Statut actuel :</strong>
+									{% if club.status == 'PENDING' %}
+										<span class="badge bg-warning">En attente d'approbation</span>
+									{% elseif club.status == 'APPROVED' %}
+										<span class="badge bg-success">Approuvé</span>
+									{% elseif club.status == 'REJECTED' %}
+										<span class="badge bg-danger">Rejeté</span>
+									{% endif %}
+									<br>
+									<small class="text-muted">Le statut est géré par les administrateurs</small>
+								</div>
+							</div>
+
+							<div class="col-12">
+								<div class="d-grid gap-2 d-sm-flex">
+									<button type="submit" class="btn btn-primary btn-lg">
+										<i class="fas fa-save me-2"></i>Enregistrer les modifications
+									</button>
+									<a href="{{ path('club_detail', {'id': club.id}) }}" class="btn btn-secondary btn-lg">
+										<i class="fas fa-times me-2"></i>Annuler
+									</a>
+								</div>
+							</div>
+						{{ form_end(form) }}
+					</div>
+				</div>
+
+				<!-- Delete Section -->
+				<div class="card shadow mt-4 border-danger">
+					<div class="card-body p-5">
+						<h5 class="card-title text-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+						<p class="text-muted">Deleting your club is permanent and cannot be undone.</p>
+						<form method="POST" action="{{ path('club_delete', {'id': club.id}) }}" onsubmit="return confirm('Are you sure you want to delete this club? This action cannot be undone.')">
+							<button type="submit" class="btn btn-danger">
+								<i class="fas fa-trash me-2"></i>Delete This Club
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}

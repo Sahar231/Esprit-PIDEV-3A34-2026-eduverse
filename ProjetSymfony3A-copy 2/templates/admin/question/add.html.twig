@@ -1,0 +1,385 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Question - {{ quiz.title }}{% endblock %}
+
+{% block body %}
+<main>
+	<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<h1 class="text-white">Add Question</h1>
+					<nav aria-label="breadcrumb">
+						<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+							<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+							<li class="breadcrumb-item"><a href="{{ path("admin_quiz_list") }}">Quizzes</a></li>
+							<li class="breadcrumb-item"><a href="{{ path("admin_quiz_edit", {id: quiz.id}) }}">{{ quiz.title }}</a></li>
+							<li class="breadcrumb-item active">Add Question</li>
+						</ol>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="py-5">
+		<div class="container">
+			<div class="row g-4">
+				<!-- Sidebar START -->
+				<div class="col-lg-3">
+					<div class="card shadow h-100">
+						<div class="card-header bg-light border-bottom">
+							<h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Info</h5>
+						</div>
+						<div class="card-body">
+							<div class="mb-3">
+								<p class="small text-muted mb-2"><strong>Quiz:</strong></p>
+								<p class="fw-bold">{{ quiz.title }}</p>
+							</div>
+							<hr>
+							<div class="mb-3">
+								<p class="small text-muted mb-2"><strong>Current Questions:</strong></p>
+								<p class="fw-bold text-info">{{ quiz.questions|length }}</p>
+							</div>
+							<hr>
+							<ul class="list-unstyled">
+								<li class="mb-2">
+									<a href="{{ path('admin_quiz_list') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+										<i class="bi bi-list me-2"></i>All Quizzes
+									</a>
+								</li>
+								<li class="mb-2">
+									<a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-sm btn-outline-info w-100 text-start">
+										<i class="bi bi-pencil me-2"></i>Back to Quiz
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- Sidebar END -->
+
+				<!-- Content START -->
+				<div class="col-lg-9">
+					<div class="card card-body shadow p-5">
+						<h2 class="mb-4"><i class="bi bi-plus-circle me-2"></i>Add New Question to "{{ quiz.title }}"</h2>
+
+						<form method="POST" enctype="multipart/form-data">
+							<!-- Question Text Section -->
+							<div class="card mb-4 border-left border-primary" style="border-left: 4px solid #0d6efd;">
+								<div class="card-header bg-light">
+									<h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Question Content</h6>
+								</div>
+								<div class="card-body">
+									<div class="mb-3">
+										<label class="form-label">Question Text <span class="text-danger">*</span></label>
+										<textarea class="form-control" id="questionText" name="question" rows="4" required placeholder="Enter the question text..."></textarea>
+										<small class="form-text text-muted">Character count: <span id="charCount">0</span>/500</small>
+									</div>
+								</div>
+							</div>
+
+							<!-- Question Type & Score Section -->
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="card border-left border-info" style="border-left: 4px solid #0dcaf0;">
+										<div class="card-header bg-light">
+											<h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Question Type</h6>
+										</div>
+										<div class="card-body">
+											<select class="form-select" id="questionType" name="type" required onchange="updateTypeFields()">
+												<option value="multiple_choice">Multiple Choice (QCM)</option>
+												<option value="text">Short Answer (Text)</option>
+												<option value="true_false">True/False</option>
+												<option value="essay">Essay/Long Answer</option>
+											</select>
+											<small class="form-text text-muted d-block mt-2">Select the type of question</small>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-md-6">
+									<div class="card border-left border-success" style="border-left: 4px solid #198754;">
+										<div class="card-header bg-light">
+											<h6 class="mb-0"><i class="bi bi-star-fill me-2"></i>Points</h6>
+										</div>
+										<div class="card-body">
+											<input type="number" step="0.01" min="0" class="form-control" id="score" name="score" value="1.00" required placeholder="Enter points">
+											<small class="form-text text-muted d-block mt-2">Points awarded for correct answer</small>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Answer Section -->
+							<div class="card mb-4 border-left border-danger" style="border-left: 4px solid #dc3545;">
+								<div class="card-header bg-light">
+									<h6 class="mb-0"><i class="bi bi-check-circle me-2"></i>Correct Answer/Reply</h6>
+								</div>
+								<div class="card-body">
+									<div id="answerSection">
+										<textarea class="form-control" id="reply" name="reply" rows="3" required placeholder="Enter the correct answer..."></textarea>
+										<small class="form-text text-muted d-block mt-2">
+											<i class="bi bi-info-circle me-1"></i>
+											<strong>For Multiple Choice:</strong> Enter the correct option letter (e.g., A, B, C, D)<br>
+											<strong>For Text/Essay:</strong> Enter the expected answer or marking criteria<br>
+											<strong>For True/False:</strong> Enter 'True' or 'False'
+										</small>
+									</div>
+								</div>
+							</div>
+
+							<!-- Choices Section (for Multiple Choice) -->
+							<div class="card mb-4 border-left border-warning" style="border-left: 4px solid #ffc107;" id="choicesSection">
+								<div class="card-header bg-light d-flex justify-content-between align-items-center">
+									<h6 class="mb-0"><i class="bi bi-list-check me-2"></i>Answer Choices</h6>
+									<button type="button" class="btn btn-sm btn-outline-primary" onclick="addChoice()">
+										<i class="bi bi-plus me-1"></i>Add Choice
+									</button>
+								</div>
+								<div class="card-body">
+									<div id="choicesList">
+										<div class="choice-item mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
+											<div class="d-flex justify-content-between align-items-start">
+												<div class="flex-grow-1">
+													<small class="text-muted d-block mb-2">Choice 1</small>
+													<input type="text" class="form-control form-control-sm" name="choices[]" placeholder="Enter choice option">
+												</div>
+												<button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeChoice(this)">
+													<i class="bi bi-trash me-1"></i>Remove
+												</button>
+											</div>
+										</div>
+									</div>
+									<small class="form-text text-muted d-block mt-3">
+										<i class="bi bi-info-circle me-1"></i>
+										Add at least 2-4 answer choices. Typically 4-5 options for a multiple-choice question.
+									</small>
+								</div>
+							</div>
+
+							<!-- Notes/Comments Section -->
+							<div class="card mb-4">
+								<div class="card-header bg-light">
+									<h6 class="mb-0"><i class="bi bi-sticky me-2"></i>Additional Notes</h6>
+								</div>
+								<div class="card-body">
+									<textarea class="form-control" name="notes" rows="2" placeholder="Any additional notes or comments about this question (optional)..."></textarea>
+									<small class="form-text text-muted d-block mt-2">For admin reference only</small>
+								</div>
+							</div>
+
+							<!-- Preview Section -->
+							<div class="alert alert-info mb-4">
+								<h6 class="mb-3"><i class="bi bi-eye me-2"></i>Question Preview</h6>
+								<div class="preview-box p-3 bg-white border rounded">
+									<p><strong>Q:</strong> <span id="previewQuestion">Enter question text...</span></p>
+									<p><strong>Type:</strong> <span id="previewType" class="badge bg-primary">MULTIPLE CHOICE</span></p>
+									<p><strong>Points:</strong> <span id="previewScore">1.00</span></p>
+									<p class="mb-0"><strong>Answer:</strong> <span id="previewAnswer">Enter answer...</span></p>
+								</div>
+							</div>
+
+							<!-- Action Buttons -->
+							<div class="d-flex gap-2">
+								<button type="submit" class="btn btn-primary btn-lg">
+									<i class="bi bi-check me-1"></i>Add Question
+								</button>
+							{% if quiz and quiz.id %}
+								<a href="{{ path('admin_quiz_edit', {id: quiz.id}) }}" class="btn btn-outline-secondary btn-lg">
+									<i class="bi bi-x me-1"></i>Cancel
+								</a>
+							{% else %}
+								<a href="{{ path('admin_quiz_list') }}" class="btn btn-outline-secondary btn-lg">
+									<i class="bi bi-x me-1"></i>Cancel
+								</a>
+							{% endif %}
+								<button type="reset" class="btn btn-outline-secondary btn-lg ms-auto">
+									<i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- Content END -->
+			</div>
+		</div>
+	</section>
+
+	<script>
+	// Update character count
+	document.getElementById('questionText').addEventListener('input', function() {
+	    document.getElementById('charCount').textContent = this.value.length;
+	    updatePreview();
+	});
+
+	// Update preview on input change
+	document.getElementById('score').addEventListener('input', updatePreview);
+	document.getElementById('reply').addEventListener('input', updatePreview);
+	document.getElementById('questionType').addEventListener('change', updatePreview);
+
+	// Update type-specific fields
+	function updateTypeFields() {
+	    const type = document.getElementById('questionType').value;
+	    const choicesSection = document.getElementById('choicesSection');
+	    
+	    if (type === 'multiple_choice') {
+	        choicesSection.style.display = 'block';
+	    } else {
+	        choicesSection.style.display = 'none';
+	    }
+	    updatePreview();
+	}
+
+	// Add new choice
+	function addChoice() {
+	    const choicesList = document.getElementById('choicesList');
+	    const choiceCount = choicesList.querySelectorAll('.choice-item').length;
+	    
+	    const choiceHTML = `
+	        <div class="choice-item mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
+	            <div class="d-flex justify-content-between align-items-start">
+	                <div class="flex-grow-1">
+	                    <small class="text-muted d-block mb-2">Choice ${choiceCount + 1}</small>
+	                    <input type="text" class="form-control form-control-sm" name="choices[]" placeholder="Enter choice option">
+	                </div>
+	                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeChoice(this)">
+	                    <i class="bi bi-trash me-1"></i>Remove
+	                </button>
+	            </div>
+	        </div>
+	    `;
+	    
+	    choicesList.innerHTML += choiceHTML;
+	}
+
+	// Remove choice
+	function removeChoice(btn) {
+	    btn.closest('.choice-item').remove();
+	}
+
+	// Update preview
+	function updatePreview() {
+	    document.getElementById('previewQuestion').textContent = document.getElementById('questionText').value || 'Enter question text...';
+	    document.getElementById('previewScore').textContent = document.getElementById('score').value;
+	    document.getElementById('previewAnswer').textContent = document.getElementById('reply').value || 'Enter answer...';
+	    document.getElementById('previewType').textContent = document.getElementById('questionType').value.toUpperCase();
+	}
+
+	// Initialize on page load
+	document.addEventListener('DOMContentLoaded', function() {
+	    updateTypeFields();
+	});
+	</script>
+
+	<style>
+	.border-left {
+	    border-left: 4px solid #0d6efd !important;
+	}
+
+	.choice-item {
+	    transition: all 0.3s ease;
+	}
+
+	.choice-item:hover {
+	    background-color: #f0f0f0 !important;
+	}
+
+	.preview-box {
+	    line-height: 1.8;
+	}
+
+	#charCount {
+	    font-weight: bold;
+	    color: #0d6efd;
+	    background-color: #f0f7ff;
+	    padding: 4px 8px;
+	    border-radius: 4px;
+	    display: inline-block;
+	}
+	</style>
+</main>
+{% endblock %}
+
+// Update preview on input change
+document.getElementById('score').addEventListener('input', updatePreview);
+document.getElementById('reply').addEventListener('input', updatePreview);
+document.getElementById('questionType').addEventListener('change', updatePreview);
+
+// Update type-specific fields
+function updateTypeFields() {
+    const type = document.getElementById('questionType').value;
+    const choicesSection = document.getElementById('choicesSection');
+    
+    if (type === 'multiple_choice') {
+        choicesSection.style.display = 'block';
+    } else {
+        choicesSection.style.display = 'none';
+    }
+    updatePreview();
+}
+
+// Add new choice
+function addChoice() {
+    const choicesList = document.getElementById('choicesList');
+    const choiceCount = choicesList.querySelectorAll('.choice-item').length;
+    
+    const choiceHTML = `
+        <div class="choice-item mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <small class="text-muted d-block mb-2">Choice ${choiceCount + 1}</small>
+                    <input type="text" class="form-control form-control-sm" name="choices[]" placeholder="Enter choice option">
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeChoice(this)">
+                    <i class="bi bi-trash me-1"></i>Remove
+                </button>
+            </div>
+        </div>
+    `;
+    
+    choicesList.innerHTML += choiceHTML;
+}
+
+// Remove choice
+function removeChoice(btn) {
+    btn.closest('.choice-item').remove();
+}
+
+// Update preview
+function updatePreview() {
+    document.getElementById('previewQuestion').textContent = document.getElementById('questionText').value || 'Enter question text...';
+    document.getElementById('previewScore').textContent = document.getElementById('score').value;
+    document.getElementById('previewAnswer').textContent = document.getElementById('reply').value || 'Enter answer...';
+    document.getElementById('previewType').textContent = document.getElementById('questionType').value.toUpperCase();
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateTypeFields();
+});
+</script>
+
+<style>
+.border-left {
+    border-left: 4px solid #0d6efd !important;
+}
+
+.choice-item {
+    transition: all 0.3s ease;
+}
+
+.choice-item:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.preview-box {
+    line-height: 1.8;
+}
+
+#charCount {
+    font-weight: bold;
+    color: #0d6efd;
+}
+</style>
+{% endblock %}

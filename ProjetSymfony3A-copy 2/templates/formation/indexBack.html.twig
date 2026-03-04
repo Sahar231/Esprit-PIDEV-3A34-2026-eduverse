@@ -1,0 +1,47 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Formation index{% endblock %}
+
+{% block body %}
+    <h1>Liste des Formations</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Content</th>
+                <th>Price</th>
+                <th>IsApproved</th>
+                <th>CreatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for formation in formations %}
+            <tr>
+                <td>{{ formation.id }}</td>
+                <td>{{ formation.title }}</td>
+                <td>{{ formation.description }}</td>
+                <td>{{ formation.content }}</td>
+                <td>{{ formation.price }}</td>
+                <td>{{ formation.isApproved ? 'Yes' : 'No' }}</td>
+                <td>{{ formation.createdAt ? formation.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_formation_show', {'id': formation.id}) }}">show</a>
+                    <a href="{{ path('app_formation_edit', {'id': formation.id}) }}">edit</a>
+                    <a href="{{ path('app_formation_approve', {'id': formation.id}) }}">Approve</a>
+
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_formation_new') }}">Create new</a>
+{% endblock %}

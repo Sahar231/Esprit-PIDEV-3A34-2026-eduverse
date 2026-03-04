@@ -1,0 +1,71 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Edit Course - Admin{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<!-- Logo and Toggler -->
+				<div class="d-flex align-items-center d-xl-none">
+					<a class="navbar-brand" href="">
+						<img class="light-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile.svg') }}" alt="">
+						<img class="dark-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile-light.svg') }}" alt="">
+					</a>
+				</div>
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation" data-bs-auto-close="outside">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0 rtl-flip"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<!-- Title -->
+		<div class="row">
+			<div class="col-12 mb-3">
+				<h1 class="h3 mb-2 mb-sm-0">Edit Course: <strong>{{ cours.title }}</strong></h1>
+			</div>
+		</div>
+
+		<!-- Breadcrumb -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb bg-light p-3 rounded">
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_course_list') }}">All Courses</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_course_show', {id: cours.id}) }}">{{ cours.title }}</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Edit</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Form -->
+		<div class="row">
+			<div class="col-12">
+				{% include 'course/_form.html.twig' with {'form': form} %}
+			</div>
+		</div>
+
+		<!-- Return to Dashboard Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left"></i> Return to Dashboard
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+{% endblock %}

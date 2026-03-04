@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - {{ type }} Requests{% endblock %}
+
+{% block body %}
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+	
+<!-- Sidebar START -->
+<nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+	<div class="d-flex align-items-center">
+		<a class="navbar-brand" href="{{ path("app_home") }}">
+			<img class="navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="">
+		</a>
+	</div>
+	
+	<div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+		<div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+			<ul class="navbar-nav flex-column" id="navbar-sidebar">
+				<li class="nav-item"><a href="{{ path('admin_dashboard') }}" class="nav-link"><i class="bi bi-house fa-fw me-2"></i>Dashboard</a></li>
+				<li class="nav-item ms-2 my-2">Pages</li>
+				<li class="nav-item">
+					<a class="nav-link" data-bs-toggle="collapse" href="#collapsepage" role="button" aria-expanded="false" aria-controls="collapsepage">
+						<i class="bi bi-basket fa-fw me-2"></i>Courses
+					</a>
+					<ul class="nav collapse flex-column" id="collapsepage" data-bs-parent="#navbar-sidebar">
+						<li class="nav-item"> <a class="nav-link" href="{{ path('admin_approvals', {type: 'courses'}) }}">Course Requests</a></li>
+						<li class="nav-item"> <a class="nav-link" href="{{ path('admin_instructors') }}">Approved Instructors</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"> <a class="nav-link" href="{{ path('admin_students') }}"><i class="fas fa-user-graduate fa-fw me-2"></i>Students</a></li>
+				<li class="nav-item">
+					<a class="nav-link active" data-bs-toggle="collapse" href="#collapseRequests" role="button" aria-expanded="true" aria-controls="collapseRequests">
+						<i class="fas fa-user-check fa-fw me-2"></i>Requests
+					</a>
+					<ul class="nav collapse flex-column show" id="collapseRequests" data-bs-parent="#navbar-sidebar">
+						<li class="nav-item"> <a class="nav-link {% if type == 'Instructor' %}active{% endif %}" href="{{ path('admin_instructor_requests') }}">Instructor requests</a></li>
+						<li class="nav-item"> <a class="nav-link {% if type == 'Student' %}active{% endif %}" href="{{ path('admin_student_requests') }}">Student requests</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"> <a class="nav-link" href="{{ path('admin_approvals', {type: 'clubs'}) }}"><i class="fas fa-users fa-fw me-2"></i>Club Approvals</a></li>
+				<li class="nav-item"> <a class="nav-link" href="{{ path('admin_approvals', {type: 'formations'}) }}"><i class="fas fa-graduation-cap fa-fw me-2"></i>Formation Approvals</a></li>
+				<li class="nav-item text-danger bg-danger-soft-hover"> <a class="nav-link" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="page-content">
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0"></i>
+					</button>
+				</div>
+                <h4 class="mb-0 ms-2">{{ type }} Requests</h4>
+			</div>
+		</div>
+	</nav>
+
+	<div class="page-content-wrapper border">
+		<div class="row g-4">
+			{{ include('admin/_sidebar.html.twig') }}
+			<div class="col-lg-9">
+				<div class="card card-body shadow mb-4">
+					<h1 class="h3 mb-0">Pending {{ type }} Requests</h1>
+				</div>
+				
+				<div class="card bg-transparent">
+						<div class="card-body px-0">
+							<div class="table-responsive border-0">
+								<table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+									<thead>
+										<tr>
+											<th scope="col" class="border-0 rounded-start">{{ type }} name</th>
+											<th scope="col" class="border-0">Email</th>
+											<th scope="col" class="border-0">Date Requested</th>
+											<th scope="col" class="border-0 rounded-end">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for request in requests %}
+										<tr>
+											<td>
+												<div class="d-flex align-items-center position-relative">
+													<div class="mb-0 ms-2">
+														<h6 class="mb-0">{{ request.fullName }}</h6>
+													</div>
+												</div>
+											</td>
+											<td>{{ request.email }}</td>
+											<td>{{ request.createdAt|date('d M Y') }}</td>
+											<td>
+												<a href="{{ path('admin_user_approve', {'id': request.id}) }}" class="btn btn-sm btn-success mb-1">Approve</a>
+												<a href="{{ path('admin_user_reject', {'id': request.id}) }}" class="btn btn-sm btn-danger mb-1">Reject</a>
+											</td>
+										</tr>
+										{% else %}
+										<tr><td colspan="4" class="text-center">No pending requests.</td></tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</main>
+{% endblock %}

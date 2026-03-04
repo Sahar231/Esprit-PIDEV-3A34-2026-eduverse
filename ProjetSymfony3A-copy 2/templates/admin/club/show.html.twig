@@ -1,0 +1,229 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Club Details - Admin{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="d-flex align-items-center d-xl-none">
+					<a class="navbar-brand" href="">
+						<img class="light-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile.svg') }}" alt="">
+						<img class="dark-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile-light.svg') }}" alt="">
+					</a>
+				</div>
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation" data-bs-auto-close="outside">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0 rtl-flip"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<!-- Title -->
+		<div class="row">
+			<div class="col-12 mb-3">
+				<h1 class="h3 mb-0"><i class="fas fa-info-circle me-2"></i>Club Details</h1>
+			</div>
+		</div>
+
+		<!-- Breadcrumb -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb bg-light p-3 rounded">
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_club_list') }}">Clubs</a></li>
+						<li class="breadcrumb-item active" aria-current="page">{{ club.name }}</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Club Info -->
+		<div class="row mb-4">
+			<div class="col-lg-8">
+				<div class="card">
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Club Name</h5>
+								<p class="h4">{{ club.name }}</p>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Status</h5>
+								<p>
+									{% if club.status == 'PENDING' %}
+										<span class="badge bg-warning">Pending Approval</span>
+									{% elseif club.status == 'APPROVED' %}
+										<span class="badge bg-success">Approved</span>
+									{% elseif club.status == 'REJECTED' %}
+										<span class="badge bg-danger">Rejected</span>
+									{% endif %}
+								</p>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-12">
+								<h5 class="text-muted mb-2">Description</h5>
+								<p class="text-dark">{{ club.description }}</p>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Creator</h5>
+							<p class="text-dark">{{ club.creator.fullName }}</p>
+								<small class="text-muted">{{ club.creator.email }}</small>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Created Date</h5>
+								<p class="text-dark">{{ club.createdAt|date('d/m/Y H:i') }}</p>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Last Updated</h5>
+								<p class="text-dark">{{ club.updatedAt|date('d/m/Y H:i') }}</p>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Total Members</h5>
+								<p class="display-6 text-primary">{{ club.members|length }}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Members Section -->
+				<div class="card mt-3">
+					<div class="card-header bg-light">
+						<h5 class="mb-0"><i class="fas fa-users me-2"></i>Club Members ({{ club.members|length }})</h5>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-sm mb-0">
+							<thead class="border-top">
+								<tr>
+									<th>Name</th>
+									<th>Email</th>
+									<th>Role</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% if club.members|length > 0 %}
+									{% for member in club.members %}
+										<tr>
+											<td>{{ member.fullName }}</td>
+											<td>{{ member.email }}</td>
+											<td>
+												{% if member.id == club.creator.id %}
+													<span class="badge bg-primary">Creator</span>
+												{% else %}
+													<span class="badge bg-secondary">Member</span>
+												{% endif %}
+											</td>
+										</tr>
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="3" class="text-center text-muted py-3">
+											No members yet
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4">
+				<!-- Actions Card -->
+				<div class="card sticky-top">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Actions</h5>
+					</div>
+					<div class="card-body">
+						<div class="d-grid gap-2">
+							<a href="{{ path('admin_club_export', {'id': club.id}) }}" class="btn btn-info">
+								<i class="fas fa-file-pdf me-2"></i>Export as PDF
+							</a>
+
+							<a href="{{ path('admin_club_edit', {'id': club.id}) }}" class="btn btn-primary">
+								<i class="fas fa-edit me-2"></i>Edit Club
+							</a>
+
+							{% if club.status != 'APPROVED' %}
+								<form method="POST" action="{{ path('admin_club_approve', {'id': club.id}) }}" class="d-inline" onsubmit="return confirm('Approve this club?')">
+									<input type="hidden" name="_token" value="{{ csrf_token('approve' ~ club.id) }}">
+									<button type="submit" class="btn btn-success w-100">
+										<i class="fas fa-check me-2"></i>Approve
+									</button>
+								</form>
+							{% endif %}
+
+							{% if club.status != 'REJECTED' %}
+								<form method="POST" action="{{ path('admin_club_reject', {'id': club.id}) }}" class="d-inline" onsubmit="return confirm('Reject this club?')">
+									<input type="hidden" name="_token" value="{{ csrf_token('reject' ~ club.id) }}">
+									<button type="submit" class="btn btn-warning w-100">
+										<i class="fas fa-times me-2"></i>Reject
+									</button>
+								</form>
+							{% endif %}
+
+							<form method="POST" action="{{ path('admin_club_delete', {'id': club.id}) }}" class="d-inline" onsubmit="return confirm('Delete this club? This action cannot be undone.')">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ club.id) }}">
+								<button type="submit" class="btn btn-danger w-100">
+									<i class="fas fa-trash me-2"></i>Delete
+								</button>
+							</form>
+
+							<hr class="my-2">
+
+							<a href="{{ path('admin_club_list') }}" class="btn btn-secondary">
+								<i class="fas fa-arrow-left me-2"></i>Back to List
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Statistics Card -->
+				<div class="card mt-3">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Statistics</h5>
+					</div>
+					<div class="card-body">
+						<div class="mb-3">
+							<h6 class="text-muted mb-2">Total Events</h6>
+							<p class="h4 text-primary mb-0">{{ club.events|length }}</p>
+						</div>
+						<div>
+							<h6 class="text-muted mb-2">Join Requests</h6>
+							<p class="h4 text-warning mb-0">{{ club.joinRequests|length }}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Return Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('admin_club_list') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left me-2"></i>Back to Clubs List
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+{% endblock %}

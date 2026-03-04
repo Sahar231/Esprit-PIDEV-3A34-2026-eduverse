@@ -1,0 +1,244 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}club-detail{% endblock %}
+
+{% block body %}
+<!-- =======================
+Page Banner START -->
+<section class="bg-blue py-5" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 text-center">
+				<!-- Title -->
+				<h1 class="text-white">{{ club.name }}</h1>
+				<!-- Breadcrumb -->
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0 justify-content-center">
+						<li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('club_list') }}">Clubs</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Détails du club</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+<!-- =======================
+Page Banner END -->
+
+<!-- =======================
+Page content START -->
+<section class="py-5">
+	<div class="container">
+		<!-- Back button START -->
+		<div class="mb-4 d-flex justify-content-between align-items-center">
+			<a href="{{ path('club_list') }}" class="btn btn-outline-secondary">
+				<i class="bi bi-arrow-left me-2"></i>Retour aux clubs
+			</a>
+			<a href="{{ path('student_dashboard') }}" class="btn btn-primary">
+				<i class="bi bi-columns-gap me-2"></i>Mon Dashboard
+			</a>
+		</div>
+		<!-- Back button END -->
+
+		<div class="row g-4 justify-content-center">
+			<!-- Main content START -->
+			<div class="col-lg-8">
+				<!-- Card START -->
+				<div class="card shadow rounded-2">
+					<!-- Card body -->
+					<div class="card-body p-4">
+						<!-- Title -->
+						<h3 class="mb-3">À propos de ce club</h3>
+						<p>{{ club.description|nl2br }}</p>
+
+						<!-- Info list -->
+						<div class="row mb-4">
+							<div class="col-sm-6">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item">
+										<i class="fas fa-user-tie text-primary me-2"></i>Créateur: <strong>{{ club.creator.fullName }}</strong>
+									</li>
+									<li class="list-group-item">
+										<i class="fas fa-calendar-alt text-primary me-2"></i>Créé le: <strong>{{ club.createdAt|date('d/m/Y') }}</strong>
+									</li>
+								</ul>
+							</div>
+							<div class="col-sm-6">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item">
+										<i class="fas fa-users text-primary me-2"></i>Membres: <strong>{{ club.members|length }}</strong>
+									</li>
+									<li class="list-group-item">
+										<i class="fas fa-tag text-primary me-2"></i>Catégorie: <strong>Communauté</strong>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<!-- Action -->
+						{% if is_granted('ROLE_USER') %}
+							{% if club.creator == app.user %}
+								<div class="alert alert-info">Vous êtes le créateur de ce club.</div>
+								<div class="d-flex gap-2">
+									<a href="{{ path('club_edit', {id: club.id}) }}" class="btn btn-warning">Modifier le club</a>
+									<a href="{{ path('event_create', {clubId: club.id}) }}" class="btn btn-success">
+										<i class="fas fa-plus me-2"></i>Ajouter un événement
+									</a>
+								</div>
+							{% elseif app.user in club.members %}
+								<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Vous êtes membre de ce club.</div>
+							{% elseif userJoinStatus == 'PENDING' %}
+								<div class="alert alert-warning"><i class="fas fa-clock me-2"></i>Votre demande d'adhésion est en attente.</div>
+							{% elseif userJoinStatus == 'REJECTED' %}
+								<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>Votre demande d'adhésion a été refusée.</div>
+							{% else %}
+								<form action="{{ path('club_join', {id: club.id}) }}" method="POST">
+									<input type="hidden" name="_token" value="{{ csrf_token('join' ~ club.id) }}">
+									<button type="submit" class="btn btn-primary">Rejoindre le club</button>
+								</form>
+							{% endif %}
+						{% else %}
+							<a href="{{ path('auth_login') }}" class="btn btn-primary">Connectez-vous pour rejoindre le club</a>
+						{% endif %}
+					</div>
+				</div>
+				<!-- Card END -->
+
+				<!-- Events START -->
+				{% if events|length > 0 %}
+					<h3 class="mt-5 mb-4">Événements à venir</h3>
+					<div class="row g-4">
+						{% for event in events %}
+							<div class="col-md-6">
+								<div class="card shadow h-100">
+									<div class="card-body">
+										<h5 class="card-title">{{ event.title }}</h5>
+										<p class="small mb-2"><i class="fas fa-calendar-day me-2"></i>{{ event.eventDate|date('d/m/Y H:i') }}</p>
+										<p class="small mb-2"><i class="fas fa-map-marker-alt me-2"></i>{{ event.location }}</p>
+										<p class="card-text text-truncate-2">{{ event.description|slice(0, 80) }}...</p>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				{% endif %}
+				<!-- Events END -->
+			</div>
+			<!-- Main content END -->
+		</div>
+	</div>
+</section>
+<!-- =======================
+Page content END -->
+
+{# Chatbot Widget #}
+<div class="chatbot-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+    <!-- Chat Button -->
+    <button id="chat-button" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+        <i class="bi bi-chat-dots-fill fs-4"></i>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="card shadow-lg d-none" style="position: absolute; bottom: 80px; right: 0; width: 350px; height: 450px; display: flex; flex-direction: column;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <span>Assistant AI - {{ club.name }}</span>
+            <button id="close-chat" class="btn-close btn-close-white" aria-label="Close"></button>
+        </div>
+        <div id="chat-messages" class="card-body overflow-auto p-3" style="flex-grow: 1;">
+            <div class="ai-message bg-light p-2 rounded mb-2 small">
+                Bonjour ! Je suis l'assistant du club <strong>{{ club.name }}</strong>. Comment puis-je vous aider aujourd'hui ?
+            </div>
+        </div>
+        <div class="card-footer p-2">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control form-control-sm" placeholder="Posez votre question...">
+                <button id="send-chat" class="btn btn-primary btn-sm">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chatBtn = document.getElementById('chat-button');
+    const chatWindow = document.getElementById('chat-window');
+    const closeBtn = document.getElementById('close-chat');
+    const sendBtn = document.getElementById('send-chat');
+    const input = document.getElementById('chat-input');
+    const messages = document.getElementById('chat-messages');
+
+    // Club meta data for AI
+    const clubData = {
+        clubName: "{{ club.name }}",
+        description: "{{ club.description|e('js') }}",
+        events: [
+            {% for event in events %}
+                { title: "{{ event.title|e('js') }}", date: "{{ event.eventDate|date('d/m/Y H:i') }}" },
+            {% endfor %}
+        ]
+    };
+
+    chatBtn.addEventListener('click', () => {
+        chatWindow.classList.toggle('d-none');
+        if (!chatWindow.classList.contains('d-none')) input.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatWindow.classList.add('d-none');
+    });
+
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Add user message
+        appendMessage('user', text);
+        input.value = '';
+
+        // Add loading state
+        const loadingId = 'loading-' + Date.now();
+        appendMessage('ai', '<div class="spinner-border spinner-border-sm" role="status"></div>', loadingId);
+
+        try {
+            const response = await fetch('{{ path("api_chat") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...clubData,
+                    message: text
+                })
+            });
+
+            const data = await response.json();
+            const loadingEl = document.getElementById(loadingId);
+            if (data.reply) {
+                loadingEl.innerText = data.reply;
+            } else {
+                loadingEl.innerText = "Désolé, une erreur est survenue.";
+            }
+        } catch (error) {
+            console.error('Chat error:', error);
+            document.getElementById(loadingId).innerText = "Erreur de connexion.";
+        }
+    }
+
+    function appendMessage(sender, content, id = null) {
+        const div = document.createElement('div');
+        div.className = sender === 'user' ? 'user-message bg-primary text-white p-2 rounded mb-2 small text-end' : 'ai-message bg-light p-2 rounded mb-2 small';
+        if (id) div.id = id;
+        div.innerHTML = content;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+});
+</script>
+{% endblock %}
+

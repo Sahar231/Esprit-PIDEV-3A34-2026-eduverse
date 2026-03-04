@@ -1,0 +1,300 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}instructor-club-add{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Create Club</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport - Create Club">
+	<script>
+		const storedTheme = localStorage.getItem('theme')
+		const getPreferredTheme = () => {
+			if (storedTheme) return storedTheme
+			return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
+		}
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
+		setTheme(getPreferredTheme())
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+			showActiveTheme(getPreferredTheme())
+			document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+				toggle.addEventListener('click', () => {
+					const theme = toggle.getAttribute('data-bs-theme-value')
+					localStorage.setItem('theme', theme)
+					setTheme(theme)
+					showActiveTheme(theme)
+				})
+			})
+			}
+		})
+	</script>
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/text-colors.css') }}">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="contentMenu" data-bs-toggle="dropdown">Content</a>
+						<ul class="dropdown-menu" aria-labelledby="contentMenu">
+							<li><a class="dropdown-item" href="{{ path('instructor_formation_list') }}"><i class="bi bi-book me-2"></i>Formations</a></li>
+							<li><a class="dropdown-item" href="{{ path('instructor_quiz_list') }}"><i class="bi bi-question-diamond me-2"></i>Quizzes</a></li>
+							<li><a class="dropdown-item" href="{{ path('instructor_club_list') }}"><i class="bi bi-people me-2"></i>Clubs</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="dropdown ms-1 ms-lg-0">
+				<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar">
+				</a>
+				<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+					<li class="px-3 mb-3">
+						<div class="d-flex align-items-center">
+							<div class="avatar me-3">
+								<img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar">
+							</div>
+							<div>
+								<a class="h6" href="#">Instructor</a>
+								<p class="small m-0">instructor@example.com</p>
+							</div>
+						</div>
+					</li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Settings</a></li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Create Club</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('instructor_club_list') }}">My Clubs</a></li>
+						<li class="breadcrumb-item active">Create Club</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<!-- Sidebar START -->
+			<div class="col-lg-3">
+				<div class="card shadow h-100">
+					<div class="card-header bg-light border-bottom">
+						<h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Links</h5>
+					</div>
+					<div class="card-body">
+						<ul class="list-unstyled">
+							<li class="mb-2">
+								<a href="{{ path('instructor_formation_create') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+									<i class="bi bi-book me-2"></i>Add Formation
+								</a>
+							</li>
+							<li class="mb-2">
+								<a href="{{ path('instructor_quiz_create') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+									<i class="bi bi-question-diamond me-2"></i>Add Quiz
+								</a>
+							</li>
+							<li class="mb-0">
+								<a href="{{ path('instructor_club_create') }}" class="btn btn-sm btn-outline-primary w-100 text-start">
+									<i class="bi bi-people me-2"></i>Add Club
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- Sidebar END -->
+
+			<!-- Content START -->
+			<div class="col-lg-9">
+				<div class="card shadow-sm">
+					<div class="card-body p-5">
+						<h3 class="mb-4">New Club Details</h3>
+						<form method="POST" action="{{ path("instructor_club_create") }}">
+							<div class="mb-3">
+								<label class="form-label" for="clubName">Club Name *</label>
+								<input type="text" class="form-control" id="clubName" name="clubName" placeholder="Enter club name" required>
+							</div>
+							<div class="mb-3">
+								<div class="d-flex justify-content-between align-items-center mb-1">
+									<label class="form-label mb-0" for="clubDesc">Description *</label>
+									<button type="button" id="btnGenAi" class="btn btn-sm btn-purple mb-0">
+										<i class="fas fa-magic me-2"></i>GÃ©nÃ©rer description avec IA
+									</button>
+								</div>
+								<textarea class="form-control" id="clubDesc" name="clubDesc" rows="4" placeholder="Enter club description" required></textarea>
+								<div id="aiLoading" class="small text-primary mt-1" style="display:none;">
+									<div class="spinner-border spinner-border-sm me-1" role="status"></div>
+									GÃ©nÃ©ration en cours...
+								</div>
+							</div>
+
+							<script>
+							document.getElementById('btnGenAi').addEventListener('click', async () => {
+								const title = document.getElementById('clubName').value;
+								const descField = document.getElementById('clubDesc');
+								const loading = document.getElementById('aiLoading');
+								const btn = document.getElementById('btnGenAi');
+
+								if (!title) {
+									alert('Veuillez d\'abord saisir le nom du club.');
+									return;
+								}
+
+								loading.style.display = 'block';
+								btn.disabled = true;
+
+								try {
+									const response = await fetch('{{ path("api_generate_description") }}', {
+										method: 'POST',
+										headers: {
+											'Content-Type': 'application/json',
+										},
+										body: JSON.stringify({
+											name: title,
+											entityType: 'club'
+										})
+									});
+
+									const data = await response.json();
+									if (data.description) {
+										descField.value = data.description;
+									} else if (data.error) {
+										alert(data.error);
+									}
+								} catch (error) {
+									console.error('Error:', error);
+									alert('Erreur lors de la gÃ©nÃ©ration de la description.');
+								} finally {
+									loading.style.display = 'none';
+									btn.disabled = false;
+								}
+							});
+							</script>
+							<div class="mb-3">
+								<label class="form-label" for="clubCategory">Category *</label>
+								<select class="form-select" id="clubCategory" name="clubCategory" required>
+									<option selected disabled>Select category</option>
+									<option value="tech">Technology</option>
+									<option value="arts">Arts & Design</option>
+									<option value="sports">Sports</option>
+									<option value="business">Business</option>
+									<option value="other">Other</option>
+								</select>
+							</div>
+							<div class="mb-3">
+								<label class="form-label" for="clubStatus">Status *</label>
+								<select class="form-select" id="clubStatus" name="clubStatus" required>
+									<option selected value="active">Active</option>
+									<option value="inactive">Inactive</option>
+								</select>
+							</div>
+							<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+								<a href="{{ path("instructor_club_list") }}" class="btn btn-outline-secondary">Cancel</a>
+								<button type="submit" class="btn btn-primary">Create Club</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				</div>
+			</div>
+			<!-- Content END -->
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+					<img class="dark-mode-item h-40px" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+				</a>
+				<p class="my-3">Continue your learning journey with us.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights Â©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
+{% endblock %}
+
+
+

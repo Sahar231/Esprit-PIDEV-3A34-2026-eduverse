@@ -1,0 +1,3 @@
+doctrine_doctor:
+    # Enable Doctrine Doctor only in dev environment
+    enabled: true

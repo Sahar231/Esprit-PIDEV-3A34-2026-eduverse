@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ role }} List Export</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; color: #333; }
+        .footer { margin-top: 30px; text-align: right; font-size: 12px; color: #777; }
+        .badge { padding: 5px 10px; border-radius: 4px; font-size: 11px; }
+        .bg-success { background-color: #d4edda; color: #155724; }
+        .bg-danger { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>{{ role }} List Report</h1>
+    <p>Generated on: {{ date|date('d M Y H:i') }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Join Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.fullName }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.createdAt|date('d M Y') }}</td>
+                    <td>
+                        <span class="badge {{ user.isBlocked ? 'bg-danger' : 'bg-success' }}">
+                            {{ user.isBlocked ? 'Blocked' : 'Active' }}
+                        </span>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" style="text-align: center;">No {{ role|lower }}s found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        E-Learning Platform - Admin Export System
+    </div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}AI Quiz Generator{% endblock %}
+
+{% block body %}
+    <h1>Generate Offline Quiz</h1>
+
+    {% if errors is not empty %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for err in errors %}
+                    <li>{{ err }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="post">
+        <div class="form-group">
+            <label for="title">Chapter Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ form.title }}" required />
+        </div>
+        <div class="form-group">
+            <label for="text">Text (optional)</label>
+            <textarea id="text" name="text" class="form-control" rows="5">{{ form.text }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="n">Number of questions</label>
+            <input type="number" id="n" name="n" class="form-control" value="{{ form.n }}" min="1" />
+        </div>
+        <div class="form-group">
+            <label for="seed">Seed (optional)</label>
+            <input type="number" id="seed" name="seed" class="form-control" value="{{ form.seed }}" />
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Generate</button>
+    </form>
+
+    {% if quiz is not null %}
+        <hr />
+        <h2>Quiz Preview</h2>
+        <pre id="quiz-preview">{{ quiz|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+        <button id="download-json" class="btn btn-secondary mt-2">Download JSON</button>
+        <button id="copy-json" class="btn btn-outline-secondary mt-2 ms-1">Copy to clipboard</button>
+        <script>
+            document.getElementById('download-json').addEventListener('click', function () {
+                const data = document.getElementById('quiz-preview').textContent;
+                const blob = new Blob([data], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'quiz.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            document.getElementById('copy-json').addEventListener('click', function () {
+                const data = document.getElementById('quiz-preview').textContent;
+                navigator.clipboard.writeText(data).then(() => {
+                    alert('JSON copied to clipboard');
+                }).catch(() => {
+                    alert('Unable to copy to clipboard');
+                });
+            });
+        </script>
+    {% endif %}
+{% endblock %}

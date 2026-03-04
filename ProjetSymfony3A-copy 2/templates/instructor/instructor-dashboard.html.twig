@@ -1,0 +1,214 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Instructor Dashboard - Eduport{% endblock %}
+
+{% block body %}
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<section class="pt-0">
+	<div class="container-fluid px-0">
+		<div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+		</div>
+	</div>
+	<div class="container mt-n4">
+		<div class="row">
+			<div class="col-12">
+				<div class="card bg-transparent card-body pb-0 px-0 mt-2 mt-sm-0">
+					<div class="row d-sm-flex justify-sm-content-between mt-2 mt-md-0">
+						<!-- Avatar -->
+						<div class="col-auto">
+							<div class="avatar avatar-xxl mt-n3">
+								<img class="avatar-img rounded-circle border border-white border-3 shadow" src="{{ asset('assets/images/avatar/01.svg') }}" alt="">
+							</div>
+						</div>
+						<!-- Profile info -->
+						<div class="col d-sm-flex justify-content-between align-items-center">
+							<div>
+								<h1 class="my-1 fs-4">{{ app.user.fullName }} <i class="bi bi-patch-check-fill text-info small"></i></h1>
+							</div>
+						</div>
+					</div>
+				</div>
+                <hr class="d-xl-none">
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="pt-0">
+	<div class="container">
+		<div class="row">
+			<!-- Left sidebar START -->
+			<div class="col-xl-3">
+				<div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar">
+					<div class="offcanvas-header bg-light">
+						<h5 class="offcanvas-title" id="offcanvasNavbarLabel">My profile</h5>
+						<button  type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body p-3 p-xl-0">
+						<div class="bg-dark border rounded-3 p-3 w-100">
+							<div class="list-group list-group-dark list-group-borderless collapse-list">
+								<a class="list-group-item active" href="{{ path('instructor_dashboard') }}"><i class="bi bi-ui-checks-grid fa-fw me-2"></i>Dashboard</a>
+								<a class="list-group-item" href="{{ path('instructor_formation_list') }}"><i class="bi bi-book fa-fw me-2"></i>My Formations</a>
+								<a class="list-group-item" href="{{ path('instructor_formation_create') }}"><i class="bi bi-plus-circle fa-fw me-2"></i>Add Formation</a>
+								<a class="list-group-item" href="{{ path('instructor_course_list') }}"><i class="bi bi-journal-text fa-fw me-2"></i>My Courses</a>
+								<a class="list-group-item" href="{{ path('instructor_course_add') }}"><i class="bi bi-plus-circle fa-fw me-2"></i>Add Course</a>
+								<a class="list-group-item" href="{{ path('quiz_created') }}"><i class="bi bi-question-circle fa-fw me-2"></i>My Quizzes</a>
+								<a class="list-group-item" href="{{ path('quiz_new') }}"><i class="bi bi-plus-circle fa-fw me-2"></i>Add Quiz</a>							<a class="list-group-item" href="{{ path('instructor_club_list') }}"><i class="fas fa-users fa-fw me-2"></i>My Clubs</a>
+							<a class="list-group-item" href="{{ path('instructor_event_list') }}"><i class="fas fa-calendar fa-fw me-2"></i>My Events</a>								<a class="list-group-item" href="{{ path('instructor_settings') }}"><i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile</a>
+								<a class="list-group-item text-danger bg-danger-soft-hover" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Left sidebar END -->
+
+			<!-- Main content START -->
+			<div class="col-xl-9">
+				<div class="card bg-transparent border rounded-3">
+					<div class="card-header bg-transparent border-bottom">
+						<h3 class="card-header-title mb-0">Instructor Dashboard</h3>
+					</div>
+					<div class="card-body">
+                        <p>Welcome, {{ app.user.fullName }}! You are logged into your instructor workspace.</p>
+						
+						<!-- Quick Actions -->
+						<div class="row mt-4 mb-4">
+							<div class="col-md-6 col-lg-4 mb-3">
+								<a href="{{ path('instructor_course_add') }}" class="card text-center text-decoration-none bg-light-info">
+									<div class="card-body">
+										<i class="bi bi-plus-circle fs-2 text-info mb-2"></i>
+										<h5 class="card-title">Add New Course</h5>
+										<p class="card-text small">Create a new course</p>
+									</div>
+								</a>
+							</div>
+							<div class="col-md-6 col-lg-4 mb-3">
+								<a href="{{ path('instructor_course_list') }}" class="card text-center text-decoration-none bg-light-success">
+									<div class="card-body">
+										<i class="bi bi-journal-text fs-2 text-success mb-2"></i>
+										<h5 class="card-title">My Courses</h5>
+										<p class="card-text small">Manage your courses</p>
+									</div>
+								</a>
+							</div>
+							<div class="col-md-6 col-lg-4 mb-3">
+								<a href="{{ path('instructor_formation_create') }}" class="card text-center text-decoration-none bg-light-warning">
+									<div class="card-body">
+										<i class="bi bi-book fs-2 text-warning mb-2"></i>
+										<h5 class="card-title">Add Formation</h5>
+										<p class="card-text small">Create a formation</p>
+									</div>
+								</a>
+							</div>
+							<div class="col-md-6 col-lg-4 mb-3">
+								<a href="{{ path('instructor_club_list') }}" class="card text-center text-decoration-none bg-light-primary">
+									<div class="card-body">
+										<i class="fas fa-users fs-2 text-primary mb-2"></i>
+										<h5 class="card-title">My Clubs</h5>
+										<p class="card-text small">Manage your clubs</p>
+									</div>
+								</a>
+							</div>
+							<div class="col-md-6 col-lg-4 mb-3">
+								<a href="{{ path('instructor_event_list') }}" class="card text-center text-decoration-none bg-light-info">
+									<div class="card-body">
+										<i class="fas fa-calendar fs-2 text-info mb-2"></i>
+										<h5 class="card-title">My Events</h5>
+										<p class="card-text small">Manage your events</p>
+									</div>
+								</a>
+							</div>
+						</div>
+
+						<!-- Clubs & Events Section -->
+						<div class="row mt-4 mb-4 g-4">
+							<div class="col-md-6">
+								<div class="card shadow-sm border-0 h-100">
+									<div class="card-header bg-light d-flex justify-content-between align-items-center">
+										<h5 class="mb-0"><i class="fas fa-users me-2 text-primary"></i>My Clubs</h5>
+										<a href="{{ path('instructor_club_create') }}" class="btn btn-sm btn-primary">CrÃ©er un club</a>
+									</div>
+									<div class="card-body">
+										{% if instructorClubs|length > 0 %}
+											<ul class="list-unstyled mb-0">
+												{% for club in instructorClubs %}
+													<li class="mb-3 pb-3 border-bottom last-child-border-0">
+														<div class="d-flex justify-content-between align-items-start mb-2">
+															<h6 class="mb-0"><a href="{{ path('club_detail', {id: club.id}) }}">{{ club.name }}</a></h6>
+															<span class="badge {% if club.status == 'APPROVED' %}bg-success{% elseif club.status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %} text-uppercase">
+																{{ club.status }}
+															</span>
+														</div>
+														<div class="d-flex justify-content-between align-items-center">
+															<small class="text-muted"><i class="fas fa-users me-1"></i>{{ club.members|length }} membres</small>
+															<div class="d-flex gap-2">
+																<a href="{{ path('club_detail', {id: club.id}) }}" class="btn btn-sm btn-outline-primary py-0 px-2">Voir</a>
+																<a href="{{ path('club_edit', {id: club.id}) }}" class="btn btn-sm btn-outline-info py-0 px-2">Modifier</a>
+															</div>
+														</div>
+													</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											<div class="text-center py-4">
+												<p class="text-muted mb-3">Vous n'avez crÃ©Ã© aucun club.</p>
+												<a href="{{ path('instructor_club_create') }}" class="btn btn-sm btn-primary">CrÃ©er mon premier club</a>
+											</div>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="card">
+									<div class="card-header bg-light">
+										<h5 class="mb-0"><i class="fas fa-calendar me-2"></i>My Events</h5>
+									</div>
+									<div class="card-body">
+										{% if instructorEvents|length > 0 %}
+											<ul class="list-unstyled">
+												{% for event in instructorEvents|slice(0, 5) %}
+													<li class="mb-2 pb-2 border-bottom">
+														<div class="d-flex justify-content-between align-items-start">
+															<div>
+																<h6 class="mb-1"><a href="{{ path('instructor_event_show', {id: event.id}) }}">{{ event.title }}</a></h6>
+																<small class="text-muted">{{ event.eventDate|date('M d, Y H:i') }}</small>
+															</div>
+															<span class="badge {% if event.status == 'APPROVED' %}bg-success{% elseif event.status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %}">
+																{{ event.status|lower }}
+															</span>
+														</div>
+													</li>
+												{% endfor %}
+											</ul>
+											{% if instructorEvents|length > 5 %}
+												<a href="{{ path('instructor_event_list') }}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All ({{ instructorEvents|length }})</a>
+											{% endif %}
+										{% else %}
+											<p class="text-muted mb-0">You haven't created any events yet.</p>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Recent Courses -->
+						<div class="mt-4">
+							<h5 class="mb-3">Your Recent Courses</h5>
+							<div class="alert alert-info">
+								<i class="bi bi-info-circle me-2"></i>
+								Start by <a href="{{ path('instructor_course_add') }}" class="alert-link">creating your first course</a> to see it here.
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}
+

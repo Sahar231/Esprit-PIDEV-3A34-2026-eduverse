@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #28a745;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #28a745;
+            font-size: 28px;
+        }
+        .section-title {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            font-weight: bold;
+            color: #495057;
+            border-left: 4px solid #28a745;
+            margin: 20px 0 10px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .badge-approved {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .badge-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Events List Report</h1>
+        <p style="margin: 5px 0; color: #666;">Complete list of all events in the system</p>
+    </div>
+
+    <div class="section-title">Events ({{ events|length }})</div>
+    
+    {% if events|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Event Title</th>
+                    <th>Club</th>
+                    <th>Date & Time</th>
+                    <th>Location</th>
+                    <th>Creator</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>
+                            <strong>{{ event.title }}</strong><br>
+                            <small style="color: #666;">{{ event.description|slice(0, 40) }}{% if event.description|length > 40 %}...{% endif %}</small>
+                        </td>
+                        <td>{{ event.club.name }}</td>
+                        <td>{{ event.eventDate|date('d/m/Y H:i') }}</td>
+                        <td>{{ event.location }}</td>
+                        <td>{{ event.creator.fullName }}</td>
+                        <td>
+                            {% if event.status == 'PENDING' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elseif event.status == 'APPROVED' %}
+                                <span class="badge badge-approved">Approved</span>
+                            {% elseif event.status == 'REJECTED' %}
+                                <span class="badge badge-rejected">Rejected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: #666; font-style: italic;">No events found</p>
+    {% endif %}
+
+    <div class="footer">
+        <p>Generated on {{ "now"|date('d F Y, H:i:s') }}</p>
+        <p>Total Events: {{ events|length }}</p>
+        <p>This is an automatically generated report from the Club Management System</p>
+    </div>
+</body>
+</html>

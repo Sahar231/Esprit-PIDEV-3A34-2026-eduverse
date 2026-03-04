@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}instructor-club-list{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 text-center text-sm-start">
+				<h1 class="text-white">Mes Clubs Créés</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0 justify-content-center justify-content-sm-start">
+						<li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('instructor_dashboard') }}">Tableau de bord</a></li>
+						<li class="breadcrumb-item active">Mes Clubs</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center mb-4">
+					<h2 class="mb-0">Gérer mes communautés</h2>
+					<a href="{{ path('instructor_club_create') }}" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Créer un club</a>
+				</div>
+				
+				<div class="row g-4">
+					{% for club in clubs %}
+						<div class="col-md-6 col-lg-4">
+							<div class="card shadow h-100">
+								<div class="card-body">
+									<div class="d-flex justify-content-between align-items-start mb-2">
+										<h5 class="card-title mb-0"><a href="{{ path('club_detail', {id: club.id}) }}">{{ club.name }}</a></h5>
+										<span class="badge {% if club.status == 'APPROVED' %}bg-success{% elseif club.status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %} bg-opacity-10 {% if club.status == 'APPROVED' %}text-success{% elseif club.status == 'PENDING' %}text-warning{% else %}text-danger{% endif %}">
+											{{ club.status|lower|capitalize }}
+										</span>
+									</div>
+									<p class="text-muted small mb-3">{{ club.members|length }} Membres | Créé le {{ club.createdAt|date('d/m/Y') }}</p>
+									<p class="card-text text-truncate-2">{{ club.description|striptags|slice(0, 100) }}...</p>
+									<div class="d-flex flex-wrap gap-2 mt-3">
+										<a href="{{ path('club_edit', {id: club.id}) }}" class="btn btn-sm btn-outline-info flex-fill">Modifier</a>
+										<a href="{{ path('club_detail', {id: club.id}) }}" class="btn btn-sm btn-primary-soft flex-fill">Gérer</a>
+										{% if club.events|filter(e => e.status == 'APPROVED')|length > 0 %}
+											<a href="{{ path('event_list', {clubId: club.id}) }}" class="btn btn-sm btn-secondary-soft flex-fill">Événements</a>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
+					{% else %}
+						<div class="col-12 text-center py-5">
+							<div class="mb-4">
+								<i class="fas fa-users fa-4x text-muted opacity-25"></i>
+							</div>
+							<h3>Vous n'avez pas encore créé de club</h3>
+							<p class="text-muted mb-4">Commencez dès maintenant en créant votre première communauté.</p>
+							<a href="{{ path('instructor_club_create') }}" class="btn btn-primary">Créer un club</a>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}
+

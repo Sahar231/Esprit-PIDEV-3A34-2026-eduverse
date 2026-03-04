@@ -1,0 +1,309 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Formations - Student Dashboard{% endblock %}
+
+{% block body %}
+<main>
+    <!-- Page Banner START -->
+    <section class="pt-0">
+        <div class="container-fluid px-0">
+            <div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;"></div>
+        </div>
+        <div class="container mt-n4 mb-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-transparent card-body pb-0 px-0">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1 class="fs-2 mb-1">Formations</h1>
+                                <p class="text-body mb-0">Explore and manage your learning formations</p>
+                            </div>
+                            <a href="{{ path('student_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Page Banner END -->
+
+    <!-- Page Content START -->
+    <section>
+        <div class="container">
+            <!-- Search and Sort Controls -->
+            <div class="card border-0 shadow mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="searchInput" class="form-label fw-bold">Search Formations</label>
+                            <input type="text" id="searchInput" name="search" class="form-control" placeholder="Search by formation name or description..." value="{{ search }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="sortSelect" class="form-label fw-bold">Sort By</label>
+                            <select id="sortSelect" name="sort" class="form-select" onchange="this.form.submit()">
+                                <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                                <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                                <option value="title_asc" {% if sort == 'title_asc' %}selected{% endif %}>Title (A-Z)</option>
+                                <option value="title_desc" {% if sort == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Enrolled Formations Section -->
+                <div class="col-12">
+                    <div class="card border-0 shadow">
+                        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <h5 class="card-title mb-0 text-white">
+                                <i class="fas fa-graduation-cap me-2"></i>My Learning Path
+                                <span class="badge bg-white text-dark rounded-pill ms-2">{{ enrolledFormations|length }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if enrolledFormations|length > 0 %}
+                                <div class="row g-4">
+                                    {% for formation in enrolledFormations %}
+                                        <div class="col-md-6 col-lg-6">
+                                            <div class="card card-hover h-100 border-0 shadow-sm" style="background: #fff; border-left: 4px solid #667eea !important;">
+                                                <!-- Card Header with Status -->
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-start justify-content-between mb-3">
+                                                        <div class="flex-grow-1">
+                                                            <h5 class="card-title mb-1 text-dark">{{ formation.title }}</h5>
+                                                            <div class="d-flex gap-2 flex-wrap">
+                                                                <span class="badge bg-success rounded-pill">
+                                                                    <i class="fas fa-check-circle me-1"></i>Enrolled
+                                                                </span>
+                                                                {% if formation.isApproved %}
+                                                                    <span class="badge bg-info rounded-pill">
+                                                                        <i class="fas fa-star me-1"></i>Approved
+                                                                    </span>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Full Content Display for Enrolled Students -->
+                                                    {% if formation.description %}
+                                                        <div class="mb-3">
+                                                            <h6 class="text-muted mb-2"><i class="fas fa-book me-2"></i>Description</h6>
+                                                            <p class="card-text mb-0" style="line-height: 1.6;">
+                                                                {{ formation.description|striptags }}
+                                                            </p>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Content Preview -->
+                                                    {% if formation.content %}
+                                                        <div class="mb-3">
+                                                            <h6 class="text-muted mb-2"><i class="fas fa-align-left me-2"></i>Course Content</h6>
+                                                            <div class="bg-light p-3 rounded" style="max-height: 150px; overflow-y: auto; border-left: 3px solid #667eea;">
+                                                                <p class="card-text small mb-0">{{ formation.content|striptags }}</p>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Support Materials -->
+                                                    {% if formation.supportFile %}
+                                                        <div class="mb-3">
+                                                            <a href="{{ formation.supportFile }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-download me-2"></i>Download Support Materials
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Instructor Information -->
+                                                    {% if formation.users|length > 0 %}
+                                                        <div class="mb-3 pt-2 border-top">
+                                                            <small class="text-muted d-block mb-2"><i class="fas fa-user-circle me-2"></i>Instructor</small>
+                                                            {% set instructor = formation.users|first %}
+                                                            <p class="mb-0"><strong>{{ instructor.fullName ?? instructor.email }}</strong></p>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Duration Section -->
+                                                    {% if formation.duration %}
+                                                        <div class="mb-3 pt-2 border-top">
+                                                            <h6 class="text-muted mb-2"><i class="fas fa-hourglass-half me-2"></i>Course Duration</h6>
+                                                            <div class="d-flex align-items-center justify-content-between">
+                                                                <div>
+                                                                    <span class="badge bg-primary rounded-pill" style="font-size: 0.95rem; padding: 0.5rem 0.75rem;">
+                                                                        {{ formation.duration }} {% if formation.duration == 1 %}week{% else %}weeks{% endif %}
+                                                                    </span>
+                                                                </div>
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-info-circle me-1"></i>Self-paced learning
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Price Section -->
+                                                    {% if formation.price and formation.price > 0 %}
+                                                        <div class="mb-3 pt-2 border-top">
+                                                            <div class="d-flex align-items-center justify-content-between">
+                                                                <small class="text-muted"><i class="fas fa-tag me-2"></i>Price</small>
+                                                                <span class="badge bg-success rounded-pill" style="font-size: 0.95rem; padding: 0.5rem 0.75rem;"><i class="fas fa-coins me-1"></i>{{ formation.price|round(2) }} credits</span>
+                                                            </div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="mb-3 pt-2 border-top">
+                                                            <span class="badge bg-info rounded-pill"><i class="fas fa-gift me-1"></i>Free Formation</span>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    <!-- Metadata -->
+                                                    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar-alt me-1"></i>{{ formation.createdAt|date('M d, Y') }}
+                                                        </small>
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <a href="{{ path('student_formation_view', { id: formation.id }) }}" class="btn btn-primary btn-sm" title="View Full Course">
+                                                                <i class="fas fa-eye me-1"></i> View Full Course
+                                                            </a>
+                                                            <form method="POST" action="{{ path('student_formation_unenroll', { id: formation.id }) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to unenroll from this formation?');">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Unenroll">
+                                                                    <i class="fas fa-sign-out-alt me-1"></i> Unenroll
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info mb-0 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle me-3 fs-5" style="color: #0c63e4;"></i>
+                                        <div>
+                                            <strong>No formations yet!</strong> Start your learning journey by enrolling in available formations below.
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Formations Section -->
+                <div class="col-12">
+                    <div class="card border-0 shadow">
+                        <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <h5 class="card-title mb-0 text-white">
+                                <i class="fas fa-compass me-2"></i>Explore More Formations
+                                <span class="badge bg-white text-dark rounded-pill ms-2">{{ (availableFormations|length) - (enrolledFormations|length) }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if availableFormations|length > 0 %}
+                                <div class="row g-4">
+                                    {% for formation in availableFormations %}
+                                        {% if formation not in enrolledFormations %}
+                                            <div class="col-md-6 col-lg-4">
+                                                <div class="card card-hover h-100 border-0 shadow-sm" style="background: #fff; border-top: 3px solid #f5576c !important; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                                                    <div class="card-body d-flex flex-column">
+                                                        <h6 class="card-title mb-2 text-dark">{{ formation.title }}</h6>
+
+                                                        <!-- Status Badge -->
+                                                        {% if not formation.isApproved %}
+                                                            <div class="mb-2">
+                                                                <span class="badge bg-warning rounded-pill">
+                                                                    <i class="fas fa-clock me-1"></i>Pending Approval
+                                                                </span>
+                                                            </div>
+                                                        {% endif %}
+
+                                                        <!-- Limited Description Preview -->
+                                                        {% if formation.description %}
+                                                            <p class="card-text text-muted small mb-3 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                                {{ formation.description|striptags|slice(0, 120) }}{% if (formation.description|striptags|length) > 120 %}...{% endif %}
+                                                            </p>
+                                                        {% else %}
+                                                            <p class="card-text text-muted small mb-3 flex-grow-1">No description available</p>
+                                                        {% endif %}
+
+                                                        <!-- Instructor Info (Limited) -->
+                                                        {% if formation.users|length > 0 %}
+                                                            <div class="mb-3 pb-2 border-bottom">
+                                                                {% set instructor = formation.users|first %}
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-user me-1"></i>{{ instructor.fullName ?? instructor.email }}
+                                                                </small>
+                                                            </div>
+                                                        {% endif %}
+
+                                                        <!-- Duration Badge -->
+                                                        {% if formation.duration %}
+                                                            <div class="mb-3">
+                                                                <span class="badge bg-info rounded-pill">
+                                                                    <i class="fas fa-hourglass-half me-1"></i>{{ formation.duration }} {% if formation.duration == 1 %}week{% else %}weeks{% endif %}
+                                                                </span>
+                                                            </div>
+                                                        {% endif %}
+
+                                                        <!-- Price Badge -->
+                                                        {% if formation.price and formation.price > 0 %}
+                                                            <div class="mb-3">
+                                                                <span class="badge bg-success rounded-pill">
+                                                                    <i class="fas fa-coins me-1"></i>{{ formation.price|round(2) }} credits
+                                                                </span>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="mb-3">
+                                                                <span class="badge bg-info rounded-pill">
+                                                                    <i class="fas fa-gift me-1"></i>Free
+                                                                </span>
+                                                            </div>
+                                                        {% endif %}
+
+                                                        <!-- Metadata -->
+                                                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-calendar-alt me-1"></i>{{ formation.createdAt|date('M d, Y') }}
+                                                            </small>
+                                                            <div class="btn-group btn-group-sm">
+                                                                <a href="{{ path('student_formation_view', { id: formation.id }) }}" class="btn btn-outline-primary btn-sm" title="View">
+                                                                    <i class="fas fa-eye me-1"></i> Preview
+                                                                </a>
+                                                                <form method="POST" action="{{ path('student_formation_enroll', { id: formation.id }) }}" style="display:inline;">
+                                                                    <button type="submit" class="btn btn-success btn-sm" title="Enroll">
+                                                                        <i class="fas fa-plus me-1"></i> Enroll
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning mb-0 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle me-3 fs-5" style="color: #ffc107;"></i>
+                                        <div>
+                                            <strong>All formations explored!</strong> You're enrolled in all available formations, or no new formations are available at this time.
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Page Content END -->
+</main>
+{% endblock %}
+

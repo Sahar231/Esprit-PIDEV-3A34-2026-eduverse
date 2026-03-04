@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Translation Demo{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1>Traduction de texte</h1>
+    <div class="mb-3">
+        <label for="sourceText" class="form-label">Texte à traduire</label>
+        <textarea id="sourceText" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="targetLang" class="form-label">Langue cible</label>
+        <select id="targetLang" class="form-select">
+            <option value="FR">Français (FR)</option>
+            <option value="EN">Anglais (EN)</option>
+            <option value="ES">Espagnol (ES)</option>
+            <option value="DE">Allemand (DE)</option>
+        </select>
+    </div>
+    <button id="translateBtn" class="btn btn-primary">Traduire</button>
+
+    <hr>
+    <h3>Résultat</h3>
+    <div id="result" class="p-3 border bg-light"></div>
+</div>
+
+<script>
+document.getElementById('translateBtn').addEventListener('click', function() {
+    const text = document.getElementById('sourceText').value;
+    const target = document.getElementById('targetLang').value;
+
+    fetch('{{ path('api_translate') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: text, target: target })
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        if (data.translated) {
+            document.getElementById('result').textContent = data.translated;
+        } else if (data.error) {
+            document.getElementById('result').textContent = 'Erreur: ' + data.error;
+        }
+    })
+    .catch(err => {
+        document.getElementById('result').textContent = 'Erreur de communication';
+    });
+});
+</script>
+
+{% endblock %}

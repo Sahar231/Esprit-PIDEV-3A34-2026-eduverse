@@ -1,0 +1,11 @@
+knpu_oauth2_client:
+    clients:
+        google:
+            # Must match one of the OAuth2 providers you've registered
+            type: google
+            client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
+            # Redirect route - generates route to your app. Adjust to match your setup
+            redirect_route: connect_google_check
+            # Use OIDC mode for Google
+            use_oidc_mode: true

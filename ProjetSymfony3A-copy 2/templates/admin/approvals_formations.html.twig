@@ -1,0 +1,252 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Formations Approval{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Formations Approval</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport - Formations Approval">
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/text-colors.css') }}">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="adminMenu" data-bs-toggle="dropdown">Admin Panel</a>
+						<ul class="dropdown-menu" aria-labelledby="adminMenu">
+							<li><a class="dropdown-item" href="{{ path('admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+							<li><a class="dropdown-item" href="{{ path('admin_formation_list') }}"><i class="bi bi-book me-2"></i>All Formations</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="dropdown ms-1 ms-lg-0">
+				<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar">
+				</a>
+				<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+					<li class="px-3 mb-3">
+						<div class="d-flex align-items-center">
+							<div class="avatar me-3">
+								<img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar">
+							</div>
+							<div>
+								<a class="h6" href="#">Admin</a>
+								<p class="small m-0">admin@example.com</p>
+							</div>
+						</div>
+					</li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Settings</a></li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Formations Approval</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+						<li class="breadcrumb-item active">{{ status|capitalize }}</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			{{ include('admin/_sidebar.html.twig') }}
+			<div class="col-lg-9">
+				<div class="card card-body shadow">
+				<!-- Filters -->
+				<div class="card card-body shadow mb-4">
+					<div class="d-flex gap-2">
+						<a href="{{ path('admin_formations_approval', {status: 'pending'}) }}" class="btn btn-sm {% if status == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+							<i class="bi bi-hourglass-split me-1"></i>Pending
+						</a>
+						<a href="{{ path('admin_formations_approval', {status: 'approved'}) }}" class="btn btn-sm {% if status == 'approved' %}btn-success{% else %}btn-outline-success{% endif %}">
+							<i class="bi bi-check-circle me-1"></i>Approved
+						</a>
+						<a href="{{ path('admin_formations_approval', {status: 'archived'}) }}" class="btn btn-sm {% if status == 'archived' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+							<i class="bi bi-archive me-1"></i>Archived
+						</a>
+					<a href="{{ path('admin_formation_create') }}" class="btn btn-sm btn-outline-primary ms-auto">
+							<i class="bi bi-plus-circle me-1"></i>Create Formation
+						</a>
+					</div>
+				</div>
+
+				<!-- Formations Table -->
+				<div class="card shadow">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">
+							{% if status == 'pending' %}
+								<i class="bi bi-hourglass-split me-2"></i>Pending Formations
+							{% elseif status == 'approved' %}
+								<i class="bi bi-check-circle me-2"></i>Approved Formations
+							{% else %}
+								<i class="bi bi-archive me-2"></i>Archived Formations
+							{% endif %}
+						</h5>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-hover mb-0">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Title</th>
+									<th>Creator</th>
+									<th>Quizzes</th>
+									<th>Created</th>
+									<th>Status</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% if formations|length > 0 %}
+									{% for formation in formations %}
+										<tr>
+											<td>{{ formation.id }}</td>
+											<td>{{ formation.title }}</td>
+											<td>{% if formation.creator is not null %}{{ formation.creator.fullName }}{% else %}System Admin{% endif %}</td>
+											<td><span class="badge bg-info">{{ formation.quizzes.count }}</span></td>
+											<td>{{ formation.createdAt|date('d/m/Y H:i') }}</td>
+											<td>
+												{% if formation.isArchived %}
+													<span class="badge bg-secondary">Archived</span>
+												{% elseif formation.isApproved %}
+													<span class="badge bg-success">Approved</span>
+												{% else %}
+													<span class="badge bg-warning">Pending</span>
+												{% endif %}
+											</td>
+											<td>
+												<a href="{{ path('admin_formation_show', {id: formation.id}) }}" class="btn btn-sm btn-primary" title="View details">
+													<i class="bi bi-eye me-1"></i>View
+												</a>
+												<a href="{{ path('admin_formation_edit', {id: formation.id}) }}" class="btn btn-sm btn-info">
+													<i class="bi bi-pencil me-1"></i>Edit
+												</a>
+												{% if not formation.isApproved %}
+													<form method="POST" action="{{ path('admin_formation_approve', {id: formation.id}) }}" style="display:inline;">
+														<button type="submit" class="btn btn-sm btn-success" title="Approve">
+															<i class="bi bi-check-circle me-1"></i>Approve
+														</button>
+													</form>
+													<form method="POST" action="{{ path('admin_formation_disapprove', {id: formation.id}) }}" style="display:inline;" 
+														  onsubmit="return confirm('Are you sure you want to disapprove this formation?');">
+														<button type="submit" class="btn btn-sm btn-danger" title="Disapprove">
+															<i class="bi bi-x-circle me-1"></i>Disapprove
+														</button>
+													</form>
+												{% else %}
+													<form method="POST" action="{{ path('admin_formation_delete', {id: formation.id}) }}" style="display:inline;" 
+														  onsubmit="return confirm('Are you sure you want to delete this formation? This action cannot be undone.');">
+														<button type="submit" class="btn btn-sm btn-danger" title="Delete">
+															<i class="bi bi-trash me-1"></i>Delete
+														</button>
+													</form>
+												{% endif %}
+												{% if not formation.isArchived %}
+													<form method="POST" action="{{ path('admin_formation_archive', {id: formation.id}) }}" style="display:inline;">
+														<button type="submit" class="btn btn-sm btn-warning" title="Archive">
+															<i class="bi bi-archive me-1"></i>Archive
+														</button>
+													</form>
+												{% else %}
+													<form method="POST" action="{{ path('admin_formation_unarchive', {id: formation.id}) }}" style="display:inline;">
+														<button type="submit" class="btn btn-sm btn-success" title="Unarchive">
+															<i class="bi bi-arrow-counterclockwise me-1"></i>Unarchive
+														</button>
+													</form>
+												{% endif %}
+											</td>
+										</tr>
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="7" class="text-center py-4">
+											<p class="text-muted mb-2">No formations found with this status</p>
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+					<img class="dark-mode-item h-40px" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+				</a>
+				<p class="my-3">Continue your learning journey with us.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights Â©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
+{% endblock %}
+
+

@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - {{ type|capitalize }} Approvals{% endblock %}
+
+{% block body %}
+<main>
+<nav class="navbar sidebar navbar-expand-xl navbar-dark bg-dark">
+	<div class="d-flex align-items-center">
+		<a class="navbar-brand" href="{{ path("app_home") }}">
+			<img class="navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="">
+		</a>
+	</div>
+	
+	<div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
+		<div class="offcanvas-body sidebar-content d-flex flex-column bg-dark">
+			<ul class="navbar-nav flex-column" id="navbar-sidebar">
+				<li class="nav-item"><a href="{{ path('admin_dashboard') }}" class="nav-link"><i class="bi bi-house fa-fw me-2"></i>Dashboard</a></li>
+				<li class="nav-item ms-2 my-2">Pages</li>
+				<li class="nav-item">
+					<a class="nav-link" data-bs-toggle="collapse" href="#collapsepage" role="button" aria-expanded="false" aria-controls="collapsepage">
+						<i class="bi bi-basket fa-fw me-2"></i>Courses
+					</a>
+					<ul class="nav collapse flex-column" id="collapsepage" data-bs-parent="#navbar-sidebar">
+						<li class="nav-item"> <a class="nav-link" href="{{ path('admin_approvals', {type: 'courses'}) }}">Course Requests</a></li>
+						<li class="nav-item"> <a class="nav-link" href="{{ path('admin_instructors') }}">Approved Instructors</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"> <a class="nav-link" href="{{ path('admin_students') }}"><i class="fas fa-user-graduate fa-fw me-2"></i>Students</a></li>
+				<li class="nav-item">
+					<a class="nav-link" data-bs-toggle="collapse" href="#collapseRequests" role="button" aria-expanded="false" aria-controls="collapseRequests">
+						<i class="fas fa-user-check fa-fw me-2"></i>Requests
+					</a>
+					<ul class="nav collapse flex-column" id="collapseRequests" data-bs-parent="#navbar-sidebar">
+						<li class="nav-item"> <a class="nav-link" href="{{ path('admin_instructor_requests') }}">Instructor requests</a></li>
+						<li class="nav-item"> <a class="nav-link" href="{{ path('admin_student_requests') }}">Student requests</a></li>
+					</ul>
+				</li>
+				<li class="nav-item"> <a class="nav-link {% if type == 'clubs' %}active{% endif %}" href="{{ path('admin_approvals', {type: 'clubs'}) }}"><i class="fas fa-users fa-fw me-2"></i>Club Approvals</a></li>
+				<li class="nav-item"> <a class="nav-link {% if type == 'formations' %}active{% endif %}" href="{{ path('admin_approvals', {type: 'formations'}) }}"><i class="fas fa-graduation-cap fa-fw me-2"></i>Formation Approvals</a></li>
+                <li class="nav-item"> <a class="nav-link {% if type == 'evaluations' %}active{% endif %}" href="{{ path('admin_approvals', {type: 'evaluations'}) }}"><i class="fas fa-star fa-fw me-2"></i>Evaluation Approvals</a></li>
+				<li class="nav-item text-danger bg-danger-soft-hover"> <a class="nav-link" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="page-content">
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0"></i>
+					</button>
+				</div>
+                <h4 class="mb-0 ms-2">{{ type|capitalize }} Approvals</h4>
+			</div>
+		</div>
+	</nav>
+
+	<div class="page-content-wrapper border">
+		<div class="row g-4">
+			{{ include('admin/_sidebar.html.twig') }}
+			<div class="col-lg-9">
+				<div class="card card-body shadow">
+					<div class="col-12 mb-3">
+						<h1 class="h3 mb-2 mb-sm-0">Pending {{ type|capitalize }}</h1>
+					</div>
+
+					{% for label, messages in app.flashes %}
+						{% for message in messages %}
+							<div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : 'info') }} alert-dismissible fade show" role="alert">
+								{{ message|raw }}
+								<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+							</div>
+						{% endfor %}
+					{% endfor %}
+						
+					<div class="card bg-transparent">
+						<div class="card-body px-0">
+							<div class="table-responsive border-0">
+								<table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+									<thead>
+										<tr>
+											<th scope="col" class="border-0 rounded-start">Title / Name</th>
+											<th scope="col" class="border-0">Description / Content</th>
+											<th scope="col" class="border-0 rounded-end">Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for item in items %}
+										<tr>
+											<td>
+												<h6 class="mb-0">{{ item.name ?? item.title ?? 'N/A' }}</h6>
+											</td>
+											<td>
+												{{ item.description ?? item.content ?? 'No description' }}
+											</td>
+											<td>
+												{% if type == 'formations' %}
+													<a href="{{ path('admin_formation_approve_detail', {id: item.id}) }}" class="btn btn-sm btn-info mb-1">View Details</a>
+													<a href="{{ path('admin_item_approve', {'type': type, 'id': item.id}) }}" class="btn btn-sm btn-success mb-1">Approve</a>
+													<a href="{{ path('admin_item_reject', {'type': type, 'id': item.id}) }}" class="btn btn-sm btn-danger mb-1">Reject</a>
+												{% else %}
+													<a href="{{ path('admin_item_approve', {'type': type, 'id': item.id}) }}" class="btn btn-sm btn-success mb-1">Approve</a>
+													<a href="{{ path('admin_item_reject', {'type': type, 'id': item.id}) }}" class="btn btn-sm btn-danger mb-1">Reject</a>
+												{% endif %}
+											</td>
+										</tr>
+										{% else %}
+										<tr><td colspan="3" class="text-center">No pending {{ type }}.</td></tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						{% include '_pagination.html.twig' %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+{% endblock %}

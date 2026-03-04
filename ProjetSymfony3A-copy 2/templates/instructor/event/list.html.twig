@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Events - Instructor{% endblock %}
+
+{% block body %}
+<main>
+<section class="pt-0">
+	<div class="container-fluid px-0">
+		<div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+		</div>
+	</div>
+	<div class="container mt-n4">
+		<div class="row">
+			<div class="col-12">
+				<div class="card bg-transparent card-body pb-0 px-0 mt-2 mt-sm-0">
+					<div class="row d-sm-flex justify-sm-content-between mt-2 mt-md-0">
+						<div class="col d-sm-flex justify-content-between align-items-center">
+							<div>
+								<h1 class="my-1 fs-4">My Events</h1>
+								<p class="text-muted mb-0">Manage your created events</p>
+							</div>
+							<div class="mt-2 mt-sm-0">
+								<a href="{{ path('instructor_event_create') }}" class="btn btn-primary mb-0"><i class="bi bi-plus-circle me-2"></i>Create Event</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<hr class="d-xl-none">
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="pt-0">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				{% if events|length > 0 %}
+					<div class="card">
+						<div class="card-header">
+							<h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Events ({{ events|length }})</h5>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-hover mb-0">
+								<thead>
+									<tr>
+										<th>Event Title</th>
+										<th>Club</th>
+										<th>Date & Time</th>
+										<th>Location</th>
+										<th>Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for event in events %}
+										<tr>
+											<td>
+												<h6 class="mb-0">{{ event.title }}</h6>
+												{% if event.description %}
+													<small class="text-muted">{{ event.description|slice(0, 50) }}{% if event.description|length > 50 %}...{% endif %}</small>
+												{% endif %}
+											</td>
+											<td>{{ event.club.name }}</td>
+											<td>{{ event.eventDate|date('d/m/Y H:i') }}</td>
+											<td>{{ event.location ?? 'N/A' }}</td>
+											<td>
+												{% if event.status == 'PENDING' %}
+													<span class="badge bg-warning">Pending</span>
+												{% elseif event.status == 'APPROVED' %}
+													<span class="badge bg-success">Approved</span>
+												{% elseif event.status == 'REJECTED' %}
+													<span class="badge bg-danger">Rejected</span>
+												{% endif %}
+											</td>
+											<td>
+												<div class="btn-group btn-group-sm" role="group">
+													<a href="{{ path('instructor_event_show', {id: event.id}) }}" class="btn btn-primary" data-bs-toggle="tooltip" title="View">
+														<i class="bi bi-eye"></i>
+													</a>
+													<a href="#" class="btn btn-warning" data-bs-toggle="tooltip" title="Edit">
+														<i class="bi bi-pencil"></i>
+													</a>
+													<a href="#" class="btn btn-danger" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Delete this event?')">
+														<i class="bi bi-trash"></i>
+													</a>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				{% else %}
+					<div class="card">
+						<div class="card-body text-center py-5">
+							<i class="bi bi-inbox" style="font-size: 3rem;" class="text-muted"></i>
+							<h5 class="mt-3">No events yet</h5>
+							<p class="text-muted mb-3">You haven't created any events yet. Start by creating your first event.</p>
+							<a href="{{ path('instructor_event_create') }}" class="btn btn-primary">
+								<i class="bi bi-plus-circle me-2"></i>Create Event
+							</a>
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</section>
+
+</main>
+{% endblock %}

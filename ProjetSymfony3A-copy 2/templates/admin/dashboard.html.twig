@@ -1,0 +1,507 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Eduport - Admin Dashboard</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Webestica.com">
+	<meta name="description" content="Eduport - Admin Dashboard">
+	<link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<link rel="preconnect" href="https://fonts.googleapis.com/">
+	<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/choices/css/choices.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/text-colors.css') }}">
+</head>
+<body>
+
+<header class="navbar-light navbar-sticky">
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<a class="navbar-brand" href="{{ path("app_home") }}">
+				<img class="light-mode-item navbar-brand-item" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+				<img class="dark-mode-item navbar-brand-item" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+			</a>
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+				<span class="navbar-toggler-animation"><span></span><span></span><span></span></span>
+			</button>
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item"><a class="nav-link" href="{{ path("app_home") }}">Home</a></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="adminMenu" data-bs-toggle="dropdown">Admin Panel</a>
+						<ul class="dropdown-menu" aria-labelledby="adminMenu">
+							<li><a class="dropdown-item" href="{{ path('admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+							<li><a class="dropdown-item" href="{{ path('admin_formation_list') }}"><i class="bi bi-book me-2"></i>All Formations</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="dropdown ms-1 ms-lg-0">
+				<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<img class="avatar-img rounded-circle" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar">
+				</a>
+				<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+					<li class="px-3 mb-3">
+						<div class="d-flex align-items-center">
+							<div class="avatar me-3">
+								<img class="avatar-img rounded-circle shadow" src="{{ asset('assets/images/avatar/01.svg') }}" alt="avatar">
+							</div>
+							<div>
+								<a class="h6" href="#">Admin</a>
+								<p class="small m-0">admin@example.com</p>
+							</div>
+						</div>
+					</li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>Edit Profile</a></li>
+					<li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>Settings</a></li>
+					<li><hr class="dropdown-divider"></li>
+					<li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main>
+<section class="bg-dark align-items-center d-flex" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Admin Dashboard</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item active">Dashboard</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row g-4">
+			<!-- Sidebar START -->
+			{{ include('admin/_sidebar.html.twig') }}
+			<!-- Sidebar END -->
+
+			<!-- Content START -->
+			<div class="col-lg-9">
+				<!-- User Stats Cards -->
+				<div class="row g-4 mb-4">
+					<div class="col-md-4">
+						<div class="card card-body shadow text-center border-bottom border-warning border-3">
+							<h1 class="text-warning mb-0">{{ pendingStudentsCount + pendingInstructorsCount }}</h1>
+							<p class="text-muted mb-0"><i class="bi bi-person-plus me-1"></i>New User Requests</p>
+							<div class="mt-2 small">
+								<span class="text-warning">{{ pendingStudentsCount }} Stu</span> / 
+								<span class="text-warning">{{ pendingInstructorsCount }} Ins</span>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="card card-body shadow text-center border-bottom border-primary border-3">
+							<h1 class="text-primary mb-0">{{ totalStudentsCount }}</h1>
+							<p class="text-muted mb-0"><i class="fas fa-user-graduate me-1"></i>Total Students</p>
+                            <a href="{{ path('admin_students') }}" class="stretched-link"></a>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="card card-body shadow text-center border-bottom border-purple border-3">
+							<h1 class="text-purple mb-0">{{ totalInstructorsCount }}</h1>
+							<p class="text-muted mb-0"><i class="fas fa-user-tie me-1"></i>Total Instructors</p>
+                            <a href="{{ path('admin_instructors') }}" class="stretched-link"></a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Club & Event Stats -->
+				<div class="row g-4 mb-4">
+					<div class="col-md-6">
+						<div class="card card-body shadow">
+							<div class="d-flex align-items-center">
+								<div class="me-3">
+									<i class="fas fa-users fa-2x text-primary"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 text-muted">Clubs</h6>
+									<h4 class="mb-1">{{ totalClubsCount }}</h4>
+									<small class="text-warning"><i class="bi bi-hourglass-split me-1"></i>{{ pendingClubsCount }} pending</small>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="card card-body shadow">
+							<div class="d-flex align-items-center">
+								<div class="me-3">
+									<i class="fas fa-calendar fa-2x text-primary"></i>
+								</div>
+								<div>
+									<h6 class="mb-0 text-muted">Events</h6>
+									<h4 class="mb-1">{{ totalEventsCount }}</h4>
+									<small class="text-warning"><i class="bi bi-hourglass-split me-1"></i>{{ pendingEventsCount }} pending</small>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Join Request Summary & Latest Pending -->
+				<div class="row g-4 mb-4">
+					<div class="col-12">
+						<div class="card shadow">
+							<!-- Card header -->
+							<div class="card-header border-bottom d-flex justify-content-between align-items-center bg-primary bg-opacity-10">
+								<h5 class="card-header-title mb-0"><i class="fas fa-hand-holding-heart me-2"></i>Join Requests Management</h5>
+								<div class="d-flex align-items-center">
+									<span class="badge {% if pendingJoinCount > 0 %}bg-danger{% else %}bg-success{% endif %} me-3">{{ pendingJoinCount }} PENDING</span>
+									<a href="{{ path('admin_join_request_list', {status: 'PENDING'}) }}" class="btn btn-sm btn-primary mb-0">Voir les demandes</a>
+								</div>
+							</div>
+
+							<!-- Card body START -->
+							<div class="card-body">
+								<div class="row g-4 mb-4">
+									<div class="col-md-4">
+										<div class="card card-body border-bottom border-warning border-3 shadow-none bg-light">
+											<h4 class="mb-0 text-warning">{{ pendingJoinCount }}</h4>
+											<p class="mb-0 small text-muted">Pending Requests</p>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="card card-body border-bottom border-success border-3 shadow-none bg-light">
+											<h4 class="mb-0 text-success">{{ approvedJoinCount }}</h4>
+											<p class="mb-0 small text-muted">Approved Requests</p>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="card card-body border-bottom border-primary border-3 shadow-none bg-light">
+											<h4 class="mb-0 text-primary">{{ totalJoinCount }}</h4>
+											<p class="mb-0 small text-muted">Total Requests</p>
+										</div>
+									</div>
+								</div>
+
+								<h6 class="mb-3">Latest 5 Pending Requests</h6>
+								{% if latestPendingJoinRequests|length > 0 %}
+									<div class="table-responsive border-0">
+										<table class="table align-middle p-4 mb-0 table-hover">
+											<thead class="table-light">
+												<tr>
+													<th scope="col" class="border-0 rounded-start">Student</th>
+													<th scope="col" class="border-0">Club</th>
+													<th scope="col" class="border-0">Date</th>
+													<th scope="col" class="border-0 rounded-end">Action</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for jr in latestPendingJoinRequests %}
+													<tr>
+														<td>
+															<h6 class="mb-0">{{ jr.user.fullName }}</h6>
+															<small class="text-muted">{{ jr.user.email }}</small>
+														</td>
+														<td>
+															<h6 class="mb-0">{{ jr.club.name }}</h6>
+														</td>
+														<td>{{ jr.requestedAt|date('d/m/Y H:i') }}</td>
+														<td>
+															<div class="d-flex gap-2">
+																<form method="POST" action="{{ path('admin_join_request_approve', {'id': jr.id}) }}" onsubmit="return confirm('Approve this request?')">
+																	<input type="hidden" name="_token" value="{{ csrf_token('approve' ~ jr.id) }}">
+																	<button type="submit" class="btn btn-success btn-sm mb-0">âœ…</button>
+																</form>
+																<form method="POST" action="{{ path('admin_join_request_reject', {'id': jr.id}) }}" onsubmit="return confirm('Reject this request?')">
+																	<input type="hidden" name="_token" value="{{ csrf_token('reject' ~ jr.id) }}">
+																	<button type="submit" class="btn btn-danger btn-sm mb-0">âŒ</button>
+																</form>
+															</div>
+														</td>
+													</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								{% else %}
+									<div class="alert alert-info mb-0">
+										<i class="bi bi-info-circle me-2"></i>No pending join requests
+									</div>
+								{% endif %}
+							</div>
+							<!-- Card body END -->
+						</div>
+					</div>
+				</div>
+
+				<!-- Pending Formations Section -->
+				<div class="card shadow mb-4">
+					<div class="card-header bg-warning bg-opacity-10">
+						<h5 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>Pending Approvals</h5>
+					</div>
+					<div class="card-body">
+						{% if pendingFormations|length > 0 %}
+							<div class="table-responsive">
+								<table class="table table-hover mb-0">
+									<thead class="table-light">
+										<tr>
+											<th>Title</th>
+											<th>Creator</th>
+											<th>Created</th>
+											<th>Quizzes</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for formation in pendingFormations %}
+											<tr>
+												<td>{{ formation.title }}</td>
+												<td>{% if formation.creator is not null %}{{ formation.creator.fullName }}{% else %}Unknown{% endif %}</td>
+												<td>{{ formation.createdAt|date('d/m/Y') }}</td>
+												<td><span class="badge bg-info">{{ formation.quizzes.count }}</span></td>
+												<td>
+													<a href="{{ path('admin_formation_show', {id: formation.id}) }}" class="btn btn-sm btn-primary">
+														<i class="bi bi-eye me-1"></i>Review
+													</a>
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% else %}
+							<div class="alert alert-info mb-0">
+								<i class="bi bi-info-circle me-2"></i>No pending formations awaiting approval
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+				<!-- Pending Quizzes Section -->
+				<div class="card shadow mb-4">
+					<div class="card-header bg-warning bg-opacity-10">
+						<h5 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>Pending Quiz Approvals</h5>
+					</div>
+					<div class="card-body">
+						{% if pendingQuizzes|length > 0 %}
+							<div class="table-responsive">
+								<table class="table table-hover mb-0">
+									<thead class="table-light">
+										<tr>
+											<th>Title</th>
+											<th>Creator</th>
+											<th>Created</th>
+											<th>Questions</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for quiz in pendingQuizzes %}
+											<tr>
+												<td>{{ quiz.title }}</td>
+												<td>{% if quiz.creator is not null %}{{ quiz.creator.fullName }}{% else %}Unknown{% endif %}</td>
+												<td>{{ quiz.createdAt|date('d/m/Y') }}</td>
+												<td><span class="badge bg-info">{{ quiz.questions|length }}</span></td>
+												<td>
+													<a href="{{ path('admin_quiz_show', {id: quiz.id}) }}" class="btn btn-sm btn-primary">
+														<i class="bi bi-eye me-1"></i>Review
+													</a>
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% else %}
+							<div class="alert alert-info mb-0">
+								<i class="bi bi-info-circle me-2"></i>No pending quizzes awaiting approval
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+				<!-- Pending Clubs Section -->
+				<div class="card shadow mb-4">
+					<div class="card-header bg-warning bg-opacity-10">
+						<h5 class="mb-0"><i class="fas fa-users me-2"></i>Pending Club Approvals ({{ pendingClubsCount }})</h5>
+					</div>
+					<div class="card-body">
+						{% if pendingClubs|length > 0 %}
+							<div class="table-responsive">
+								<table class="table table-hover mb-0">
+									<thead class="table-light">
+										<tr>
+											<th>Club Name</th>
+											<th>Creator</th>
+											<th>Members</th>
+											<th>Created</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for club in pendingClubs|slice(0, 5) %}
+											<tr>
+												<td>{{ club.name }}</td>
+											<td>{{ club.creator.fullName }}</td>
+												<td><span class="badge bg-info">{{ club.members|length }}</span></td>
+												<td>{{ club.createdAt|date('d/m/Y') }}</td>
+												<td>
+													<a href="{{ path('admin_club_show', {id: club.id}) }}" class="btn btn-sm btn-primary">
+														<i class="bi bi-eye me-1"></i>Review
+													</a>
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% else %}
+							<div class="alert alert-info mb-0">
+								<i class="bi bi-info-circle me-2"></i>No pending clubs awaiting approval
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+				<!-- Pending Events Section -->
+				<div class="card shadow mb-4">
+					<div class="card-header bg-warning bg-opacity-10">
+						<h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Pending Event Approvals ({{ pendingEventsCount }})</h5>
+					</div>
+					<div class="card-body">
+						{% if pendingEvents|length > 0 %}
+							<div class="table-responsive">
+								<table class="table table-hover mb-0">
+									<thead class="table-light">
+										<tr>
+											<th>Event Title</th>
+											<th>Club</th>
+											<th>Creator</th>
+											<th>Date</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for event in pendingEvents|slice(0, 5) %}
+											<tr>
+												<td>{{ event.title }}</td>
+												<td>{{ event.club.name }}</td>
+												<td>{{ event.creator.fullName }}</td>
+												<td>{{ event.eventDate|date('d/m/Y H:i') }}</td>
+												<td>
+													<a href="{{ path('admin_event_show', {id: event.id}) }}" class="btn btn-sm btn-primary">
+														<i class="bi bi-eye me-1"></i>Review
+													</a>
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% else %}
+							<div class="alert alert-info mb-0">
+								<i class="bi bi-info-circle me-2"></i>No pending events awaiting approval
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+				<!-- Recent Approved Formations -->
+				<div class="card shadow">
+					<div class="card-header bg-success bg-opacity-10">
+						<h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Recent Approved Formations</h5>
+					</div>
+					<div class="card-body">
+						{% if approvedFormations|length > 0 %}
+							<div class="table-responsive">
+								<table class="table table-hover mb-0">
+									<thead class="table-light">
+										<tr>
+											<th>Title</th>
+											<th>Creator</th>
+											<th>Created</th>
+											<th>Quizzes</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for formation in approvedFormations|slice(0, 5) %}
+											<tr>
+												<td>{{ formation.title }}</td>
+												<td>{% if formation.creator is not null %}{{ formation.creator.fullName }}{% else %}System Admin{% endif %}</td>
+												<td>{{ formation.createdAt|date('d/m/Y') }}</td>
+												<td><span class="badge bg-info">{{ formation.quizzes.count }}</span></td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% else %}
+							<div class="alert alert-info mb-0">
+								<i class="bi bi-info-circle me-2"></i>No approved formations yet
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<!-- Content END -->
+		</div>
+	</div>
+</section>
+
+<!-- Return to Home Button -->
+<section class="py-4 bg-light">
+	<div class="container">
+		<div class="row">
+			<div class="col-12 text-center">
+				<a href="{{ path('app_home') }}" class="btn btn-primary">
+					<i class="fas fa-home me-2"></i> Return to Home
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+</main>
+
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<div class="row g-4">
+			<div class="col-lg-3">
+				<a class="me-0" href="{{ path("app_home") }}">
+					<img class="light-mode-item h-40px" src="{{ asset('assets/images/logo.svg') }}" alt="logo">
+					<img class="dark-mode-item h-40px" src="{{ asset('assets/images/logo-light.svg') }}" alt="logo">
+				</a>
+				<p class="my-3">Continue your learning journey with us.</p>
+			</div>
+		</div>
+		<hr class="mt-4 mb-0">
+		<div class="py-3">
+			<div class="text-center">
+				<div class="text-body">Copyrights Â©2023 Eduport. Build by <a href="https://www.webestica.com/" target="_blank">Webestica</a></div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<script src="{{ asset('assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/choices/js/choices.min.js') }}"></script>
+<script src="{{ asset('assets/js/functions.js') }}"></script>
+
+</body>
+</html>
+{% endblock %}
+
+

@@ -1,0 +1,173 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Create Club - Admin{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .form-error-messages ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        color: #dc3545;
+        font-size: 0.875em;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="d-flex align-items-center d-xl-none">
+					<a class="navbar-brand" href="">
+						<img class="light-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile.svg') }}" alt="">
+						<img class="dark-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile-light.svg') }}" alt="">
+					</a>
+				</div>
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation" data-bs-auto-close="outside">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0 rtl-flip"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<!-- Title -->
+		<div class="row">
+			<div class="col-12 mb-3">
+				<h1 class="h3 mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Club</h1>
+			</div>
+		</div>
+
+		<!-- Breadcrumb -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb bg-light p-3 rounded">
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_club_list') }}">Clubs</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Create Club</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Form -->
+		<div class="row">
+			<div class="col-lg-8 mx-auto">
+				<div class="card">
+					<div class="card-body p-4">
+						{{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+							<div class="col-12">
+								{{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+								<div class="form-error-messages">
+									{{ form_errors(form.name) }}
+								</div>
+								{{ form_widget(form.name) }}
+								<small class="text-muted">Min 3 caractères</small>
+							</div>
+
+							<div class="col-12">
+								<div class="d-flex justify-content-between align-items-center mb-1">
+									{{ form_label(form.description, null, {'label_attr': {'class': 'form-label mb-0'}}) }}
+									<button type="button" id="btnGenAi" class="btn btn-sm btn-purple mb-0">
+										<i class="fas fa-magic me-2"></i>Générer description avec IA
+									</button>
+								</div>
+								<div class="form-error-messages">
+									{{ form_errors(form.description) }}
+								</div>
+								{{ form_widget(form.description) }}
+								<div id="aiLoading" class="small text-primary mt-1" style="display:none;">
+									<div class="spinner-border spinner-border-sm me-1" role="status"></div>
+									Génération en cours...
+								</div>
+							</div>
+
+							<div class="col-12">
+								<div class="d-flex gap-2">
+									<button type="submit" class="btn btn-primary">
+										<i class="fas fa-save me-2"></i>Créer le Club
+									</button>
+									<a href="{{ path('admin_club_list') }}" class="btn btn-secondary">
+										<i class="fas fa-times me-2"></i>Annuler
+									</a>
+								</div>
+							</div>
+						{{ form_end(form) }}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Return to Dashboard Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left"></i> Return to Dashboard
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btnGenAi');
+    const nameInput = document.querySelector('[name*="[name]"]'); // Target Symfony form name field
+    const descTextarea = document.querySelector('[name*="[description]"]'); // Target Symfony form description field
+    const loading = document.getElementById('aiLoading');
+
+    if (btn && nameInput && descTextarea) {
+        btn.addEventListener('click', async () => {
+            const clubName = nameInput.value;
+
+            if (!clubName) {
+                alert('Veuillez d\'abord saisir le nom du club.');
+                return;
+            }
+
+            loading.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('{{ path("api_generate_description") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: clubName,
+                        entityType: 'club'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.description) {
+                    descTextarea.value = data.description;
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur lors de la génération de la description.');
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+

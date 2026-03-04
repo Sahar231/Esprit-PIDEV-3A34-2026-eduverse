@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #28a745;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #28a745;
+            font-size: 28px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            font-weight: bold;
+            color: #495057;
+            border-left: 4px solid #28a745;
+            margin-bottom: 10px;
+        }
+        .info-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .info-row {
+            display: table-row;
+        }
+        .info-label {
+            display: table-cell;
+            font-weight: bold;
+            width: 30%;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .info-value {
+            display: table-cell;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .badge-approved {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .badge-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ event.title }}</h1>
+        <p style="margin: 5px 0; color: #666;">Event Information Report</p>
+    </div>
+
+    <!-- Status Section -->
+    <div class="section">
+        <div class="section-title">Status</div>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-label">Event Status:</div>
+                <div class="info-value">
+                    {% if event.status == 'PENDING' %}
+                        <span class="badge badge-pending">Pending Approval</span>
+                    {% elseif event.status == 'APPROVED' %}
+                        <span class="badge badge-approved">Approved</span>
+                    {% elseif event.status == 'REJECTED' %}
+                        <span class="badge badge-rejected">Rejected</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description Section -->
+    <div class="section">
+        <div class="section-title">About</div>
+        <p>{{ event.description }}</p>
+    </div>
+
+    <!-- Event Details -->
+    <div class="section">
+        <div class="section-title">Event Details</div>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-label">Date & Time:</div>
+                <div class="info-value">{{ event.eventDate|date('d F Y, H:i') }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Location:</div>
+                <div class="info-value">{{ event.location }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Club:</div>
+                <div class="info-value">{{ club.name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Creator:</div>
+                <div class="info-value">{{ event.creator.fullName }} ({{ event.creator.email }})</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Created Date:</div>
+                <div class="info-value">{{ event.createdAt|date('d F Y, H:i') }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Last Updated:</div>
+                <div class="info-value">{{ event.updatedAt|date('d F Y, H:i') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Generated on {{ "now"|date('d F Y, H:i:s') }}</p>
+        <p>This is an automatically generated report from the Club Management System</p>
+    </div>
+</body>
+</html>

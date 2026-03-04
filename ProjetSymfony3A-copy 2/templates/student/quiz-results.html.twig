@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Quiz Results{% endblock %}
+
+{% block body %}
+<main>
+    <!-- Page Banner START -->
+    <section class="pt-0">
+        <div class="container-fluid px-0">
+            <div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url(/assets/images/pattern/04.png) no-repeat center center; background-size:cover;"></div>
+        </div>
+        <div class="container mt-n4 mb-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-transparent card-body pb-0 px-0">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h1 class="fs-2 mb-1"><i class="fas fa-award me-2"></i>My Quiz Results</h1>
+                                <p class="text-body mb-0">View your completed quiz attempts and scores</p>
+                            </div>
+                            <a href="{{ path('student_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Page Banner END -->
+
+    <!-- Content START -->
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    {% if results|length > 0 %}
+                        <!-- Results Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Quiz Name</th>
+                                        <th scope="col">Difficulty</th>
+                                        <th scope="col">Score</th>
+                                        <th scope="col">Questions</th>
+                                        <th scope="col">Completion Date</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in results %}
+                                        {% set quiz = result.quiz %}
+                                        {% set percentage = (result.score / quiz.questions|length * 100)|round(2) %}
+                                        {% set statusClass = percentage >= 70 ? 'success' : (percentage >= 50 ? 'warning' : 'danger') %}
+                                        
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold">{{ quiz.title }}</h6>
+                                                        <small class="text-muted">
+                                                            {% if quiz.creator %}
+                                                                By: {{ quiz.creator.fullName }}
+                                                            {% else %}
+                                                                Admin Quiz
+                                                            {% endif %}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ quiz.level|upper }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1" style="height: 5px; width: 100px;">
+                                                        <div 
+                                                            class="progress-bar bg-{{ statusClass }}" 
+                                                            role="progressbar" 
+                                                            style="width: {{ percentage }}%"
+                                                        ></div>
+                                                    </div>
+                                                    <span class="ms-3 fw-bold">
+                                                        <span class="text-{{ statusClass }}">{{ percentage }}%</span>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ result.score }}/{{ quiz.questions|length }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar-alt me-1"></i>
+                                                    {{ result.createdAt|date('M d, Y') }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ path('student_resultat_show', {id: result.id}) }}" class="btn btn-outline-primary" title="View Details">
+                                                        <i class="fas fa-eye me-1"></i>View
+                                                    </a>
+                                                    <a href="{{ path('student_resultat_pdf', {id: result.id}) }}" class="btn btn-outline-success" title="Download PDF">
+                                                        <i class="fas fa-download me-1"></i>PDF
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <!-- Empty State -->
+                        <div class="alert alert-info text-center py-5" role="alert">
+                            <i class="fas fa-search fa-3x mb-3 d-block text-muted"></i>
+                            <h5><i class="fas fa-inbox me-2"></i>No Quiz Results Yet</h5>
+                            <p class="text-muted mb-3">You haven't completed any quizzes yet. Start taking quizzes to track your results here.</p>
+                            <a href="{{ path('student_quiz_available') }}" class="btn btn-primary">
+                                <i class="fas fa-list-check me-1"></i>View Available Quizzes
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Content END -->
+</main>
+
+<!-- Include Chatbot Component -->
+{{ include('components/chatbot.html.twig') }}
+
+{% endblock %}

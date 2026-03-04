@@ -1,0 +1,170 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Edit Club - Admin{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .form-error-messages ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        color: #dc3545;
+        font-size: 0.875em;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="d-flex align-items-center d-xl-none">
+					<a class="navbar-brand" href="">
+						<img class="light-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile.svg') }}" alt="">
+						<img class="dark-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile-light.svg') }}" alt="">
+					</a>
+				</div>
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation" data-bs-auto-close="outside">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0 rtl-flip"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<!-- Title -->
+		<div class="row">
+			<div class="col-12 mb-3">
+				<h1 class="h3 mb-0"><i class="fas fa-edit me-2"></i>Edit Club</h1>
+			</div>
+		</div>
+
+		<!-- Breadcrumb -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb bg-light p-3 rounded">
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_club_list') }}">Clubs</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Edit {{ club.name }}</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Form -->
+		<div class="row">
+			<div class="col-lg-8 mx-auto">
+				<div class="card">
+					<div class="card-body p-4">
+						{{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+							<div class="col-12">
+								{{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+								<div class="form-error-messages">
+									{{ form_errors(form.name) }}
+								</div>
+								{{ form_widget(form.name) }}
+								<small class="text-muted">Min 3 caractères</small>
+							</div>
+
+							<div class="col-12">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									{{ form_label(form.description, null, {'label_attr': {'class': 'form-label mb-0'}}) }}
+									<button type="button" class="btn btn-sm btn-purple mb-0" id="btn-gen-ai-club">
+										<i class="fas fa-magic me-2"></i>✨ Générer une description
+									</button>
+								</div>
+								<div class="form-error-messages">
+									{{ form_errors(form.description) }}
+								</div>
+								{{ form_widget(form.description) }}
+							</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const genBtn = document.getElementById('btn-gen-ai-club');
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const nameInput = document.querySelector('input[name*="[name]"]');
+            const descTextarea = document.querySelector('textarea[name*="[description]"]');
+            
+            if (!nameInput || !nameInput.value.trim()) {
+                alert('Veuillez d\'abord saisir un nom.');
+                return;
+            }
+
+            genBtn.disabled = true;
+            genBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Génération...';
+
+            try {
+                const response = await fetch('{{ path("api_generate_description") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: nameInput.value, entityType: 'club' })
+                });
+
+                const data = await response.json();
+                if (data.description) {
+                    descTextarea.value = data.description;
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de générer la description.'));
+                }
+            } catch (error) {
+                console.error('AI Error:', error);
+                alert('Une erreur est survenue.');
+            } finally {
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<i class="fas fa-magic me-2"></i>✨ Générer une description';
+            }
+        });
+    }
+});
+</script>
+
+							<div class="col-12">
+								<label for="status" class="form-label">Statut</label>
+								<select class="form-select" id="status" name="status" disabled>
+									<option value="PENDING" {% if club.status == 'PENDING' %}selected{% endif %}>En attente</option>
+									<option value="APPROVED" {% if club.status == 'APPROVED' %}selected{% endif %}>Approuvé</option>
+									<option value="REJECTED" {% if club.status == 'REJECTED' %}selected{% endif %}>Rejeté</option>
+								</select>
+								<small class="text-muted">Le statut est géré via les actions Approuver/Rejeter</small>
+							</div>
+
+							<div class="col-12">
+								<div class="d-flex gap-2">
+									<button type="submit" class="btn btn-primary">
+										<i class="fas fa-save me-2"></i>Enregistrer
+									</button>
+									<a href="{{ path('admin_club_show', {'id': club.id}) }}" class="btn btn-secondary">
+										<i class="fas fa-times me-2"></i>Annuler
+									</a>
+								</div>
+							</div>
+						{{ form_end(form) }}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Return Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('admin_club_list') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left me-2"></i>Back to Clubs List
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+{% endblock %}

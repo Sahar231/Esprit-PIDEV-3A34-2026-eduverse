@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Clubs{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background: url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size: cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Discover Clubs</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item active">Clubs</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<!-- Search and Filter Section -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card bg-light p-4">
+					<h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filter Clubs</h5>
+					<form method="GET" class="row g-2 align-items-end">
+						<div class="col-md-5">
+							<label for="search" class="form-label">Search Club</label>
+							<input type="text" class="form-control" id="search" name="search" placeholder="Club name or description..." value="{{ request.query.get('search') }}">
+						</div>
+
+						<div class="col-md-4">
+							<label for="sortBy" class="form-label">Sort by</label>
+							<select class="form-select" id="sortBy" name="sortBy">
+								<option value="newest" {% if request.query.get('sortBy') == 'newest' %}selected{% endif %}>Newest First</option>
+								<option value="oldest" {% if request.query.get('sortBy') == 'oldest' %}selected{% endif %}>Oldest First</option>
+								<option value="a-z" {% if request.query.get('sortBy') == 'a-z' %}selected{% endif %}>A-Z</option>
+								<option value="z-a" {% if request.query.get('sortBy') == 'z-a' %}selected{% endif %}>Z-A</option>
+							</select>
+						</div>
+
+						<div class="col-md-3">
+							<button type="submit" class="btn btn-primary w-100">
+								<i class="fas fa-search me-2"></i>Search
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Create Club Button -->
+		<div class="row mb-4">
+			<div class="col-12">
+				{% if is_granted('ROLE_STUDENT') or is_granted('ROLE_INSTRUCTOR') %}
+					<a href="{{ path('club_create') }}" class="btn btn-success btn-lg">
+						<i class="fas fa-plus me-2"></i>Create New Club
+					</a>
+				{% else %}
+					<div class="alert alert-info">
+						<i class="fas fa-info-circle me-2"></i>
+						Log in as a Student or Instructor to create a club.
+					</div>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Clubs Grid -->
+		<div class="row g-4">
+			{% if clubs|length > 0 %}
+				{% for club in clubs %}
+					<div class="col-lg-4 col-md-6">
+						<div class="card h-100 shadow-sm hover-shadow-lg transition-all">
+							<div class="card-body">
+								<div class="d-flex align-items-start mb-3">
+									<div class="avatar avatar-lg bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 60px; height: 60px;">
+										<i class="fas fa-users text-primary" style="font-size: 1.5rem;"></i>
+									</div>
+									<div class="ms-3">
+										<h5 class="card-title mb-1">{{ club.name }}</h5>
+										<small class="text-muted">{{ club.members|length }} members</small>
+									</div>
+								</div>
+
+								<p class="card-text text-muted">{{ club.description|slice(0, 100) }}{% if club.description|length > 100 %}...{% endif %}</p>
+
+								<div class="mb-3">
+									<small class="text-muted">
+										<i class="fas fa-user me-1"></i>
+										Created by {{ club.creator.fullName }}
+									</small>
+									<br>
+									<small class="text-muted">
+										<i class="fas fa-calendar me-1"></i>
+										{{ club.createdAt|date('d/m/Y') }}
+									</small>
+								</div>
+
+								<div class="d-grid gap-2">
+									<a href="{{ path('club_detail', {'id': club.id}) }}" class="btn btn-outline-primary">
+										<i class="fas fa-eye me-2"></i>View Club
+									</a>
+
+									{% if is_granted('ROLE_STUDENT') or is_granted('ROLE_INSTRUCTOR') %}
+										{% if app.user and club.isMember(app.user) %}
+											<button class="btn btn-secondary" disabled>
+												<i class="fas fa-check me-2"></i>Member
+											</button>
+										{% else %}
+											<a href="{{ path('club_join', {'id': club.id}) }}" class="btn btn-success" onclick="return confirm('Request to join this club?')">
+												<i class="fas fa-handshake me-2"></i>Join Club
+											</a>
+										{% endif %}
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="col-12">
+					<div class="text-center py-5">
+						<i class="fas fa-inbox text-muted" style="font-size: 3rem;"></i>
+						<p class="text-muted mt-3">
+							{% if request.query.has('search') or request.query.has('sortBy') %}
+								No clubs match your search criteria
+							{% else %}
+								No clubs available yet. Be the first to create one!
+							{% endif %}
+						</p>
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}

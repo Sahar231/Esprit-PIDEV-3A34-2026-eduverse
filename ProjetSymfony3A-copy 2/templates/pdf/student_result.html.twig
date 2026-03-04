@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Result - {{ quiz.title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            color: #333;
+            line-height: 1.6;
+            font-size: 12px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        /* Student Info */
+        .student-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .student-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .student-info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .student-info-label {
+            font-weight: bold;
+            color: #333;
+            width: 40%;
+        }
+        
+        .student-info-value {
+            color: #666;
+        }
+        
+        /* Score Section */
+        .score-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .score-section h2 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .score-big {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .score-percentage {
+            font-size: 20px;
+            opacity: 0.95;
+        }
+        
+        /* Answers Table */
+        .answers-section {
+            margin-top: 30px;
+        }
+        
+        .answers-section h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        table thead {
+            background-color: #f0f0f0;
+        }
+        
+        table th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+            font-size: 11px;
+            color: #333;
+        }
+        
+        table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 11px;
+        }
+        
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        /* Status Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .badge.correct {
+            background-color: #28a745;
+        }
+        
+        .badge.incorrect {
+            background-color: #dc3545;
+        }
+        
+        /* Question Number */
+        .question-num {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #999;
+            font-size: 10px;
+        }
+        
+        .footer p {
+            margin-bottom: 5px;
+        }
+        
+        /* Empty State */
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ quiz.title }}</h1>
+            <p>Quiz Result Report</p>
+        </div>
+
+        <!-- Student Information -->
+        <div class="student-info">
+            <div class="student-info-row">
+                <span class="student-info-label">Student Name:</span>
+                <span class="student-info-value">{{ student.fullName }}</span>
+            </div>
+            <div class="student-info-row">
+                <span class="student-info-label">Email:</span>
+                <span class="student-info-value">{{ student.email }}</span>
+            </div>
+            <div class="student-info-row">
+                <span class="student-info-label">Completion Date:</span>
+                <span class="student-info-value">{{ resultat.createdAt|date('Y-m-d H:i:s') }}</span>
+            </div>
+            <div class="student-info-row">
+                <span class="student-info-label">Difficulty Level:</span>
+                <span class="student-info-value">{{ quiz.level|upper }}</span>
+            </div>
+        </div>
+
+        <!-- Score Section -->
+        <div class="score-section">
+            <h2>YOUR SCORE</h2>
+            <div class="score-big">{{ resultat.score }}/{{ quiz.questions|length }}</div>
+            <div class="score-percentage">
+                {% set percentage = (resultat.score / quiz.questions|length * 100)|round(2) %}
+                {{ percentage }}%
+            </div>
+        </div>
+
+        <!-- Answers Section -->
+        {% if answers|length > 0 %}
+            <div class="answers-section">
+                <h3>Answer Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Q</th>
+                            <th style="width: 35%;">Question</th>
+                            <th style="width: 25%;">Your Answer</th>
+                            <th style="width: 25%;">Correct Answer</th>
+                            <th style="width: 10%;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for index, answer in answers %}
+                            <tr>
+                                <td><span class="question-num">{{ index + 1 }}</span></td>
+                                <td>{{ answer.question_text|default('N/A') }}</td>
+                                <td>{{ answer.selected_choice|default('Not answered') }}</td>
+                                <td>{{ answer.correct_choice|default('N/A') }}</td>
+                                <td>
+                                    {% if answer.is_correct %}
+                                        <span class="badge correct">✓ Correct</span>
+                                    {% else %}
+                                        <span class="badge incorrect">✗ Wrong</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-message">
+                <p>No detailed answers available for this quiz.</p>
+            </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Generated on:</strong> {{ "now"|date('Y-m-d H:i:s') }}</p>
+            <p>This document contains your quiz result information.</p>
+            <p style="margin-top: 10px; font-size: 9px; color: #ccc;">
+                Platform Learning System © {{ "now"|date('Y') }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

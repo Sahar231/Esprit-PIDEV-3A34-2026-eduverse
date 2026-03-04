@@ -1,0 +1,24 @@
+{% if pages > 1 %}
+<div class="card-footer bg-transparent pt-0 px-0">
+    <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
+        <p class="mb-0 text-center text-sm-start">Showing Page {{ current_page }} of {{ pages }}</p>
+        <nav class="d-flex justify-content-center mb-0" aria-label="navigation">
+            <ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+                <li class="page-item mb-0 {% if current_page == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': current_page - 1})) }}" tabindex="-1"><i class="fas fa-angle-left"></i></a>
+                </li>
+                
+                {% for i in 1..pages %}
+                    <li class="page-item mb-0 {% if i == current_page %}active{% endif %}">
+                        <a class="page-link" href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': i})) }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+
+                <li class="page-item mb-0 {% if current_page == pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ path(app.request.attributes.get('_route'), app.request.query.all|merge({'page': current_page + 1})) }}"><i class="fas fa-angle-right"></i></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endif %}

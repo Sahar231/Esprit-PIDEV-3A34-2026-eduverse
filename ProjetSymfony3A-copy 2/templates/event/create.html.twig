@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Event - {{ club.name }}{% endblock %}
+
+{% block body %}
+<main>
+<section class="bg-dark align-items-center d-flex" style="background: url({{ asset('assets/images/pattern/04.png') }}) no-repeat center center; background-size: cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="text-white">Create Event</h1>
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb breadcrumb-dark breadcrumb-dots mb-0">
+						<li class="breadcrumb-item"><a href="{{ path("app_home") }}">Home</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_list") }}">Clubs</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("club_detail", {"id": club.id}) }}">{{ club.name }}</a></li>
+						<li class="breadcrumb-item"><a href="{{ path("event_list", {"clubId": club.id}) }}">Events</a></li>
+						<li class="breadcrumb-item active">Create</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="py-5">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8 mx-auto">
+				<div class="card shadow">
+					<div class="card-body p-5">
+						<h3 class="mb-4"><i class="fas fa-calendar-plus me-2"></i>Create New Event</h3>
+
+						<p class="text-muted mb-4">
+							Create an event for <strong>{{ club.name }}</strong>. Your event will be pending approval from administrators.
+						</p>
+
+						<form method="POST" class="row g-3">
+							<div class="col-12">
+								<label for="title" class="form-label">Event Title <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" id="title" name="title" required placeholder="Enter event title">
+								<small class="form-text text-muted">Keep it short and descriptive</small>
+							</div>
+
+							<div class="col-12">
+								<div class="d-flex justify-content-between align-items-center mb-1">
+									<label for="description" class="form-label mb-0">Description <span class="text-danger">*</span></label>
+									<button type="button" id="btnGenAi" class="btn btn-sm btn-purple mb-0">
+										<i class="fas fa-magic me-2"></i>Générer description avec IA
+									</button>
+								</div>
+								<textarea class="form-control" id="description" name="description" rows="5" required placeholder="Describe what the event is about, what to expect, etc..."></textarea>
+								<div id="aiLoading" class="small text-primary mt-1" style="display:none;">
+									<div class="spinner-border spinner-border-sm me-1" role="status"></div>
+									Génération en cours...
+								</div>
+								<small class="form-text text-muted">Provide detailed information about your event</small>
+							</div>
+
+							<script>
+							document.getElementById('btnGenAi').addEventListener('click', async () => {
+								const title = document.getElementById('title').value;
+								const descField = document.getElementById('description');
+								const loading = document.getElementById('aiLoading');
+								const btn = document.getElementById('btnGenAi');
+
+								if (!title) {
+									alert('Veuillez d\'abord saisir le titre de l\'événement.');
+									return;
+								}
+
+								loading.style.display = 'block';
+								btn.disabled = true;
+
+								try {
+									const response = await fetch('{{ path("api_generate_description") }}', {
+										method: 'POST',
+										headers: {
+											'Content-Type': 'application/json',
+										},
+										body: JSON.stringify({
+									title: title,
+									entityType: 'event'
+										alert(data.error);
+									}
+								} catch (error) {
+									console.error('Error:', error);
+									alert('Erreur lors de la génération de la description.');
+								} finally {
+									loading.style.display = 'none';
+									btn.disabled = false;
+								}
+							});
+							</script>
+
+							<div class="col-md-6">
+								<label for="eventDate" class="form-label">Event Date & Time <span class="text-danger">*</span></label>
+								<input type="datetime-local" class="form-control" id="eventDate" name="eventDate" required>
+							</div>
+
+							<div class="col-md-6">
+								<label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+								<input type="text" class="form-control" id="location" name="location" required placeholder="Where will the event take place?">
+							</div>
+
+							<div class="col-12">
+								<div class="alert alert-info">
+									<i class="fas fa-info-circle me-2"></i>
+									<strong>Club:</strong> {{ club.name }}<br>
+									<strong>Note:</strong> Your event will be in a <strong>pending status</strong> until approved by an administrator.
+								</div>
+							</div>
+
+							<div class="col-12">
+								<div class="d-grid gap-2 d-sm-flex">
+									<button type="submit" class="btn btn-primary btn-lg">
+										<i class="fas fa-check me-2"></i>Create Event
+									</button>
+									<a href="{{ path('event_list', {'clubId': club.id}) }}" class="btn btn-secondary btn-lg">
+										<i class="fas fa-times me-2"></i>Cancel
+									</a>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+{% endblock %}

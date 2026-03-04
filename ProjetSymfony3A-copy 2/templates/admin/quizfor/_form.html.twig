@@ -1,0 +1,145 @@
+{{ form_start(form) }}
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Quiz Information</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title, { 'attr': { 'class': 'form-control', 'placeholder': 'Enter quiz title' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        3-255 characters required
+                    </small>
+                    {% if form.title.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.title.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.difficulty) }}
+                    {{ form_widget(form.difficulty, { 'attr': { 'class': 'form-control' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Select difficulty level (optional)
+                    </small>
+                    {% if form.difficulty.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.difficulty.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group mb-3">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description, { 'attr': { 'class': 'form-control', 'rows': '3', 'placeholder': 'Describe what this quiz is about' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Optional description of the quiz (max 255 characters)
+                    </small>
+                    {% if form.description.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.description.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.category) }}
+                    {{ form_widget(form.category, { 'attr': { 'class': 'form-control', 'placeholder': 'E.g., Math, Science, History' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Category (optional)
+                    </small>
+                    {% if form.category.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.category.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scoring Section -->
+<div class="card mb-3">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="fas fa-star"></i> Scoring</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.total_score) }}
+                    {{ form_widget(form.total_score, { 'attr': { 'class': 'form-control', 'placeholder': 'E.g., 100', 'step': '0.01' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Total points for this quiz
+                    </small>
+                    {% if form.total_score.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.total_score.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    {{ form_label(form.pass_score) }}
+                    {{ form_widget(form.pass_score, { 'attr': { 'class': 'form-control', 'placeholder': 'E.g., 60', 'step': '0.01' } }) }}
+                    <small class="text-muted d-block mt-2">
+                        <i class="fas fa-info-circle"></i> 
+                        Minimum score to pass (optional)
+                    </small>
+                    {% if form.pass_score.vars.errors|length > 0 %}
+                        <div class="text-danger small mt-2 fw-bold">
+                            {% for error in form.pass_score.vars.errors %}
+                                <i class="fas fa-exclamation-circle"></i> {{ error.message }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Actions -->
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> {{ button_label|default('Save Quiz') }}
+            </button>
+            <a href="{{ cancel_url|default('/admin/quiz') }}" class="btn btn-outline-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </div>
+</div>
+
+{{ form_end(form) }}

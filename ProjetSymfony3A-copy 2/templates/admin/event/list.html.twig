@@ -1,0 +1,247 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Events Management - Admin{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="d-flex align-items-center d-xl-none">
+					<a class="navbar-brand" href="">
+						<img class="light-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile.svg') }}" alt="">
+						<img class="dark-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile-light.svg') }}" alt="">
+					</a>
+				</div>
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation" data-bs-auto-close="outside">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0 rtl-flip"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<div class="row g-4">
+			{{ include('admin/_sidebar.html.twig') }}
+			<div class="col-lg-9">
+				<div class="card card-body shadow">
+			<div class="col-12 mb-3">
+				<div class="d-flex justify-content-between align-items-center">
+					<h1 class="h3 mb-0"><i class="fas fa-calendar me-2"></i>Events Management</h1>
+					<div class="btn-group" role="group">
+						<a href="{{ path('admin_event_add') }}" class="btn btn-primary">
+							<i class="fas fa-plus me-2"></i>Add Event
+						</a>
+						<a href="{{ path('admin_event_export_list') }}" class="btn btn-info" data-bs-toggle="tooltip" title="Export all events as PDF">
+							<i class="fas fa-file-pdf me-2"></i>Export PDF
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Breadcrumb -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb bg-light p-3 rounded">
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Events</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Search and Filter -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body p-3">
+						<form method="GET" class="row g-3 align-items-end">
+							<div class="col-md-3">
+								<label for="search" class="form-label">Search Event</label>
+							<input type="text" class="form-control" id="search" name="search" placeholder="Title or description..." value="{{ search }}">
+							</div>
+
+							<div class="col-md-3">
+								<label for="club" class="form-label">Filter by Club</label>
+								<select class="form-select" id="club" name="club">
+									<option value="">All Clubs</option>
+									{% for c in clubs %}
+										<option value="{{ c.id }}" {% if clubId == c.id ~ '' %}selected{% endif %}>{{ c.name }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<div class="col-md-2">
+								<label for="status" class="form-label">Status</label>
+								<select class="form-select" id="status" name="status">
+									<option value="">All Status</option>
+									<option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>Pending</option>
+									<option value="APPROVED" {% if status == 'APPROVED' %}selected{% endif %}>Approved</option>
+									<option value="REJECTED" {% if status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+								</select>
+							</div>
+
+							<div class="col-md-2">
+							<label for="sort" class="form-label">Sort by</label>
+							<select class="form-select" id="sort" name="sort">
+								<option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest</option>
+								<option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest</option>
+								<option value="title_asc" {% if sort == 'title_asc' %}selected{% endif %}>A-Z</option>
+								<option value="title_desc" {% if sort == 'title_desc' %}selected{% endif %}>Z-A</option>
+								</select>
+							</div>
+
+							<div class="col-md-2">
+								<button type="submit" class="btn btn-primary w-100">
+									<i class="fas fa-search me-2"></i>Search
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Events Table -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover table-sm mb-0">
+							<thead class="border-top">
+								<tr>
+									<th scope="col" width="30%">Event Title</th>
+									<th scope="col" width="20%">Club</th>
+									<th scope="col" width="15%">Event Date</th>
+									<th scope="col" width="15%">Status</th>
+									<th scope="col" width="10%">Creator</th>
+									<th scope="col" width="10%">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% if events|length > 0 %}
+									{% for event in events %}
+										<tr>
+											<td>
+												<div>
+													<h6 class="mb-0">{{ event.title }}</h6>
+													<small class="text-muted">{{ event.description|slice(0, 40) }}{% if event.description|length > 40 %}...{% endif %}</small>
+												</div>
+											</td>
+											<td>
+												<small>{{ event.club.name }}</small>
+											</td>
+											<td>
+												<small>{{ event.eventDate|date('d/m/Y H:i') }}</small>
+											</td>
+											<td>
+												{% if event.status == 'PENDING' %}
+													<span class="badge bg-warning">Pending</span>
+												{% elseif event.status == 'APPROVED' %}
+													<span class="badge bg-success">Approved</span>
+												{% elseif event.status == 'REJECTED' %}
+													<span class="badge bg-danger">Rejected</span>
+												{% endif %}
+											</td>
+											<td>
+												<small>{{ event.creator.fullName }}</small>
+											</td>
+											<td>
+												<div class="btn-group btn-group-sm" role="group">
+													<a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="View">
+														<i class="fas fa-eye"></i>
+													</a>
+													<a href="{{ path('admin_event_export', {'id': event.id}) }}" class="btn btn-outline-info" data-bs-toggle="tooltip" title="Export as PDF">
+														<i class="fas fa-file-pdf"></i>
+													</a>
+													{% if event.status != 'APPROVED' %}
+														<form method="POST" action="{{ path('admin_event_approve', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Approve this event?')">
+															<input type="hidden" name="_token" value="{{ csrf_token('approve' ~ event.id) }}">
+															<button type="submit" class="btn btn-outline-success" data-bs-toggle="tooltip" title="Approve">
+																<i class="fas fa-check"></i>
+															</button>
+														</form>
+													{% endif %}
+													{% if event.status != 'REJECTED' %}
+														<form method="POST" action="{{ path('admin_event_reject', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Reject this event?')">
+															<input type="hidden" name="_token" value="{{ csrf_token('reject' ~ event.id) }}">
+															<button type="submit" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Reject">
+																<i class="fas fa-times"></i>
+															</button>
+														</form>
+													{% endif %}
+													<form method="POST" action="{{ path('admin_event_delete', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Delete this event?')">
+														<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+														<button type="submit" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Delete">
+															<i class="fas fa-trash"></i>
+														</button>
+													</form>
+												</div>
+											</td>
+										</tr>
+									{% endfor %}
+								{% else %}
+									<tr>
+										<td colspan="6" class="text-center text-muted py-4">
+											<i class="fas fa-inbox mb-3" style="font-size: 2rem;"></i>
+											<p class="mb-0">No events found</p>
+										</td>
+									</tr>
+								{% endif %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Statistics -->
+		<div class="row mt-4">
+			<div class="col-md-4">
+				<div class="card text-center">
+					<div class="card-body">
+						<h6 class="text-muted mb-2">Total Events</h6>
+						<h3 class="mb-0 text-primary">{{ totalEvents }}</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card text-center">
+					<div class="card-body">
+						<h6 class="text-muted mb-2">Pending Approval</h6>
+						<h3 class="mb-0 text-warning">{{ pendingEvents }}</h3>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card text-center">
+					<div class="card-body">
+						<h6 class="text-muted mb-2">Approved</h6>
+						<h3 class="mb-0 text-success">{{ approvedEvents }}</h3>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Return Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left me-2"></i>Return to Dashboard
+				</a>
+			</div>
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+{% endblock %}

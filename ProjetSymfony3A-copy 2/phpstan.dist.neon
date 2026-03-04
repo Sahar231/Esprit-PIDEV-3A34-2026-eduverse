@@ -1,0 +1,53 @@
+parameters:
+    level: 6
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+
+    # Ignore errors that are safe to ignore or require massive refactoring
+    ignoreErrors:
+        # Stripe API types are complex - StripeObject vs Session incompatibility is runtime safe
+        - message: '#Stripe\\Checkout\\Session, Stripe\\StripeObject given#'
+          paths: 
+              - src/Service/StripeService.php
+
+
+        # Repository @method annotations from EntityRepository base - inherited patterns
+        - message: '#has PHPDoc tag @method for method findBy#'
+
+        # Property onlyWritten - used in dependency injection, service locator patterns
+        - message: '#Property.*is never read, only written#'
+
+        # missingType errors for arrays/iterables - many are in entities/repositories
+        - message: '#has no value type specified in iterable type array|return type has no value type specified#'
+
+
+        # impossibleType is_object for strings
+        - message: '#Call to function is_object\(\) with string#'
+
+        # empty() false-positives
+        - message: '#in empty\(\)|Variable.*in empty\(\)|Offset.*in empty\(\)#'
+
+        # isset() on initialized properties - PHPStan false positives
+        - message: '#in isset\(\) is not nullable#'
+
+        # Any property unusedType warnings (nullable ids etc.)
+        - message: '#Property .* is never assigned#'
+
+        # Private helpers that aren't currently referenced by PHPStan (validation utilities, etc.)
+        - message: '#Method .*::validateQuizzes.*is unused#'
+
+        # array iterable value type messages (common in entities/services)
+        - message: '#with no value type specified in iterable type array#'
+
+        # HTTP client exception classes may not be analyzable by PHPStan in this setup
+        - message: '#Symfony\\Contracts\\HttpClient\\Exception\\TimeoutException#'
+        - message: '#Symfony\\Contracts\\HttpClient\\Exception\\TransportException#'
+
+        # Missing generic/return/parameter types across many classes
+
+

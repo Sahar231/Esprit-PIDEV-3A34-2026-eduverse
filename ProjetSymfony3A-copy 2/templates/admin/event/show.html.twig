@@ -1,0 +1,182 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Event Details - Admin{% endblock %}
+
+{% block body %}
+<!-- Page content START -->
+<div class="page-content">
+	<!-- Top bar START -->
+	<nav class="navbar top-bar navbar-light border-bottom py-0 py-xl-3">
+		<div class="container-fluid p-0">
+			<div class="d-flex align-items-center w-100">
+				<div class="d-flex align-items-center d-xl-none">
+					<a class="navbar-brand" href="">
+						<img class="light-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile.svg') }}" alt="">
+						<img class="dark-mode-item navbar-brand-item h-30px" src="{{ asset('assets/images/logo-mobile-light.svg') }}" alt="">
+					</a>
+				</div>
+				<div class="navbar-expand-xl sidebar-offcanvas-menu">
+					<button class="navbar-toggler me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" aria-expanded="false" aria-label="Toggle navigation" data-bs-auto-close="outside">
+						<i class="bi bi-text-right fa-fw h2 lh-0 mb-0 rtl-flip"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- Top bar END -->
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+		<!-- Title -->
+		<div class="row">
+			<div class="col-12 mb-3">
+				<h1 class="h3 mb-0"><i class="fas fa-calendar-check me-2"></i>Event Details</h1>
+			</div>
+		</div>
+
+		<!-- Breadcrumb -->
+		<div class="row mb-3">
+			<div class="col-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb bg-light p-3 rounded">
+						<li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+						<li class="breadcrumb-item"><a href="{{ path('admin_event_list') }}">Events</a></li>
+						<li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Event Info -->
+		<div class="row mb-4">
+			<div class="col-lg-8">
+				<div class="card">
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-8">
+								<h5 class="text-muted mb-2">Event Title</h5>
+								<p class="h4">{{ event.title }}</p>
+							</div>
+							<div class="col-md-4">
+								<h5 class="text-muted mb-2">Status</h5>
+								<p>
+									{% if event.status == 'PENDING' %}
+										<span class="badge bg-warning">Pending Approval</span>
+									{% elseif event.status == 'APPROVED' %}
+										<span class="badge bg-success">Approved</span>
+									{% elseif event.status == 'REJECTED' %}
+										<span class="badge bg-danger">Rejected</span>
+									{% endif %}
+								</p>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-12">
+								<h5 class="text-muted mb-2">Description</h5>
+								<p class="text-dark">{{ event.description }}</p>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Club</h5>
+								<p class="text-dark">
+									<a href="{{ path('admin_club_show', {'id': event.club.id}) }}">
+										{{ event.club.name }}
+									</a>
+								</p>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Event Date & Time</h5>
+								<p class="text-dark">{{ event.eventDate|date('d/m/Y H:i') }}</p>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Location</h5>
+								<p class="text-dark">{{ event.location }}</p>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Creator</h5>
+								<p class="text-dark">{{ event.creator.fullName }}</p>
+								<small class="text-muted">{{ event.creator.email }}</small>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Created Date</h5>
+								<p class="text-dark">{{ event.createdAt|date('d/m/Y H:i') }}</p>
+							</div>
+							<div class="col-md-6">
+								<h5 class="text-muted mb-2">Last Updated</h5>
+								<p class="text-dark">{{ event.updatedAt|date('d/m/Y H:i') }}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-4">
+				<!-- Actions Card -->
+				<div class="card sticky-top">
+					<div class="card-header bg-light">
+						<h5 class="mb-0">Actions</h5>
+					</div>
+					<div class="card-body">
+						<div class="d-grid gap-2">
+							<a href="{{ path('admin_event_export', {'id': event.id}) }}" class="btn btn-info">
+								<i class="fas fa-file-pdf me-2"></i>Export as PDF
+							</a>
+
+							{% if event.status != 'APPROVED' %}
+								<form method="POST" action="{{ path('admin_event_approve', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Approve this event?')">
+									<input type="hidden" name="_token" value="{{ csrf_token('approve' ~ event.id) }}">
+									<button type="submit" class="btn btn-success w-100">
+										<i class="fas fa-check me-2"></i>Approve
+									</button>
+								</form>
+							{% endif %}
+
+							{% if event.status != 'REJECTED' %}
+								<form method="POST" action="{{ path('admin_event_reject', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Reject this event?')">
+									<input type="hidden" name="_token" value="{{ csrf_token('reject' ~ event.id) }}">
+									<button type="submit" class="btn btn-warning w-100">
+										<i class="fas fa-times me-2"></i>Reject
+									</button>
+								</form>
+							{% endif %}
+
+							<form method="POST" action="{{ path('admin_event_delete', {'id': event.id}) }}" class="d-inline" onsubmit="return confirm('Delete this event?')">
+								<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+								<button type="submit" class="btn btn-danger w-100">
+									<i class="fas fa-trash me-2"></i>Delete
+								</button>
+							</form>
+
+							<hr class="my-2">
+
+							<a href="{{ path('admin_event_list') }}" class="btn btn-secondary">
+								<i class="fas fa-arrow-left me-2"></i>Back to List
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Return Button -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<a href="{{ path('admin_event_list') }}" class="btn btn-secondary">
+					<i class="fas fa-arrow-left me-2"></i>Back to Events List
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- Page main content END -->
+</div>
+<!-- Page content END -->
+{% endblock %}
